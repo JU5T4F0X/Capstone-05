@@ -1,0 +1,34 @@
+# Environment & Local Configuration
+.env
+.env.*
+!.env.example
+
+# AGENTS & AI rules
+AGENTS.md
+Agents.md
+CLAUDE.md
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+out/
+build/
+dist/
+vendor/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

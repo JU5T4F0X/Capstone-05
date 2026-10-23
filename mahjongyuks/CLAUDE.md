@@ -1,47 +1,118 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# MahjongYuks — Backend Guidelines
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+> **WAJIB**: Baca dulu `../AGENTS.md` (root project) sebelum menulis kode apapun.
+> File itu adalah sumber kebenaran utama untuk arsitektur, requirement, dan konvensi proyek ini.
 
-## Prerequisites
+---
 
-Verify that PHP and Composer are available:
+## Konteks
 
-```sh
+Folder ini adalah **backend Laravel (PHP)** untuk proyek MahjongYuks.
+Frontend berada di `../frontend/` (Next.js TypeScript).
+Backend ini berfungsi **hanya sebagai REST API** — tidak ada Blade view untuk halaman web.
+
+---
+
+## Setup
+
+```bash
+composer install
+cp .env.example .env
+# Edit .env: isi DB_CONNECTION=mysql, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+# Berjalan di http://localhost:8000
+```
+
+Pastikan PHP >= 8.2 dan Composer tersedia:
+```bash
 php -v
 composer -V
 ```
 
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
+---
 
-macOS:
+## Aturan Backend — Wajib Diikuti
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
+### 1. Struktur Folder
+```
+app/
+├── Http/
+│   ├── Controllers/Api/    # API Controllers (hanya logika HTTP)
+│   ├── Requests/           # FormRequest untuk validasi input
+│   └── Resources/          # API Resource transformers (format JSON response)
+├── Models/               # Eloquent Models
+└── Services/             # Business logic (dipanggil dari controller)
+
+routes/
+└── api.php               # Semua route API (prefix /api)
 ```
 
-Windows PowerShell:
+### 2. Response Format Standar
+Selalu kembalikan response dalam format berikut:
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
+Success:
+```json
+{
+  "success": true,
+  "message": "Pesan sukses",
+  "data": { ... }
+}
+```
+Error:
+```json
+{
+  "success": false,
+  "message": "Pesan error",
+  "errors": { ... }
+}
 ```
 
-Linux:
+### 3. Autentikasi
+- Gunakan **Laravel Sanctum** untuk token-based auth
+- Semua route yang butuh auth: middleware `auth:sanctum`
+- Role check: middleware kustom atau Gate/Policy
+- Header: `Authorization: Bearer {token}`
 
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
+### 4. Validasi
+- **WAJIB** gunakan `FormRequest` untuk semua validasi input
+- Jangan validasi manual di controller
+
+### 5. Database
+- Selalu gunakan **migration** untuk perubahan schema
+- Gunakan **Eloquent ORM** — jangan raw query SQL kecuali sangat perlu
+- Semua model harus punya `$fillable` terdefinisi
+- Seed data dengan **Seeder** + **Factory**
+
+### 6. Coding Standard
+- Ikuti **PSR-12**
+- Controller hanya berisi logika HTTP
+- Logika bisnis di `app/Services/`
+
+---
+
+## CORS
+
+Frontend (localhost:3000) sudah dikonfigurasi di `config/cors.php`.
+Jika ada error CORS, periksa file tersebut.
+
+---
+
+## Konvensi Endpoint
+
+```
+GET    /api/{resource}          → index
+POST   /api/{resource}          → store
+GET    /api/{resource}/{id}     → show
+PUT    /api/{resource}/{id}     → update
+DELETE /api/{resource}/{id}     → destroy
 ```
 
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
+Auth routes:
 ```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+```
