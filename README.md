@@ -5,19 +5,18 @@
 <h1 align="center">MahjongYuks — Integrated Web Platform</h1>
 
 <p align="center">
-  <strong>Sistem Informasi Terintegrasi Multi-Venue, Reservasi Meja Otomatis & Komunitas Mind Sports Mahjong Indonesia</strong><br>
+  <strong>Sistem Informasi Terintegrasi Multi-Venue MahjongYuks: Informasi Venue & Event, Reservasi Meja & Kursi, Simulasi Pembayaran, Check-in, Sesi Permainan, dan Leaderboard</strong><br>
   <em>Capstone Design Project — Program Studi S1 Sistem Informasi, Fakultas Rekayasa Industri, Universitas Telkom Jakarta</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16.4-black?style=flat-square&logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Laravel-11.0-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
+  <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel" />
   <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP" />
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white" alt="MySQL" />
-  <img src="https://img.shields.io/badge/Auth-Sanctum%20Tokens-004F27?style=flat-square" alt="Sanctum Auth" />
-  <img src="https://img.shields.io/badge/Standard-WRC%20%2F%20EMA%20Sanctioned-yellow?style=flat-square" alt="WRC Sanctioned" />
+  <img src="https://img.shields.io/badge/Auth-Laravel%20Sanctum-004F27?style=flat-square" alt="Sanctum Auth" />
 </p>
 
 ---
@@ -45,28 +44,36 @@
 
 ## Tentang Proyek
 
-**MahjongYuks** adalah sistem informasi full-stack terintegrasi berbasis web yang dirancang khusus untuk mengelola ekosistem game house multi-venue dan arena kompetisi resmi *Hong Kong / Riichi Mahjong* di Indonesia.
+**MahjongYuks** adalah sistem informasi berbasis web terintegrasi yang dirancang untuk mengelola operasional game house multi-venue MahjongYuks. Lokasi utama MahjongYuks berpusat dan berbagi tempat dengan **Alicia Bakery Sedayu City** (Sedayu City Kelapa Gading, Jakarta Utara) serta bekerja sama dengan lokasi venue mitra saat menyelenggarakan event.
 
-Di era modern, permainan Mahjong telah berevolusi menjadi cabang olahraga asah otak (*Mind Sports*) berstandar internasional (**World Riichi Championship / WRC** dan **European Mahjong Association / EMA**) yang dimainkan di salon ber-AC menggunakan **meja pengocok magnetik otomatis (Amos Rexx III)** tanpa unsur perjudian.
+Dalam operasional permainannya:
+- **Toko Utama (Alicia Bakery Sedayu City)**: Menggunakan fasilitas **meja otomatis**.
+- **Event di Luar Toko Utama**: Menggunakan **set mahjong biasa / manual** untuk kegiatan komunitas dan turnamen di venue mitra.
 
-Sistem ini hadir untuk menggantikan pencatatan manual di parlor, mengotomatisasi pemesanan kursi 4 kuadran, mencatat kehadiran dengan timestamp digital, memverifikasi simulasi pembayaran kasir, serta menghitung peringkat kompetisi (*Dan/Kyu Rating & Leaderboard*) secara transparan dan akuntabel.
+Sistem ini dikembangkan sebagai **Capstone Design Project** program studi S1 Sistem Informasi Universitas Telkom Jakarta untuk menggantikan proses pencatatan manual dan mendigitalisasi alur operasional MahjongYuks:
+- Manajemen informasi venue dan jadwal event
+- Reservasi meja dan pemilihan kursi secara real-time antar pemain (maksimal 4 pemain per meja)
+- Simulasi pembayaran booking dan monitoring/verifikasi pembayaran oleh admin
+- Konfirmasi check-in kehadiran pemain di venue dengan pencatatan timestamp otomatis
+- Pengelolaan sesi permainan oleh admin (mode *Casual* untuk bermain santai tanpa pencatatan poin, dan mode *Competitive* dengan pencatatan poin)
+- Pencatatan skor hasil permainan dan akumulasi poin pada leaderboard pemain
 
 ---
 
 ## Fitur Utama Sistem
 
-Sistem mencakup 8 Requirement Fungsional (RF) utama sesuai spesifikasi dokumen Capstone:
+Sistem mencakup 8 Requirement Fungsional (RF) sesuai dokumen spesifikasi Capstone:
 
 | Kode RF | Modul | Deskripsi Fungsional |
 |---|---|---|
-| **RF-01** | **Manajemen Pengguna & Autentikasi** | Registrasi & Login terenkripsi bcrypt, token otentikasi aman (Laravel Sanctum), pemisahan peran (*Role-Based Access Control* antara Pemain & Staf Admin). |
-| **RF-02** | **Informasi Venue & Event** | Landing page interaktif menampilkan katalog venue berlisensi, jadwal turnamen aktif, filter sesi harian, dan live status ketersediaan meja. |
-| **RF-03** | **Reservasi Meja & Kursi (Seat Booking)** | Pemilihan jadwal & meja dengan visual denah 4 kuadran angin (*Timur/Ton, Selatan/Nan, Barat/Sha, Utara/Pei*). Validasi ketat kapasitas meja **maksimal 4 pemain**. |
-| **RF-04** | **Simulasi Pembayaran** | Pencatatan transaksi reservasi, unggah bukti transfer simulasi, dan panel verifikasi admin (*Pending, Paid, Failed*). |
-| **RF-05** | **Check-in Kehadiran Digital** | Check-in kehadiran pemain di venue berbasis timestamp presisi (WIB) dengan pass QR digital untuk konfirmasi operasional meja. |
-| **RF-06** | **Pengelolaan Sesi Permainan** | Admin & wasit dapat membuka sesi meja yang telah terisi 4 pemain, memantau ronde berlangsung (*ongoing*), dan menutup sesi (*closed*). |
-| **RF-07** | **Pencatatan Hasil & Skor Wasit** | Input skor akhir hanchiku/uma oleh meja wasit untuk mode *Competitive*, riwayat ronde, dan kalkulasi selisih poin pemain. |
-| **RF-08** | **Leaderboard Nasional & Game History** | Akumulasi rating poin Elo pemain terdaftar, gelar Dan/Kyu (*Grandmaster, Master, Expert*), dan riwayat bermain pribadi (*Game History*). |
+| **RF-01** | **Manajemen Pengguna & Autentikasi** | Registrasi dan login pengguna dengan hash password bcrypt, token autentikasi Laravel Sanctum, dan pembatasan hak akses berbasis peran (*Role-Based Access Control* antara Admin dan Player). Pemain dapat mengelola profil pribadinya. |
+| **RF-02** | **Informasi Venue & Event** | Admin mengelola data venue (nama, lokasi, kapasitas) dan event. Pemain dapat melihat katalog event dan venue yang tersedia beserta status ketersediaan meja. |
+| **RF-03** | **Reservasi Meja & Kursi (Seat Booking)** | Pemain memilih jadwal, meja, dan kursi. Validasi kapasitas meja dibatasi **maksimal 4 pemain per meja** pada backend dan frontend. Pemain dapat melihat riwayat booking miliknya. |
+| **RF-04** | **Simulasi Pembayaran** | Mekanisme pembayaran simulasi untuk setiap booking dengan pencatatan status (*pending*, *paid*, *failed*), serta dashboard verifikasi dan monitoring pembayaran untuk admin. |
+| **RF-05** | **Check-in Kehadiran** | Pemain melakukan konfirmasi kehadiran di venue dengan pencatatan waktu (*timestamp*) otomatis yang tersimpan dalam riwayat booking. |
+| **RF-06** | **Pengelolaan Sesi Permainan** | Admin membuat sesi permainan pada meja yang telah terisi pemain, memulai sesi (*ongoing*), dan menutup sesi (*closed*). Setiap sesi terhubung ke meja, jadwal, dan pemain yang hadir. |
+| **RF-07** | **Pencatatan Hasil Permainan & Skor** | Admin menginput skor/poin untuk tiap pemain dalam sesi permainan (khusus mode *Competitive*). Riwayat hasil tersimpan dalam Game History. |
+| **RF-08** | **Leaderboard & Game History** | Pemain dapat melihat riwayat permainan pribadi (*Game History*) dan peringkat pemain (*Leaderboard*) berdasarkan akumulasi poin dari skor permainan. |
 
 ---
 
@@ -84,7 +91,7 @@ Sistem menerapkan arsitektur **Monolithic Codebase Terpisah** (*Decoupled Fronte
  ┌──────────────────────────────────────────────────────────────┐
  │             FRONTEND: Next.js 16 (TypeScript)                │
  │   • App Router (/app)       • React Hooks & Context State    │
- │   • Centralized ApiClient   • Vanilla CSS Design System      │
+ │   • Centralized ApiClient   • Styling Vanilla CSS / Tailwind │
  └──────────────────────────────┬───────────────────────────────┘
                                 │ JSON REST API (Bearer Token)
                                 ▼
@@ -105,7 +112,7 @@ Sistem menerapkan arsitektur **Monolithic Codebase Terpisah** (*Decoupled Fronte
 
 ## Desain Database & ERD Resmi
 
-Skema database didasarkan pada **Class Diagram resmi (Visual Paradigm)** dari kurikulum Capstone S1 Sistem Informasi Universitas Telkom:
+Skema database didasarkan pada **Class Diagram resmi (Visual Paradigm)** proyek Capstone:
 
 <p align="center">
   <img src="docs/assets/erd.png" alt="ERD Resmi MahjongYuks" width="750" />
@@ -118,31 +125,32 @@ User (Parent)
  ├── Player (Subtype, 1-to-1 dengan User)
  └── Admin  (Subtype, 1-to-1 dengan User)
 
-Venue ─── (1:N) ─── Meja (Kapasitas: 4 pemain)
-Event (Standalone / Terkait Venue & Sesi)
+Venue ─── (1:N) ─── Meja (Kapasitas maks: 4 pemain)
+Event (Standalone / Dikaitkan ke Meja & Venue)
 
 Player ─────── (1:N) ─── Pemesanan ─── (N:1) ─── Meja
 Pemesanan ──── (1:1) ─── Pembayaran
-Pemesanan ──── (1:N) ─── Detail_Pemesanan (Daftar peserta & status kehadiran)
+Pemesanan ──── (1:N) ─── Detail_Pemesanan (Peserta per booking & status kehadiran)
 Pemesanan ──── (1:1) ─── Sesi_Bermain
-Sesi_Bermain ─ (1:N) ─── Skor_Pemain (Peringkat & Skor akhir per pemain)
+Sesi_Bermain ─ (1:N) ─── Skor_Pemain (Skor & peringkat pemain per sesi)
 ```
 
-> **Aturan Bisnis Kritis**:
-> 1. **Kapasitas Meja**: Satu meja dibatasi **maksimal 4 pemain**. Validasi wajib ditegakkan di backend dan frontend.
-> 2. **Tidak Ada Tabel Schedule Terpisah**: Informasi waktu bermain melekat langsung pada entitas `pemesanans` (`tanggal_main`, `waktu_mulai`, `waktu_selesai`).
-> 3. **Subtype User**: Pembeda akses utama menggunakan kolom `role` (`player` / `admin`) pada tabel `users`.
-> 4. **Leaderboard**: Peringkat pemain diagregasikan dari akumulasi nilai `skor_pemains` yang terhubung ke `player_id`.
+> **Aturan Bisnis & Basis Data**:
+> 1. **Kapasitas Meja**: Maksimal **4 pemain per meja** — validasi wajib di backend (`pemesanans.jumlah_pemain`) dan frontend.
+> 2. **Jadwal Permainan**: Informasi jadwal melekat pada entitas `pemesanans` (`tanggal_main`, `waktu_mulai`, `waktu_selesai`).
+> 3. **Subtype User**: Pembeda hak akses utama menggunakan kolom `role` (`player` / `admin`) pada tabel `users`.
+> 4. **Leaderboard**: Diambil dari akumulasi nilai `skor_pemains` berdasarkan `player_id`.
+> 5. **Simulasi Pembayaran**: Pembayaran bersifat simulasi (tidak menggunakan payment gateway riil).
 
 ---
 
 ## Tech Stack & Spesifikasi
 
 ### Frontend (`frontend/`)
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router Architecture)
-- **Library UI**: React 19, TypeScript (Strict Mode)
-- **Styling**: Vanilla CSS Design Tokens (`globals.css`) dengan tipografi modern *Plus Jakarta Sans*
-- **State Management**: React Context (`AuthContext.tsx`) + LocalStorage Session Sync
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Library UI**: React 19, TypeScript
+- **Styling**: CSS & Tailwind
+- **State Management**: React Context (`AuthContext.tsx`) + LocalStorage Session
 - **HTTP Client**: Centralized Fetch API Client (`src/lib/api.ts`)
 
 ### Backend (`mahjongyuks/`)
@@ -150,7 +158,7 @@ Sesi_Bermain ─ (1:N) ─── Skor_Pemain (Peringkat & Skor akhir per pemain)
 - **Pola Desain**: MVC (Model-View-Controller)
 - **Standar Bahasa**: PHP 8.2+ (Mengikuti standar PSR-12)
 - **Otentikasi**: Token-based menggunakan **Laravel Sanctum**
-- **Enkripsi Sandi**: bcrypt hashing standar industri
+- **Enkripsi Sandi**: bcrypt
 - **Database Engine**: MySQL 8.x (Storage Engine: InnoDB, Collation: `utf8mb4_unicode_ci`)
 
 ---
@@ -161,9 +169,9 @@ Sebelum menjalankan aplikasi, pastikan perangkat Anda telah terpasang:
 
 | Perangkat Lunak | Versi Minimal | Fungsi Utama |
 |---|---|---|
-| **PHP** | `>= 8.2` | Runtime engine backend Laravel (Ekstensi: `pdo_mysql`, `mbstring`, `openssl`, `bcmath`, `curl`) |
+| **PHP** | `>= 8.2` | Runtime backend Laravel (Ekstensi: `pdo_mysql`, `mbstring`, `openssl`, `bcmath`, `curl`) |
 | **Composer** | `>= 2.x` | Dependency manager pustaka PHP |
-| **Node.js** | `>= 18.x` (LTS direkomendasikan) | Runtime engine frontend Next.js |
+| **Node.js** | `>= 18.x` | Runtime frontend Next.js |
 | **npm** | `>= 9.x` | Package manager JavaScript/TypeScript |
 | **MySQL Server** | `>= 8.0` / MariaDB | Database relasional (bisa via XAMPP, Laragon, Docker, atau Standalone) |
 | **Git** | `>= 2.x` | Version control system |
@@ -214,7 +222,7 @@ DB_PASSWORD=
 *(Sesuaikan `DB_PASSWORD` jika MySQL Anda memiliki kata sandi)*.
 
 #### Eksekusi Migrasi & Data Seeder:
-Jalankan perintah ini untuk membangun 10 tabel ERD dan mengisi data dummy venue, meja magnetik, event, dan atlet:
+Jalankan perintah ini untuk membangun 10 tabel ERD dan mengisi data awal (pengguna, venue Alicia Bakery Sedayu City, meja, event, dan pemain):
 ```bash
 php artisan migrate:fresh --seed
 ```
@@ -278,21 +286,21 @@ npm run dev
 
 ## Akun Pengujian (Seeder Credentials)
 
-Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
+Database seeder menyediakan kredensial awal untuk pengujian fitur:
 
-### 1. Akun Pemain (Player Portal)
+### 1. Akun Pemain (Player)
 - **Halaman Masuk**: `http://localhost:3000/login`
 - **Email**: `kevin.sanjaya@mahjongyuks.id`
 - **Kata Sandi**: `password123`
-- **Role**: `player` (Gelar: *5-Dan Master*, Poin: 14.850 pts)
-- **Fitur Tersedia**: Reservasi meja 4 kuadran, e-ticket QR check-in, katalog event dimsum, personal game history.
+- **Role**: `player`
+- **Fitur Tersedia**: Reservasi meja & kursi, check-in kehadiran, riwayat booking, game history, leaderboard.
 
-### 2. Akun Staf Operasional / Admin (Backoffice Panel)
+### 2. Akun Admin / Operasional
 - **Halaman Masuk**: `http://localhost:3000/admin/login`
 - **Email Admin**: `admin@mahjongyuks.id` *(atau `admin.sedayu@mahjongyuks.id`)*
 - **Kata Sandi**: `password123`
 - **Role**: `admin`
-- **Fitur Tersedia**: Panel verifikasi pembayaran kasir, input skor akhir turnamen (Uma desk), monitor live okupansi meja magnetik.
+- **Fitur Tersedia**: Verifikasi pembayaran simulasi, manajemen venue & event, monitoring meja, kontrol sesi bermain, input skor pemain.
 
 ---
 
@@ -301,12 +309,12 @@ Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 ### 1. Halaman Web Antarmuka (`http://localhost:3000`)
 | Path URL | Halaman | Hak Akses | Keterangan |
 |---|---|---|---|
-| `/` | **Landing Page Publik** | Publik (Tamu) | Showcase brand, katalog event unggulan, filter sesi, leaderboard top 3, dan panduan bermain 101. |
-| `/login` | **Portal Masuk Pemain** | Publik / Tamu | Form login fleksibel (Email & opsi nomor HP), deteksi peran cerdas. |
-| `/register` | **Registrasi Anggota** | Publik / Tamu | Pendaftaran pemain baru, pilihan tingkat kemahiran (*Pemula / Menengah / Mahir*), persetujuan fairplay. |
-| `/dashboard` | **Dashboard Pemain** | Pemain (`player`) | Denah meja live, QR pass kehadiran, riwayat bermain, profil atlet. |
-| `/admin/login` | **Portal Staf & Wasit** | Staf Venue | Pintu masuk terpisah untuk petugas operasional & wasit turnamen. |
-| `/admin/dashboard` | **Admin Management Center** | Admin (`admin`) | Verifikasi bukti bayar transfer, meja wasit skor akhir, monitor okupansi arena. |
+| `/` | **Landing Page** | Publik | Informasi MahjongYuks, venue utama Alicia Bakery Sedayu City & venue mitra, jadwal event, dan papan leaderboard. |
+| `/login` | **Login Pemain** | Publik | Form masuk pemain menggunakan email dan password. |
+| `/register` | **Registrasi Pemain** | Publik | Pendaftaran akun pemain baru. |
+| `/dashboard` | **Dashboard Pemain** | Pemain (`player`) | Reservasi meja & kursi, check-in kehadiran, riwayat pemesanan, dan game history. |
+| `/admin/login` | **Login Admin** | Staf Admin | Pintu masuk khusus pengelola operasional MahjongYuks. |
+| `/admin/dashboard` | **Dashboard Admin** | Admin (`admin`) | Verifikasi pembayaran, manajemen venue/event/meja, pembuatan & penutupan sesi permainan, input skor. |
 
 ### 2. Rute REST API Laravel (`http://localhost:8000/api`)
 
@@ -314,8 +322,8 @@ Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 | Method | Endpoint | Proteksi | Deskripsi |
 |---|---|---|---|
 | `POST` | `/api/auth/register` | Publik | Mendaftarkan pemain baru & mengembalikan token sesi |
-| `POST` | `/api/auth/login` | Publik | Autentikasi kredensial (Email/No. HP + Sandi), mengembalikan Bearer Token |
-| `POST` | `/api/auth/logout` | `auth:sanctum` | Revoke token aktif dan menutup sesi aman |
+| `POST` | `/api/auth/login` | Publik | Autentikasi kredensial pengguna, mengembalikan Bearer Token |
+| `POST` | `/api/auth/logout` | `auth:sanctum` | Revoke token aktif dan menutup sesi |
 | `GET` | `/api/auth/me` | `auth:sanctum` | Mengambil data profil pengguna yang sedang login |
 
 #### Format Respons Standar JSON
@@ -342,33 +350,33 @@ Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 ```
 Capstone-05/
 ├── README.md               # Dokumentasi resmi proyek (Tech Docs & Setup Guide)
-├── AGENTS.md               # Spesifikasi arsitektur & panduan agen pengembang
+├── AGENTS.md               # Sumber kebenaran arsitektur & requirement proyek
 ├── docs/
 │   └── assets/
-│       ├── erd.png         # Gambar Class Diagram ERD resmi
+│       ├── erd.png         # Class Diagram ERD resmi
 │       └── logo.png        # Logo resmi MahjongYuks
-├── frontend/               # [NEXT.JS 16 FRONTEND]
-│   ├── public/             # Aset statis gambar, ubin mahjong, & foto parlor
-│   │   ├── assets/         # Logo resmi mahjongyuks_logo.png & avatar
-│   │   └── landing/        # Aset gambar showcase landing page
+├── frontend/               # [Next.js Frontend]
+│   ├── public/             # Aset statis & gambar
+│   │   ├── assets/         # Logo resmi mahjongyuks_logo.png
+│   │   └── landing/        # Aset gambar landing page
 │   ├── src/
 │   │   ├── app/            # Halaman Next.js App Router
-│   │   │   ├── page.tsx    # Landing page publik utama
+│   │   │   ├── page.tsx    # Landing page publik
 │   │   │   ├── login/      # Halaman login pemain
 │   │   │   ├── register/   # Halaman registrasi anggota
 │   │   │   ├── dashboard/  # Dashboard pemain
-│   │   │   └── admin/      # Rute portal staf operasional & wasit
+│   │   │   └── admin/      # Portal operasional admin
 │   │   ├── context/        # React AuthContext (Session state management)
 │   │   └── lib/            # Centralized API Client (ApiClient)
 │   ├── package.json
 │   └── tsconfig.json
-└── mahjongyuks/            # [LARAVEL 11 REST API BACKEND]
+└── mahjongyuks/            # [Laravel 11 REST API Backend]
     ├── app/
     │   ├── Http/Controllers/Api/ # Controller autentikasi & entitas API
     │   └── Models/               # Model Eloquent (User, Player, Venue, Meja, dll)
     ├── database/
     │   ├── migrations/           # 10 skema migrasi tabel ERD resmi
-    │   └── seeders/              # DatabaseSeeder akun pengujian & arena meja
+    │   └── seeders/              # DatabaseSeeder akun pengujian, venue, & meja
     ├── routes/
     │   └── api.php               # Definisi route REST API
     ├── composer.json
@@ -381,11 +389,11 @@ Capstone-05/
 
 ### 1. `SQLSTATE[HY000] [2002] Connection refused`
 - **Penyebab**: Service database MySQL belum aktif di sistem lokal Anda.
-- **Solusi**: Nyalakan service MySQL pada panel XAMPP atau Laragon hingga berwarna hijau. Jika menggunakan port kustom (selain `3306`), sesuaikan `DB_PORT` di file `mahjongyuks/.env`.
+- **Solusi**: Nyalakan service MySQL pada panel XAMPP atau Laragon. Jika menggunakan port selain `3306`, sesuaikan `DB_PORT` di file `mahjongyuks/.env`.
 
 ### 2. `Table 'mahjongyuks.users' doesn't exist`
 - **Penyebab**: Tabel database belum dimigrasikan dari file skema Laravel.
-- **Solusi**: Jalankan perintah migrasi dan pengisian data:
+- **Solusi**: Jalankan perintah migrasi dan seeder:
   ```bash
   cd mahjongyuks
   php artisan migrate:fresh --seed
@@ -397,10 +405,7 @@ Capstone-05/
   fuser -k 3000/tcp
   fuser -k 8000/tcp
   ```
-- **Solusi (Windows)**: Buka *Task Manager*, hentikan proses `Node.js JavaScript Runtime` atau `php.exe` yang berjalan di latar belakang.
-
-### 4. Peringatan Gateway OTP dalam Pengembangan
-- Pengiriman kode OTP via SMS/Nodemailer saat ini masih dalam status simulasi *Under Development*. Harap gunakan opsi **Masuk Menggunakan Email** dan kata sandi yang telah terdaftar.
+- **Solusi (Windows)**: Hentikan proses Node.js atau PHP yang sedang berjalan melalui Task Manager.
 
 ---
 
@@ -410,20 +415,20 @@ Proyek Capstone Design — S1 Sistem Informasi, Fakultas Rekayasa Industri, Univ
 
 | NIM | Nama Mahasiswa | Tanggung Jawab Modul / PIC | Sprint Agile |
 |---|---|---|---|
-| **102042300070** | **Denis Hendri Wawo** | Autentikasi Pengguna & Pemesanan Kursi | Sprint 1 & Sprint 3 |
-| **102042300039** | **Lujeng LuthFiyah** | Manajemen Informasi Event & Venue Salon | Sprint 2 |
+| **102042300070** | **Denis Hendri Wawo** | Auth & Pemesanan Kursi | Sprint 1 & Sprint 3 |
+| **102042300039** | **Lujeng LuthFiyah** | Manajemen Informasi Event & Venue | Sprint 2 |
 | **102042300005** | **Zabila Nanda Irawan** | Simulasi Pembayaran & Verifikasi Admin | Sprint 4 |
-| **102042300204** | **Sarah Dinda Siregar** | Leaderboard Nasional & Game History Pemain | Sprint 6 |
+| **102042300204** | **Sarah Dinda Siregar** | Leaderboard & Game History | Sprint 6 |
 
 ---
 
 ## Standar & Kepatuhan Regulasi
 
-Sistem informasi MahjongYuks dikembangkan dengan mengacu pada standar hukum dan teknis yang berlaku:
-- **UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)**: Data kredensial pengguna, nomor telepon, dan bukti transfer dilindungi dan hanya dapat diakses staf berwenang.
-- **PP No. 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi Elektronik (PSTE)**: Setiap transaksi reservasi dan pencatatan skor wasit terekam secara otomatis dengan timestamp presisi.
-- **ISO/IEC 27001 (CIA Triad)**: Penegakan *Confidentiality* (bcrypt hashing), *Integrity* (validasi input ganda di frontend & backend), dan *Availability* (arsitektur performa tinggi Next.js & MySQL).
-- **Regulasi Mind Sports WRC & EMA**: Penegakan aturan permainan adil (*zero table-talk* dan non-gambling sports).
+Pengembangan sistem informasi MahjongYuks mengacu pada standar teknis dan hukum yang berlaku:
+- **UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)**: Perlindungan data pribadi pengguna (nama, email, no. telepon, riwayat reservasi) dengan kontrol hak akses berbasis peran.
+- **PP No. 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi Elektronik (PSTE)**: Perekaman transaksi reservasi, timestamp check-in kehadiran, dan pencatatan hasil permainan secara akuntabel.
+- **ISO/IEC 27001 (CIA Triad)**: Penegakan kerahasiaan (*Confidentiality* via bcrypt), keutuhan data (*Integrity* via validasi di frontend dan backend), serta keandalan layanan (*Availability*).
+- **Prinsip Operasional Komunitas**: MahjongYuks dikelola sebagai ruang permainan strategi dan hiburan komunitas tanpa unsur perjudian.
 
 ---
 
