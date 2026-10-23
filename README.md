@@ -22,28 +22,28 @@
 
 ---
 
-## 📑 Daftar Isi
-1. [Tentang Proyek](#-tentang-proyek)
-2. [Fitur Utama Sistem](#-fitur-utama-sistem)
-3. [Arsitektur Sistem & Alur Data](#-arsitektur-sistem--alur-data)
-4. [Desain Database & ERD Resmi](#-desain-database--erd-resmi)
-5. [Tech Stack & Spesifikasi](#-tech-stack--spesifikasi)
-6. [Prasyarat Sistem (Prerequisites)](#-prasyarat-sistem-prerequisites)
-7. [Panduan Instalasi Langkah Demi Langkah (Getting Started)](#-panduan-instalasi-langkah-demi-langkah)
+## Daftar Isi
+1. [Tentang Proyek](#tentang-proyek)
+2. [Fitur Utama Sistem](#fitur-utama-sistem)
+3. [Arsitektur Sistem & Alur Data](#arsitektur-sistem--alur-data)
+4. [Desain Database & ERD Resmi](#desain-database--erd-resmi)
+5. [Tech Stack & Spesifikasi](#tech-stack--spesifikasi)
+6. [Prasyarat Sistem (Prerequisites)](#prasyarat-sistem-prerequisites)
+7. [Panduan Instalasi Langkah Demi Langkah (Getting Started)](#panduan-instalasi-langkah-demi-langkah)
    - [Langkah 1: Database MySQL](#1-persiapan-database-mysql)
    - [Langkah 2: Setup Backend (Laravel API)](#2-setup-backend-laravel-api)
    - [Langkah 3: Setup Frontend (Next.js)](#3-setup-frontend-nextjs)
-8. [Referensi Konfigurasi Environment (`.env`)](#-referensi-konfigurasi-environment)
-9. [Akun Pengujian (Seeder Credentials)](#-akun-pengujian-seeder-credentials)
-10. [Dokumentasi Rute Web & REST API](#-dokumentasi-rute-web--rest-api)
-11. [Struktur Direktori Codebase](#-struktur-direktori-codebase)
-12. [Troubleshooting & Solusi Error](#-troubleshooting--solusi-error)
-13. [Tim Pengembang & Pembagian Modul](#-tim-pengembang--pembagian-modul)
-14. [Standar & Kepatuhan Regulasi](#-standar--kepatuhan-regulasi)
+8. [Referensi Konfigurasi Environment (`.env`)](#referensi-konfigurasi-environment)
+9. [Akun Pengujian (Seeder Credentials)](#akun-pengujian-seeder-credentials)
+10. [Dokumentasi Rute Web & REST API](#dokumentasi-rute-web--rest-api)
+11. [Struktur Direktori Codebase](#struktur-direktori-codebase)
+12. [Troubleshooting & Solusi Error](#troubleshooting--solusi-error)
+13. [Tim Pengembang & Pembagian Modul](#tim-pengembang--pembagian-modul)
+14. [Standar & Kepatuhan Regulasi](#standar--kepatuhan-regulasi)
 
 ---
 
-## 📖 Tentang Proyek
+## Tentang Proyek
 
 **MahjongYuks** adalah sistem informasi full-stack terintegrasi berbasis web yang dirancang khusus untuk mengelola ekosistem game house multi-venue dan arena kompetisi resmi *Hong Kong / Riichi Mahjong* di Indonesia.
 
@@ -53,7 +53,7 @@ Sistem ini hadir untuk menggantikan pencatatan manual di parlor, mengotomatisasi
 
 ---
 
-## ⚡ Fitur Utama Sistem
+## Fitur Utama Sistem
 
 Sistem mencakup 8 Requirement Fungsional (RF) utama sesuai spesifikasi dokumen Capstone:
 
@@ -70,7 +70,7 @@ Sistem mencakup 8 Requirement Fungsional (RF) utama sesuai spesifikasi dokumen C
 
 ---
 
-## 🏛 Arsitektur Sistem & Alur Data
+## Arsitektur Sistem & Alur Data
 
 Sistem menerapkan arsitektur **Monolithic Codebase Terpisah** (*Decoupled Frontend & Backend*) dengan komunikasi standar **RESTful API**:
 
@@ -103,7 +103,7 @@ Sistem menerapkan arsitektur **Monolithic Codebase Terpisah** (*Decoupled Fronte
 
 ---
 
-## 🗄 Desain Database & ERD Resmi
+## Desain Database & ERD Resmi
 
 Skema database didasarkan pada **Class Diagram resmi (Visual Paradigm)** dari kurikulum Capstone S1 Sistem Informasi Universitas Telkom:
 
@@ -136,7 +136,7 @@ Sesi_Bermain ─ (1:N) ─── Skor_Pemain (Peringkat & Skor akhir per pemain)
 
 ---
 
-## 🛠 Tech Stack & Spesifikasi
+## Tech Stack & Spesifikasi
 
 ### Frontend (`frontend/`)
 - **Framework**: [Next.js 16](https://nextjs.org/) (App Router Architecture)
@@ -155,7 +155,7 @@ Sesi_Bermain ─ (1:N) ─── Skor_Pemain (Peringkat & Skor akhir per pemain)
 
 ---
 
-## 💻 Prasyarat Sistem (Prerequisites)
+## Prasyarat Sistem (Prerequisites)
 
 Sebelum menjalankan aplikasi, pastikan perangkat Anda telah terpasang:
 
@@ -170,7 +170,7 @@ Sebelum menjalankan aplikasi, pastikan perangkat Anda telah terpasang:
 
 ---
 
-## 🚀 Panduan Instalasi Langkah Demi Langkah
+## Panduan Instalasi Langkah Demi Langkah
 
 ### 1. Persiapan Database MySQL
 1. Buka control panel **XAMPP** atau **Laragon**, lalu nyalakan service **MySQL** (port default `3306`).
@@ -255,7 +255,7 @@ npm run dev
 
 ---
 
-## ⚙️ Referensi Konfigurasi Environment
+## Referensi Konfigurasi Environment
 
 ### Backend (`mahjongyuks/.env`)
 | Variabel | Tipe Data | Nilai Default | Keterangan |
@@ -276,7 +276,7 @@ npm run dev
 
 ---
 
-## 🔑 Akun Pengujian (Seeder Credentials)
+## Akun Pengujian (Seeder Credentials)
 
 Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 
@@ -296,7 +296,7 @@ Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 
 ---
 
-## 🌐 Dokumentasi Rute Web & REST API
+## Dokumentasi Rute Web & REST API
 
 ### 1. Halaman Web Antarmuka (`http://localhost:3000`)
 | Path URL | Halaman | Hak Akses | Keterangan |
@@ -337,7 +337,7 @@ Database seeder telah menyediakan kredensial siap pakai untuk pengujian fitur:
 
 ---
 
-## 📁 Struktur Direktori Codebase
+## Struktur Direktori Codebase
 
 ```
 Capstone-05/
@@ -377,7 +377,7 @@ Capstone-05/
 
 ---
 
-## 🛠 Troubleshooting & Solusi Error
+## Troubleshooting & Solusi Error
 
 ### 1. `SQLSTATE[HY000] [2002] Connection refused`
 - **Penyebab**: Service database MySQL belum aktif di sistem lokal Anda.
@@ -404,7 +404,7 @@ Capstone-05/
 
 ---
 
-## 👥 Tim Pengembang & Pembagian Modul
+## Tim Pengembang & Pembagian Modul
 
 Proyek Capstone Design — S1 Sistem Informasi, Fakultas Rekayasa Industri, Universitas Telkom Jakarta:
 
@@ -417,7 +417,7 @@ Proyek Capstone Design — S1 Sistem Informasi, Fakultas Rekayasa Industri, Univ
 
 ---
 
-## ⚖️ Standar & Kepatuhan Regulasi
+## Standar & Kepatuhan Regulasi
 
 Sistem informasi MahjongYuks dikembangkan dengan mengacu pada standar hukum dan teknis yang berlaku:
 - **UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)**: Data kredensial pengguna, nomor telepon, dan bukti transfer dilindungi dan hanya dapat diakses staf berwenang.
