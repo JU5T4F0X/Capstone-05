@@ -136,6 +136,55 @@ export class ApiClient {
   public static async me() {
     return this.request<User>('/auth/me');
   }
+
+  // ── Pemesanan Endpoints (Sprint 3) ─────────────────────────────────────────
+  public static async getMyBookings() {
+    return this.request('/pemesanans');
+  }
+
+  public static async createBooking(payload: {
+    meja_id: number;
+    tanggal_main: string;
+    waktu_mulai: string;
+    waktu_selesai: string;
+    jumlah_pemain: number;
+    jenis_pemesanan: 'Casual' | 'Competitive';
+    durasi_jam?: number;
+    kursi_pilihan?: 'ton' | 'nan' | 'sha' | 'pei';
+    metode_pembayaran?: string;
+  }) {
+    return this.request('/pemesanans', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public static async cancelBooking(id: number) {
+    return this.request(`/pemesanans/${id}/cancel`, {
+      method: 'PUT',
+    });
+  }
+
+  // ── Pembayaran Endpoints (Sprint 4) ────────────────────────────────────────
+  public static async simulatePayment(
+    pemesananId: number,
+    metode: string = 'QRIS Instant'
+  ) {
+    return this.request(`/pembayarans/${pemesananId}/simulasi`, {
+      method: 'POST',
+      body: JSON.stringify({ metode_pembayaran: metode }),
+    });
+  }
+
+  // ── Meja & Venue Endpoints ────────────────────────────────────────────────
+  public static async getVenues() {
+    return this.request('/venues');
+  }
+
+  public static async getMejas(venueId?: number) {
+    const qs = venueId ? `?venue_id=${venueId}` : '';
+    return this.request(`/mejas${qs}`);
+  }
 }
 
 export default ApiClient;

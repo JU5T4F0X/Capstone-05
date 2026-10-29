@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -40,6 +40,21 @@ export default function DashboardPage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [userBookings, setUserBookings] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('mahjongyuks_bookings');
+      if (stored) {
+        setUserBookings(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const latestBooking = userBookings.length > 0 ? userBookings[0] : null;
+  const activeTicketCount = 2 + userBookings.length;
 
   const events = [
     {
@@ -94,17 +109,12 @@ export default function DashboardPage() {
     return e.category === eventCategory;
   });
 
-  const handleBookNow = (title: string) => {
-    setSelectedEvent(title);
-    setShowBookingModal(true);
+  const handleBookNow = (_title: string) => {
+    router.push('/dashboard/booking');
   };
 
   const confirmBooking = () => {
-    setBookingSuccess(true);
-    setTimeout(() => {
-      setBookingSuccess(false);
-      setShowBookingModal(false);
-    }, 1500);
+    router.push('/dashboard/booking');
   };
 
   return (
@@ -216,7 +226,7 @@ export default function DashboardPage() {
 
               <button
                 type="button"
-                onClick={() => setShowBookingModal(true)}
+                onClick={() => router.push('/dashboard/booking')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -553,7 +563,7 @@ export default function DashboardPage() {
 
               <button
                 type="button"
-                onClick={() => setShowBookingModal(true)}
+                onClick={() => router.push('/dashboard/booking')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -594,7 +604,7 @@ export default function DashboardPage() {
                     PEMESANAN AKTIF
                   </div>
                   <div style={{ fontSize: '26px', fontWeight: 800, color: '#111E18', marginTop: '4px' }}>
-                    2 <span style={{ fontSize: '14px', fontWeight: 600, color: '#5A675E' }}>Tiket Meja</span>
+                    {activeTicketCount} <span style={{ fontSize: '14px', fontWeight: 600, color: '#5A675E' }}>Tiket Meja</span>
                   </div>
                 </div>
                 <div style={{
@@ -727,7 +737,7 @@ export default function DashboardPage() {
             gap: '20px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-              {/* Seat Badge (Nan / South) */}
+              {/* Seat Badge (Nan / South / latest chosen wind) */}
               <div style={{
                 width: '64px',
                 height: '64px',
@@ -739,8 +749,12 @@ export default function DashboardPage() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <span style={{ fontSize: '20px', fontWeight: 900, color: '#98F6C2' }}>南</span>
-                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '1px' }}>NAN</span>
+                <span style={{ fontSize: '20px', fontWeight: 900, color: '#98F6C2' }}>
+                  {latestBooking?.windInfo?.kanji || '南'}
+                </span>
+                <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '1px' }}>
+                  {latestBooking?.windInfo?.short || 'NAN'}
+                </span>
               </div>
 
               <div>
@@ -757,21 +771,25 @@ export default function DashboardPage() {
                   marginBottom: '6px'
                 }}>
                   <Clock size={12} />
-                  JADWAL TERDEKAT HARI INI • Mulai 19:00 WIB (Sisa 3 Jam)
+                  {latestBooking
+                    ? `JADWAL TERDEKAT • ${latestBooking.date} • ${latestBooking.time} (${latestBooking.paymentStatus === 'paid' ? 'LUNAS' : 'MENUNGGU PEMBAYARAN'})`
+                    : 'JADWAL TERDEKAT HARI INI • Mulai 19:00 WIB (Sisa 3 Jam)'}
                 </div>
 
                 <h2 style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.3px', marginBottom: '6px' }}>
-                  Grand Riichi Jakarta Open 2025
+                  {latestBooking
+                    ? (latestBooking.mode === 'casual' ? `Sesi Mahjong Casual (${latestBooking.duration} Jam)` : 'Grand Riichi Jakarta Open 2025')
+                    : 'Grand Riichi Jakarta Open 2025'}
                 </h2>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '12px', color: '#DDECE1', flexWrap: 'wrap' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <MapPin size={13} color="#98F6C2" /> Mahjong Lounge Senopati
+                    <MapPin size={13} color="#98F6C2" /> {latestBooking?.venue || 'Mahjong Lounge Senopati'}
                   </span>
                   <span>•</span>
-                  <span>🀄 Meja 03 (Automatic Hanma)</span>
+                  <span>🀄 {latestBooking ? `${latestBooking.mejaNomor} (${latestBooking.mejaLabel})` : 'Meja 03 (Automatic Hanma)'}</span>
                   <span>•</span>
-                  <span>Kursi Selatan (Nan)</span>
+                  <span>Kursi {latestBooking?.windInfo ? `${latestBooking.windInfo.id} (${latestBooking.windInfo.short})` : 'Selatan (Nan)'}</span>
                 </div>
               </div>
             </div>
@@ -783,7 +801,7 @@ export default function DashboardPage() {
                   KODE CHECK-IN
                 </div>
                 <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '1px' }}>
-                  #MJK-8821
+                  {latestBooking?.code || '#MJK-8821'}
                 </div>
               </div>
 
