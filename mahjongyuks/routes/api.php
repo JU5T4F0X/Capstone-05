@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 | Mengacu pada AGENTS.md Bagian 9 (Konvensi API Laravel REST API)
 */
 
+// Public Auth Endpoints
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
