@@ -126,6 +126,19 @@ class DatabaseSeeder extends Seeder
         );
 
         // 4. Mejas (Kapasitas maks 4 pemain)
+        for ($i = 1; $i <= 6; $i++) {
+            Meja::updateOrCreate(
+                [
+                    'venue_id' => $venueSedayu->id,
+                    'nomor_meja' => sprintf('Meja %02d (Sedayu)', $i),
+                ],
+                [
+                    'kapasitas' => 4,
+                    'status' => 'tersedia',
+                ]
+            );
+        }
+
         for ($i = 1; $i <= 12; $i++) {
             Meja::updateOrCreate(
                 [

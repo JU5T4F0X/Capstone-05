@@ -42,6 +42,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showOtpNoticeModal, setShowOtpNoticeModal] = useState(false);
+  const [redirectParam, setRedirectParam] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('redirect');
+      if (p) setRedirectParam(p);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +74,12 @@ export default function LoginPage() {
       if (currentUser?.role === 'admin') {
         router.push('/admin/dashboard');
       } else {
-        router.push('/dashboard');
+        const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+        if (redirectUrl && redirectUrl.startsWith('/')) {
+          router.push(redirectUrl);
+        } else {
+          router.push('/dashboard');
+        }
       }
     } else {
       setErrorMessage(result.message || 'Kombinasi Email dan kata sandi tidak valid. Silakan periksa kembali.');
@@ -74,7 +87,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4' }}>
+    <div style={{ flex: '1 0 auto', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4', width: '100%' }}>
       
       {/* TOP DESKTOP NAVBAR */}
       <header style={{
@@ -130,7 +143,7 @@ export default function LoginPage() {
             color: '#2B3830'
           }}>
             <Store size={13} color="#004F27" />
-            <span>Lokasi Utama: <strong>Alicia Bakery Sedayu City</strong> • Sesi Hari Ini 13:00 - 22:00</span>
+            <span>Lokasi Utama: <strong>Game House Sedayu City</strong> • Sesi Hari Ini 13:00 - 22:00</span>
           </div>
 
           <div style={{
@@ -780,7 +793,7 @@ export default function LoginPage() {
           <div className="divider-text">ATAU BELUM PUNYA AKUN?</div>
 
           <Link
-            href="/register"
+            href={redirectParam ? `/register?redirect=${encodeURIComponent(redirectParam)}` : '/register'}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -818,53 +831,7 @@ export default function LoginPage() {
 
       </main>
 
-      {/* BOTTOM FOOTER BAR */}
-      <footer style={{
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid #D7E6DB',
-        padding: '16px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', fontSize: '12px', color: '#5A675E', fontWeight: 600 }}>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <BookOpen size={14} color="#004F27" /> Aturan & Panduan Hong Kong Fan
-          </a>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Calendar size={14} color="#004F27" /> Jadwal Turnamen & Event
-          </a>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Trophy size={14} color="#004F27" /> Klasemen Pemain
-          </a>
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span style={{ fontSize: '11px', color: '#7A897F' }}>
-            © 2025 Mahjongyuks Indonesia • Rekreasi & Olahraga Pikiran
-          </span>
-          <button
-            type="button"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              backgroundColor: '#EBF6EE',
-              color: '#004F27',
-              border: '1px solid #D7E6DB',
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '11px',
-              fontWeight: 700
-            }}
-          >
-            <Headphones size={13} />
-            Bantuan Admin Concierge
-          </button>
-        </div>
-      </footer>
 
       {/* OTP SERVICE DEVELOPMENT MODAL */}
       {showOtpNoticeModal && (

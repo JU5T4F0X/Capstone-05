@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@/components/landing/landing.css';
 import { AuthProvider } from '@/context/AuthContext';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 export const metadata: Metadata = {
   title: 'MahjongYuks — Gamehouse Community & Esports Parlor',
@@ -20,7 +22,12 @@ export default function RootLayout({
       </head>
       <body>
         <AuthProvider>
-          {children}
+          <div className="site-wrapper">
+            <main className="site-main">
+              {children}
+            </main>
+            <LandingFooter />
+          </div>
         </AuthProvider>
       </body>
     </html>

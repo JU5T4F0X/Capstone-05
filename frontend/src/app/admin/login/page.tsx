@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4' }}>
+    <div style={{ flex: '1 0 auto', minHeight: 'auto', width: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4' }}>
       
       {/* TOP DESKTOP NAVBAR */}
       <header style={{
@@ -101,7 +101,7 @@ export default function AdminLoginPage() {
 
           <span style={{ fontSize: '12px', color: '#5A675E', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Store size={14} color="#004F27" />
-            Alicia Bakery Sedayu City • Kelapa Gading Hub #01
+            Game House MahjongYuks Sedayu City • Kelapa Gading Hub #01
           </span>
         </div>
 
@@ -433,14 +433,14 @@ export default function AdminLoginPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '15px', fontWeight: 800, color: '#111E18' }}>
-                  Alicia Bakery Sedayu City
+                  Game House MahjongYuks Sedayu City
                 </span>
                 <span className="badge-pill badge-mint" style={{ fontSize: '9px', padding: '2px 8px' }}>
                   ● Live Hub
                 </span>
               </div>
               <div style={{ fontSize: '11px', color: '#5A675E', marginTop: '2px' }}>
-                Pusat Operasional Salon Meja Otomatis & Turnamen Komunitas
+                Pusat Operasional Meja Otomatis & Turnamen Komunitas
               </div>
             </div>
           </div>
@@ -691,31 +691,7 @@ export default function AdminLoginPage() {
 
       </main>
 
-      {/* BOTTOM FOOTER BAR */}
-      <footer style={{
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid #D7E6DB',
-        padding: '14px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '11px',
-        color: '#5A675E',
-        flexWrap: 'wrap',
-        gap: '8px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#004F27' }} />
-          Terminal Konsol Mahjongyuks v2.4.0 • Alicia Bakery Sedayu City Ground Floor Zone B
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <span>Enkripsi AES-256 HKMA Protocol</span>
-          <span>•</span>
-          <span>WIB (UTC+7) Jakarta</span>
-          <span>•</span>
-          <span>© 2025 Mahjongyuks Club System</span>
-        </div>
-      </footer>
+
 
       {/* SPV / SSO NOTICE MODAL */}
       {showSpvModal && (
@@ -785,7 +761,7 @@ export default function AdminLoginPage() {
               marginBottom: '18px'
             }}>
               <div><strong>Intercom Operasional:</strong> Ext 402</div>
-              <div><strong>Terminal Supervisor:</strong> Alicia Bakery Sedayu Hub Zone B</div>
+              <div><strong>Terminal Supervisor:</strong> Game House MahjongYuks Sedayu Hub Zone B</div>
             </div>
 
             <button
