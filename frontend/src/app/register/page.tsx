@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { KemahiranLevel, KEMAHIRAN_MAP } from '@/lib/kemahiran';
+import './register.css';
 import {
   User as UserIcon,
   AtSign,
@@ -32,7 +34,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [kemahiran, setKemahiran] = useState<'Baru Belajar' | 'Intermediate' | 'Kompetitif'>('Intermediate');
+  const [kemahiran, setKemahiran] = useState<KemahiranLevel>('Intermediate');
   const [agreed, setAgreed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -58,7 +60,12 @@ export default function RegisterPage() {
 
     setLoading(false);
     if (res.success) {
-      router.push('/dashboard');
+      const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+      if (redirectUrl && redirectUrl.startsWith('/')) {
+        router.push(redirectUrl);
+      } else {
+        router.push('/dashboard');
+      }
     } else {
       setError(res.message || 'Gagal registrasi.');
     }
@@ -70,7 +77,7 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-wrapper" style={{ padding: '32px 16px' }}>
-      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '18px', margin: 'auto' }}>
         
         {/* Top Header Bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -357,7 +364,7 @@ export default function RegisterPage() {
           <div className="form-group">
             <label className="form-label">Tingkat Kemahiran Bermain</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              {(['Baru Belajar', 'Intermediate', 'Kompetitif'] as const).map((level) => {
+              {(['Beginner', 'Intermediate', 'Advance'] as const).map((level) => {
                 const isSelected = kemahiran === level;
                 return (
                   <button
@@ -382,7 +389,10 @@ export default function RegisterPage() {
                 );
               })}
             </div>
-            <p style={{ fontSize: '11px', color: '#6F7A70', marginTop: '4px', lineHeight: '1.4' }}>
+            <div style={{ marginTop: '8px', padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #E8E5DE', fontSize: '11.5px', color: '#3F4940', lineHeight: '1.45' }}>
+              <strong>{kemahiran}:</strong> {KEMAHIRAN_MAP[kemahiran].deskripsi}
+            </div>
+            <p style={{ fontSize: '11px', color: '#6F7A70', marginTop: '6px', lineHeight: '1.4' }}>
               ⓘ Catatan: Tingkat kemahiran ini dapat Anda sesuaikan kapan saja nantinya di pengaturan profil akun.
             </p>
           </div>
@@ -445,7 +455,7 @@ export default function RegisterPage() {
               Satu ID Komunitas Terpadu
             </div>
             <div style={{ fontSize: '11px', color: '#455A4C', lineHeight: '1.4' }}>
-              Akun otomatis aktif untuk Parlor Alicia Bakery Sedayu City, Meja Otomatis Jabodetabek, dan seluruh Event Mitra Resmi.
+              Akun otomatis aktif untuk Game House Sedayu City, Meja Otomatis Jabodetabek, dan seluruh Event Mitra Resmi.
             </div>
           </div>
         </div>

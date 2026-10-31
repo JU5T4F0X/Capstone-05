@@ -20,6 +20,7 @@ const defaultPlayerUser: User = {
   no_telepon: '081234567890',
   role: 'player',
   handle: 'Kevin_S',
+  kemahiran: 'Advance',
   dan_rank: 'DAN 5',
   points: 14850,
   avatar_url: '/assets/avatar_kevin.jpg',

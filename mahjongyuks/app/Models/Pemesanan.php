@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pemesanan extends Model
 {
     use HasFactory;
+
+    protected $table = 'pemesanans';
 
     protected $fillable = [
         'player_id',
@@ -29,13 +29,7 @@ class Pemesanan extends Model
         return [
             'tanggal_pemesanan' => 'date',
             'tanggal_main' => 'date',
-            'jumlah_pemain' => 'integer',
         ];
-    }
-
-    public function player(): BelongsTo
-    {
-        return $this->belongsTo(Player::class);
     }
 
     public function meja(): BelongsTo
@@ -43,18 +37,9 @@ class Pemesanan extends Model
         return $this->belongsTo(Meja::class);
     }
 
-    public function pembayaran(): HasOne
+    public function player(): BelongsTo
     {
-        return $this->hasOne(Pembayaran::class);
-    }
-
-    public function detailPemesanans(): HasMany
-    {
-        return $this->hasMany(DetailPemesanan::class);
-    }
-
-    public function sesiBermain(): HasOne
-    {
-        return $this->hasOne(SesiBermain::class);
+        return $this->belongsTo(Player::class);
     }
 }
+

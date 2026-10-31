@@ -22,12 +22,17 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:6'],
             'no_telepon' => ['nullable', 'string', 'max:20'],
+            'tingkat_kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
+            'kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
+        ], [
+            'tingkat_kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
+            'kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal',
+                'message' => 'Validasi gagal: Periksa kembali data pendaftaran.',
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -40,10 +45,18 @@ class AuthController extends Controller
             'role' => 'player',
         ]);
 
+        // Tentukan tingkat kemahiran awal (default: intermediate)
+        $kemahiranRaw = $request->input('tingkat_kemahiran') ?? $request->input('kemahiran') ?? 'intermediate';
+        $tingkatKemahiran = strtolower(trim((string)$kemahiranRaw));
+        if (!in_array($tingkatKemahiran, ['beginner', 'intermediate', 'advance'])) {
+            $tingkatKemahiran = 'intermediate';
+        }
+
         // Create player profile
-        Player::create([
+        $player = Player::create([
             'user_id' => $user->id,
             'tanggal_daftar' => now(),
+            'tingkat_kemahiran' => $tingkatKemahiran,
             'status' => 'active',
         ]);
 
@@ -59,6 +72,8 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'no_telepon' => $user->no_telepon,
                     'role' => $user->role,
+                    'tingkat_kemahiran' => $player->tingkat_kemahiran,
+                    'kemahiran' => $player->tingkat_kemahiran,
                 ],
                 'token' => $token,
             ],
@@ -116,6 +131,7 @@ class AuthController extends Controller
 
         // Token creation
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->load('player');
 
         return response()->json([
             'success' => true,
@@ -127,6 +143,8 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'no_telepon' => $user->no_telepon,
                     'role' => $user->role,
+                    'tingkat_kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
+                    'kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
                 ],
                 'token' => $token,
             ],
@@ -138,7 +156,7 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user = $request->user()->load('player');
 
         return response()->json([
             'success' => true,
@@ -149,6 +167,99 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'no_telepon' => $user->no_telepon,
                 'role' => $user->role,
+                'tingkat_kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
+                'kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
+                'player' => $user->player ? [
+                    'id' => $user->player->id,
+                    'status' => $user->player->status,
+                    'tanggal_daftar' => $user->player->tanggal_daftar,
+                    'tingkat_kemahiran' => $user->player->tingkat_kemahiran,
+                ] : null,
+            ],
+        ]);
+    }
+
+    /**
+     * Perbarui Profil & Tingkat Kemahiran Player
+     * Keamanan: Hanya user terautentikasi yang dapat mengubah profil miliknya sendiri.
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'nama' => ['nullable', 'string', 'max:255'],
+            'no_telepon' => ['nullable', 'string', 'max:20'],
+            'tingkat_kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
+            'kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
+        ], [
+            'tingkat_kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
+            'kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal: Tingkat kemahiran hanya boleh beginner, intermediate, atau advance.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        if ($request->has('nama') && !empty($request->nama)) {
+            $user->nama = $request->nama;
+        }
+        if ($request->has('no_telepon')) {
+            $user->no_telepon = $request->no_telepon;
+        }
+        $user->save();
+
+        // Update player record
+        $kemahiranInput = $request->input('tingkat_kemahiran') ?? $request->input('kemahiran');
+        if ($kemahiranInput !== null) {
+            $normalizedKemahiran = strtolower(trim((string)$kemahiranInput));
+            if (!in_array($normalizedKemahiran, ['beginner', 'intermediate', 'advance'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
+                    'errors' => [
+                        'tingkat_kemahiran' => ['Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.']
+                    ]
+                ], 422);
+            }
+
+            if ($user->player) {
+                $user->player->update([
+                    'tingkat_kemahiran' => $normalizedKemahiran,
+                ]);
+            } else {
+                Player::create([
+                    'user_id' => $user->id,
+                    'tanggal_daftar' => now(),
+                    'tingkat_kemahiran' => $normalizedKemahiran,
+                    'status' => 'active',
+                ]);
+            }
+        }
+
+        $user->load('player');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui',
+            'data' => [
+                'id' => $user->id,
+                'nama' => $user->nama,
+                'email' => $user->email,
+                'no_telepon' => $user->no_telepon,
+                'role' => $user->role,
+                'tingkat_kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
+                'kemahiran' => $user->player?->tingkat_kemahiran ?? 'intermediate',
+                'player' => $user->player ? [
+                    'id' => $user->player->id,
+                    'status' => $user->player->status,
+                    'tanggal_daftar' => $user->player->tanggal_daftar,
+                    'tingkat_kemahiran' => $user->player->tingkat_kemahiran,
+                ] : null,
             ],
         ]);
     }
