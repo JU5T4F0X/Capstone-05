@@ -11,6 +11,8 @@ import {
   MapPin,
   Trophy,
   History,
+  Settings,
+  ShieldCheck,
   Bell,
   Search,
   Plus,
@@ -297,10 +299,63 @@ export default function DashboardPage() {
             </nav>
           </div>
 
+          <div>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: '#7A897F', textTransform: 'uppercase', letterSpacing: '0.8px', padding: '0 12px', marginBottom: '8px' }}>
+              PANEL ADMIN
+            </div>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <Link
+                href="/admin/login"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#2B3830'
+                }}
+              >
+                <Settings size={16} />
+                Konfigurasi Meja
+              </Link>
+              <Link
+                href="/admin/login"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#2B3830'
+                }}
+              >
+                <ShieldCheck size={16} />
+                Verifikasi Skor
+              </Link>
+            </nav>
+          </div>
         </div>
 
-        {/* Bottom User Profile */}
+        {/* Bottom VIP Badge & User Profile */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', paddingTop: '12px', borderTop: '1px solid #E8F0EA' }}>
+          <div style={{
+            backgroundColor: '#D1FAE5',
+            color: '#065F46',
+            padding: '8px 12px',
+            borderRadius: '10px',
+            fontSize: '11px',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>VIP Gold Salon Jakarta</span>
+            <span>✪</span>
+          </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
