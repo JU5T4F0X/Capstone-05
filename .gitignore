@@ -8,6 +8,9 @@ AGENTS.md
 Agents.md
 CLAUDE.md
 
+# AI Skills (local only, not for repo)
+.agents/skills/
+
 # Dependencies & Build artifacts
 node_modules/
 .next/
