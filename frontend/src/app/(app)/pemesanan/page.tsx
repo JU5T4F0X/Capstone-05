@@ -71,7 +71,7 @@ const INITIAL_TABLES: TableArena[] = [
     centerSub: 'LENGKAP',
     seats: {
       pei: { position: 'pei', label: 'Pei', kanji: '北', direction: 'Utara', status: 'taken', occupant: 'Hendra' },
-      ton: { position: 'ton', label: 'Ton', kanji: '東', direction: 'Timur', status: 'taken', occupant: 'Jess' },
+      ton: { position: 'ton', labeld: 'Ton', kanji: '東', direction: 'Timur', status: 'taken', occupant: 'Jess' },
       nan: { position: 'nan', label: 'Nan', kanji: '南', direction: 'Selatan', status: 'taken', occupant: 'Rian' },
       sha: { position: 'sha', label: 'Sha', kanji: '西', direction: 'Barat', status: 'taken', occupant: 'Bima' },
     },
