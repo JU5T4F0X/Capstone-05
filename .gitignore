@@ -8,8 +8,9 @@ AGENTS.md
 Agents.md
 CLAUDE.md
 
-# AI Skills (local only, not for repo)
-.agents/skills/
+# AI Skills & Agents (local only, not for repo)
+.agents/
+.agents/*
 
 # Dependencies & Build artifacts
 node_modules/
