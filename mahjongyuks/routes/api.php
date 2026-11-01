@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\JadwalController;
 use App\Http\Controllers\Api\MejaController;
 use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\Api\PemesananController;
+use App\Http\Controllers\Api\SkorLeaderboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -85,4 +86,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/pembayarans', [PembayaranController::class, 'index']);
     Route::post('/pembayarans/{id}/verifikasi', [PembayaranController::class, 'verifikasi']);
+});
+
+// Modul Leaderboard & Atlet (RF-08)
+Route::get('/leaderboard', [SkorLeaderboardController::class, 'leaderboard']);
+Route::post('/leaderboard/reset', [SkorLeaderboardController::class, 'resetScores']);
+Route::get('/players', [SkorLeaderboardController::class, 'playersList']);
+Route::get('/sesi-bermain', [SkorLeaderboardController::class, 'sessions']);
+
+// Modul Skor & Sesi Wasit (RF-06 & RF-07)
+Route::post('/skor-pemain', [SkorLeaderboardController::class, 'recordScore']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/game-history', [SkorLeaderboardController::class, 'myGameHistory']);
 });

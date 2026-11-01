@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('sesi_bermains', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pemesanan_id')->constrained('pemesanans')->cascadeOnDelete();
+            $table->foreignId('pemesanan_id')->nullable()->constrained('pemesanans')->nullOnDelete();
+            $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
+            $table->string('nama_sesi')->nullable();
             $table->date('tanggal_permainan');
             $table->time('waktu_mulai');
             $table->time('waktu_selesai')->nullable();

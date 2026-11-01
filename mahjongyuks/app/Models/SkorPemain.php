@@ -17,6 +17,7 @@ class SkorPemain extends Model
         'player_id',
         'skor',
         'peringkat',
+        'catatan_wasit',
     ];
 
     protected function casts(): array

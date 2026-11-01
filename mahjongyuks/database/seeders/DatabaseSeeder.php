@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Event;
 use App\Models\Meja;
 use App\Models\Player;
+use App\Models\SesiBermain;
+use App\Models\SkorPemain;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Database\Seeder;
@@ -65,16 +67,17 @@ class DatabaseSeeder extends Seeder
             ['user_id' => $playerUser->id],
             [
                 'tanggal_daftar' => now()->subMonths(6),
+                'tingkat_kemahiran' => 'intermediate',
                 'status' => 'active',
             ]
         );
 
         // Pemain Lainnya (Leaderboard: Budi, Amanda, Rendy, Felicia)
         $athletes = [
-            ['nama' => 'Budi Pratama', 'email' => 'budi.pratama@mahjongyuks.id'],
-            ['nama' => 'Amanda Wijaya', 'email' => 'amanda.wijaya@mahjongyuks.id'],
-            ['nama' => 'Rendy Tanaka', 'email' => 'rendy.tanaka@mahjongyuks.id'],
-            ['nama' => 'Felicia Zhang', 'email' => 'felicia.zhang@mahjongyuks.id'],
+            ['nama' => 'Budi Pratama', 'email' => 'budi.pratama@mahjongyuks.id', 'kemahiran' => 'advance'],
+            ['nama' => 'Amanda Wijaya', 'email' => 'amanda.wijaya@mahjongyuks.id', 'kemahiran' => 'advance'],
+            ['nama' => 'Rendy Tanaka', 'email' => 'rendy.tanaka@mahjongyuks.id', 'kemahiran' => 'advance'],
+            ['nama' => 'Felicia Zhang', 'email' => 'felicia.zhang@mahjongyuks.id', 'kemahiran' => 'intermediate'],
         ];
 
         foreach ($athletes as $athlete) {
@@ -92,6 +95,7 @@ class DatabaseSeeder extends Seeder
                 ['user_id' => $u->id],
                 [
                     'tanggal_daftar' => now()->subMonths( rand(1, 12) ),
+                    'tingkat_kemahiran' => $athlete['kemahiran'],
                     'status' => 'active',
                 ]
             );
@@ -198,5 +202,8 @@ class DatabaseSeeder extends Seeder
                 'status' => 'active',
             ]
         );
+
+        // 6. Sesi Bermain & Skor Pemain (Dikosongkan agar poin seluruh atlet mulai dari 0 PTS)
+        // Skor dan poin pertandingan atlet akan dicatat secara dinamis oleh wasit melalui Admin Dashboard (Desk Wasit).
     }
 }

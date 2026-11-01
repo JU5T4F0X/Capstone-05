@@ -385,16 +385,87 @@ function AdminDashboardContent() {
     });
   }, [bookings, bookingFilter, bookingSearch]);
 
-  // ── 3. SKOR & LEADERBOARD DATA (Preserved) ──
-  const [selectedEvent, setSelectedEvent] = useState('Jakarta Riichi Masters Autumn (Season 4)');
-  const [selectedPlayer, setSelectedPlayer] = useState('Kevin Sanjaya (#MJY-9201) - 4-Dan');
-  const [selectedRank, setSelectedRank] = useState('Juara 1 Meja 03');
-  const [umaScore, setUmaScore] = useState('+35.2');
-  const [wasitNotes, setWasitNotes] = useState('Hanchan #2 Selesai tanpa penalti (Agari bersih. Dora validasi OK)');
+  // ── 3. SKOR & LEADERBOARD DATA (Real API Integration) ──
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
+  const [selectedRank, setSelectedRank] = useState('1');
+  const [umaScore, setUmaScore] = useState('');
+  const [wasitNotes, setWasitNotes] = useState('');
+  const [liveLeaderboard, setLiveLeaderboard] = useState<any[]>([]);
+  const [livePlayers, setLivePlayers] = useState<any[]>([]);
+  const [isSubmittingScore, setIsSubmittingScore] = useState(false);
 
-  const handleScoreSubmit = (e: React.FormEvent) => {
+  // Load players list + leaderboard for Desk Wasit tab
+  useEffect(() => {
+    async function loadSkorData() {
+      try {
+        const [playersRes, lbRes] = await Promise.all([
+          ApiClient.getPlayersList(),
+          ApiClient.getLeaderboard({ limit: 10 }),
+        ]);
+        if (playersRes.success && playersRes.data) setLivePlayers(playersRes.data);
+        if (lbRes.success && lbRes.data) setLiveLeaderboard(lbRes.data);
+      } catch {
+        // Gagal load data skor, gunakan fallback
+      }
+    }
+    loadSkorData();
+  }, []);
+
+  const handleScoreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showToast(`Skor pertandingan ${selectedPlayer} berhasil divalidasi ke Klasemen!`);
+    if (!selectedPlayerId || !umaScore) {
+      showToast('Pilih pemain dan isi skor Uma/Oka terlebih dahulu.');
+      return;
+    }
+    setIsSubmittingScore(true);
+    try {
+      const res = await ApiClient.recordScore({
+        player_id: Number(selectedPlayerId),
+        skor: parseFloat(umaScore),
+        peringkat: Number(selectedRank),
+        event_id: selectedEventId || undefined,
+        catatan_wasit: wasitNotes,
+      });
+      if (res.success) {
+        showToast('Skor berhasil divalidasi dan disinkronkan ke Leaderboard!');
+        setUmaScore('');
+        setWasitNotes('');
+        setSelectedPlayerId('');
+        // Refresh leaderboard setelah input skor
+        const lb = await ApiClient.getLeaderboard({ limit: 10 });
+        if (lb.success && lb.data) setLiveLeaderboard(lb.data);
+      } else {
+        showToast(res.message || 'Gagal menyimpan skor ke database.');
+      }
+    } catch {
+      showToast('Error: Tidak dapat terhubung ke server. Pastikan backend aktif.');
+    } finally {
+      setIsSubmittingScore(false);
+    }
+  };
+
+  const [isResettingScore, setIsResettingScore] = useState(false);
+
+  const handleResetLeaderboard = async () => {
+    if (!confirm('Apakah Anda yakin ingin me-reset seluruh poin atlet menjadi 0? Tindakan ini akan mengosongkan riwayat skor.')) {
+      return;
+    }
+    setIsResettingScore(true);
+    try {
+      const res = await ApiClient.resetLeaderboardScores();
+      if (res.success) {
+        showToast('Seluruh poin atlet berhasil di-reset menjadi 0.');
+        const lb = await ApiClient.getLeaderboard({ limit: 10 });
+        if (lb.success && lb.data) setLiveLeaderboard(lb.data);
+      } else {
+        showToast(res.message || 'Gagal me-reset poin.');
+      }
+    } catch {
+      showToast('Error koneksi ke server saat me-reset poin.');
+    } finally {
+      setIsResettingScore(false);
+    }
   };
 
   // ── 4. PROFIL ADMIN STATE ──
@@ -1871,11 +1942,34 @@ function AdminDashboardContent() {
                     flexDirection: 'column',
                     gap: '16px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '4px', height: '18px', backgroundColor: '#183629', borderRadius: '2px' }} />
-                      <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#111E18', margin: 0 }}>
-                        Klasemen Atlet Riichi Teratas (Season 2025/2026)
-                      </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '4px', height: '18px', backgroundColor: '#183629', borderRadius: '2px' }} />
+                        <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#111E18', margin: 0 }}>
+                          Klasemen Atlet Riichi Teratas (Season 2025/2026)
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleResetLeaderboard}
+                        disabled={isResettingScore}
+                        className="adm-btn-secondary"
+                        style={{
+                          fontSize: '11.5px',
+                          padding: '5px 10px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          color: '#DC2626',
+                          borderColor: '#FECACA',
+                          backgroundColor: '#FEF2F2',
+                          cursor: isResettingScore ? 'not-allowed' : 'pointer'
+                        }}
+                        title="Reset seluruh poin atlet ke 0"
+                      >
+                        <RotateCcw size={12} />
+                        <span>{isResettingScore ? 'Mereset...' : 'Reset Poin (0 PTS)'}</span>
+                      </button>
                     </div>
 
                     <div className="adm-table-container">
@@ -1892,7 +1986,7 @@ function AdminDashboardContent() {
                             </tr>
                           </thead>
                           <tbody>
-                            {LEADERBOARD_PLAYERS.map((player) => (
+                            {(liveLeaderboard.length > 0 ? liveLeaderboard : LEADERBOARD_PLAYERS).map((player) => (
                               <tr key={player.rank}>
                                 <td>
                                   <div style={{
@@ -1967,14 +2061,15 @@ function AdminDashboardContent() {
                           Turnamen Berjalan
                         </label>
                         <select
-                          value={selectedEvent}
-                          onChange={(e) => setSelectedEvent(e.target.value)}
+                          value={selectedEventId}
+                          onChange={(e) => setSelectedEventId(e.target.value)}
                           className="adm-select"
                           style={{ width: '100%' }}
                         >
-                          <option value="Jakarta Riichi Masters Autumn (Season 4)">Jakarta Riichi Masters Autumn (Season 4)</option>
-                          <option value="Friday Casual Gathering PIK">Friday Casual Gathering PIK</option>
-                          <option value="Sunday Bootcamp Senopati">Sunday Bootcamp Senopati</option>
+                          <option value="">-- Pilih Event (Opsional) --</option>
+                          {realEvents.map((ev) => (
+                            <option key={ev.id} value={String(ev.id)}>{ev.nama_event}</option>
+                          ))}
                         </select>
                       </div>
 
@@ -1982,20 +2077,18 @@ function AdminDashboardContent() {
                         <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#2B3830', marginBottom: '4px' }}>
                           Pemain Terpilih
                         </label>
-                        <input
-                          type="text"
-                          value={selectedPlayer}
-                          onChange={(e) => setSelectedPlayer(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid #D7E6DB',
-                            fontSize: '12.5px',
-                            outline: 'none',
-                            boxSizing: 'border-box'
-                          }}
-                        />
+                        <select
+                          value={selectedPlayerId}
+                          onChange={(e) => setSelectedPlayerId(e.target.value)}
+                          className="adm-select"
+                          style={{ width: '100%' }}
+                          required
+                        >
+                          <option value="">-- Pilih Pemain --</option>
+                          {livePlayers.map((p) => (
+                            <option key={p.id} value={String(p.id)}>{p.nama} ({p.handle || p.email})</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -2009,10 +2102,10 @@ function AdminDashboardContent() {
                             className="adm-select"
                             style={{ width: '100%' }}
                           >
-                            <option value="Juara 1 Meja 03">Juara 1 (Top)</option>
-                            <option value="Peringkat 2 Meja 03">Peringkat 2</option>
-                            <option value="Peringkat 3 Meja 03">Peringkat 3</option>
-                            <option value="Peringkat 4 Meja 03">Peringkat 4 (Last)</option>
+                                                        <option value="1">Juara 1 (Top)</option>
+                            <option value="2">Peringkat 2</option>
+                            <option value="3">Peringkat 3</option>
+                            <option value="4">Peringkat 4 (Last)</option>
                           </select>
                         </div>
 
@@ -2021,7 +2114,9 @@ function AdminDashboardContent() {
                             Kalkulasi Uma/Oka
                           </label>
                           <input
-                            type="text"
+                            type="number"
+                            step="0.1"
+                            placeholder="e.g. +35.2"
                             value={umaScore}
                             onChange={(e) => setUmaScore(e.target.value)}
                             style={{
@@ -2063,10 +2158,11 @@ function AdminDashboardContent() {
                       <button
                         type="submit"
                         className="adm-btn-primary"
-                        style={{ justifyContent: 'center', marginTop: '4px' }}
+                        disabled={isSubmittingScore}
+                        style={{ justifyContent: 'center', marginTop: '4px', opacity: isSubmittingScore ? 0.7 : 1 }}
                       >
                         <Award size={15} color="#E2BC55" />
-                        <span>Validasi &amp; Sinkronkan Skor</span>
+                        <span>{isSubmittingScore ? 'Menyimpan...' : 'Validasi & Sinkronkan Skor'}</span>
                       </button>
                     </form>
                   </div>

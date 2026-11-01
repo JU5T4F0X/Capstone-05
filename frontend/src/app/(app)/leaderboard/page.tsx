@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import ApiClient from '@/lib/api';
 import Link from 'next/link';
 import {
   Award,
@@ -20,11 +21,32 @@ import '@/app/events-venues/events-venues.css';
 export default function LeaderboardPage() {
   const [activeTier, setActiveTier] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [livePlayers, setLivePlayers] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const topPlayer = LEADERBOARD_PLAYERS[0];
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchLeaderboard() {
+      try {
+        const res = await ApiClient.getLeaderboard();
+        if (isMounted && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setLivePlayers(res.data);
+        }
+      } catch (e) {
+        console.error('Failed to load leaderboard', e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchLeaderboard();
+    return () => { isMounted = false; };
+  }, []);
+
+  const playerList = !loading && livePlayers.length > 0 ? livePlayers : LEADERBOARD_PLAYERS;
+  const topPlayer = loading ? null : playerList[0];
 
   const filteredPlayers = useMemo(() => {
-    return LEADERBOARD_PLAYERS.filter((player) => {
+    return playerList.filter((player) => {
       const matchSearch =
         searchQuery === '' ||
         player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -38,7 +60,7 @@ export default function LeaderboardPage() {
 
       return matchSearch && matchTier;
     });
-  }, [searchQuery, activeTier]);
+  }, [loading, playerList, searchQuery, activeTier]);
 
   return (
     <div className="ev-page-wrapper">
@@ -60,7 +82,38 @@ export default function LeaderboardPage() {
 
       {/* Main Content */}
       <main className="ev-container" style={{ flex: 1, padding: '32px 0 64px 0' }}>
-        {/* Spotlight Card: Peringkat #1 Nasional */}
+        {loading ? (
+          <div style={{
+            padding: '72px 24px',
+            textAlign: 'center',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            border: '1px solid #D7E6DB',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              border: '3px solid #E8F0EB',
+              borderTopColor: '#004F27',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite'
+            }} />
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#111E18' }}>
+                Memuat Klasemen Resmi Atlet...
+              </div>
+              <div style={{ fontSize: '12px', color: '#78807B', marginTop: '4px' }}>
+                Sinkronisasi data skor dan rating WRC terkini
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Spotlight Card: Peringkat #1 Nasional */}
         {topPlayer && (
           <div style={{
             backgroundColor: '#FFFFFF',
@@ -124,7 +177,7 @@ export default function LeaderboardPage() {
                   fontSize: '11px',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}>
-                  👑
+                  ðŸ‘‘
                 </div>
               </div>
 
@@ -149,7 +202,7 @@ export default function LeaderboardPage() {
                   {topPlayer.name}
                 </h2>
                 <div style={{ fontSize: '12.5px', color: '#5A675E', marginTop: '4px' }}>
-                  Club: <strong style={{ color: '#183629' }}>{topPlayer.club}</strong> • Gelar: <strong>{topPlayer.rankTitle}</strong>
+                  Club: <strong style={{ color: '#183629' }}>{topPlayer.club}</strong> â€¢ Gelar: <strong>{topPlayer.rankTitle}</strong>
                 </div>
               </div>
             </div>
@@ -204,7 +257,7 @@ export default function LeaderboardPage() {
                 color: activeTier === 'all' ? '#FFFFFF' : '#2B3830',
               }}
             >
-              Semua Atlet ({LEADERBOARD_PLAYERS.length})
+              Semua Atlet ({playerList.length})
             </button>
             <button
               type="button"
@@ -358,7 +411,7 @@ export default function LeaderboardPage() {
                               {player.name}
                             </div>
                             <div style={{ fontSize: '11.5px', color: '#7A897F' }}>
-                              {player.club} • {player.rankTitle}
+                              {player.club} â€¢ {player.rankTitle}
                             </div>
                           </div>
                         </div>
@@ -402,6 +455,8 @@ export default function LeaderboardPage() {
             </table>
           </div>
         </div>
+          </>
+        )}
       </main>
 
     </div>

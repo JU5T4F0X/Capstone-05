@@ -154,6 +154,7 @@ export default function AdminEventManager() {
     waktu_mulai: '13:00',
     waktu_selesai: '18:00',
     status: 'active',
+    jenis_event: 'Event',
     biaya: 'Rp 150.000 /kursi',
     kuota: 'Sisa 4 Kursi (1 Meja)',
     deskripsi: '',
@@ -230,6 +231,7 @@ export default function AdminEventManager() {
       waktu_mulai: '13:00',
       waktu_selesai: '18:00',
       status: 'active',
+      jenis_event: 'Event',
       biaya: 'Rp 150.000 /kursi',
       kuota: 'Sisa 4 Kursi (1 Meja)',
       deskripsi: '',
@@ -251,6 +253,7 @@ export default function AdminEventManager() {
       waktu_mulai: ev.waktu_mulai ? ev.waktu_mulai.slice(0, 5) : '13:00',
       waktu_selesai: ev.waktu_selesai ? ev.waktu_selesai.slice(0, 5) : '18:00',
       status: ev.status || 'active',
+      jenis_event: ev.jenis_event || 'Event',
       biaya: ev.biaya || 'Rp 150.000 /kursi',
       kuota: ev.kuota || 'Sisa 4 Kursi (1 Meja)',
       deskripsi: ev.deskripsi || '',
@@ -326,6 +329,7 @@ export default function AdminEventManager() {
       postData.append('waktu_mulai', formData.waktu_mulai);
       postData.append('waktu_selesai', formData.waktu_selesai);
       postData.append('status', formData.status);
+      postData.append('jenis_event', formData.jenis_event);
       postData.append('biaya', formData.biaya);
       postData.append('kuota', formData.kuota);
       postData.append('deskripsi', formData.deskripsi);
@@ -370,6 +374,7 @@ export default function AdminEventManager() {
       postData.append('waktu_mulai', formData.waktu_mulai);
       postData.append('waktu_selesai', formData.waktu_selesai);
       postData.append('status', formData.status);
+      postData.append('jenis_event', formData.jenis_event);
       postData.append('biaya', formData.biaya);
       postData.append('kuota', formData.kuota);
       postData.append('deskripsi', formData.deskripsi);
@@ -705,6 +710,18 @@ export default function AdminEventManager() {
                                 <span style={{ fontWeight: 600, color: '#004F27' }}>#{ev.id}</span>
                                 <span>•</span>
                                 <span>{ev.kategori || 'Turnamen WRC'}</span>
+                                <span>•</span>
+                                <span style={{
+                                  padding: '1px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  backgroundColor: ev.jenis_event === 'Non-Event' ? '#FEF3C7' : '#EBF6EE',
+                                  color: ev.jenis_event === 'Non-Event' ? '#92400E' : '#004F27',
+                                  border: ev.jenis_event === 'Non-Event' ? '1px solid #FDE68A' : '1px solid #B5D4C2'
+                                }}>
+                                  {ev.jenis_event || 'Event'}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -973,8 +990,8 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* Biaya & Kuota */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                {/* Biaya Registrasi, Alokasi Kuota / Kursi, & Jenis Event */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
                       Biaya Registrasi
@@ -1002,7 +1019,7 @@ export default function AdminEventManager() {
                     </label>
                     <input
                       type="text"
-                      placeholder="Contoh: Sisa 8 Kursi (2 Meja)"
+                      placeholder="Contoh: Sisa 4 Kursi (1 Meja)"
                       value={formData.kuota}
                       onChange={(e) => setFormData({ ...formData, kuota: e.target.value })}
                       style={{
@@ -1015,6 +1032,31 @@ export default function AdminEventManager() {
                         boxSizing: 'border-box'
                       }}
                     />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                      Jenis Event *
+                    </label>
+                    <select
+                      value={formData.jenis_event}
+                      onChange={(e) => setFormData({ ...formData, jenis_event: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '9px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid #D7E6DB',
+                        fontSize: '13px',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FFFFFF',
+                        fontWeight: 600,
+                        color: formData.jenis_event === 'Event' ? '#004F27' : '#92400E'
+                      }}
+                    >
+                      <option value="Event">Event</option>
+                      <option value="Non-Event">Non-Event</option>
+                    </select>
                   </div>
                 </div>
 
@@ -1292,13 +1334,13 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* 4. BIAYA & ALOKASI KUOTA */}
+                {/* 4. BIAYA, ALOKASI KUOTA, & JENIS EVENT */}
                 <div>
                   <div className="adm-form-subheading">
                     <Ticket size={13} />
-                    <span>Biaya Registrasi &amp; Alokasi Kuota</span>
+                    <span>Biaya Registrasi, Alokasi Kuota, &amp; Jenis Event</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginTop: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginTop: '8px' }}>
                     <div>
                       <label className="adm-form-label">
                         <span>Biaya Registrasi</span>
@@ -1323,6 +1365,26 @@ export default function AdminEventManager() {
                         placeholder="contoh: Sisa 4 Kursi (Kapasitas 4)"
                         className="adm-form-input"
                       />
+                    </div>
+
+                    <div>
+                      <label className="adm-form-label">
+                        <span>Jenis Event</span>
+                        <span style={{ color: '#DC2626' }}>*</span>
+                      </label>
+                      <select
+                        value={formData.jenis_event}
+                        onChange={(e) => setFormData({ ...formData, jenis_event: e.target.value })}
+                        className="adm-form-input"
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          fontWeight: 600,
+                          color: formData.jenis_event === 'Event' ? '#004F27' : '#92400E'
+                        }}
+                      >
+                        <option value="Event">Event</option>
+                        <option value="Non-Event">Non-Event</option>
+                      </select>
                     </div>
                   </div>
                 </div>

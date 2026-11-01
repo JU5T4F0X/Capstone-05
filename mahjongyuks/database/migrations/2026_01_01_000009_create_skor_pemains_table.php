@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('player_id')->constrained('players')->cascadeOnDelete();
             $table->decimal('skor', 10, 2)->default(0);
             $table->unsignedInteger('peringkat')->nullable(); // 1 = juara
+            $table->string('catatan_wasit')->nullable();
             $table->timestamps();
         });
     }
