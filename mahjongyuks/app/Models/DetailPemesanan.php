@@ -16,6 +16,7 @@ class DetailPemesanan extends Model
         'pemesanan_id',
         'player_id',
         'status_kehadiran',
+        'posisi_kursi',
     ];
 
     public function pemesanan(): BelongsTo

@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\Pemesanan;
+use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PembayaranController extends Controller
@@ -35,8 +37,43 @@ class PembayaranController extends Controller
     }
 
     /**
+     * Webhook Midtrans (publik, tanpa login). Keamanan: verifikasi signature.
+     */
+    public function notification(Request $request, MidtransService $midtrans): JsonResponse
+    {
+        $p = $request->all();
+
+        if (!$midtrans->signatureValid($p)) {
+            Log::warning('Webhook Midtrans: signature tidak valid');
+            return response()->json(['success' => false, 'message' => 'Signature tidak valid'], 403);
+        }
+
+        DB::transaction(function () use ($p) {
+            $pembayaran = Pembayaran::where('order_id', $p['order_id'] ?? '')->lockForUpdate()->first();
+
+            // Order asing (misalnya uji coba dari dashboard Midtrans): abaikan dengan 200
+            if (!$pembayaran) {
+                return;
+            }
+
+            if (abs((float) ($p['gross_amount'] ?? 0) - (float) $pembayaran->jumlah) > 0.01) {
+                Log::warning('Webhook Midtrans: jumlah tidak cocok untuk ' . $pembayaran->order_id);
+                return;
+            }
+
+            $pembayaran->terapkanStatusGateway(
+                (string) ($p['transaction_status'] ?? ''),
+                $p['fraud_status'] ?? null,
+                $p['payment_type'] ?? null
+            );
+        });
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
      * Simulasi Pembayaran oleh Pemain (Sprint 4).
-     * Sesuai AGENTS.md: Hanya simulasi — tidak ada payment gateway nyata.
+     * Cara lama. Akan dihapus setelah Midtrans aktif di halaman pemesanan.
      */
     public function simulasiBayar(Request $request, int $pemesananId): JsonResponse
     {
