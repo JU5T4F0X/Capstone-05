@@ -75,60 +75,12 @@ class JadwalController extends Controller
             ];
         });
 
-        // 2. Jadwal Sesi Permainan Reguler (Sesi Siang & Sesi Malam per Venue)
-        $venues = Venue::withCount('mejas')->where('status', 'active')->get();
-        $jadwalSesi = [];
-
-        foreach ($venues as $venue) {
-            if ($venueFilter && $venue->id != $venueFilter) {
-                continue;
-            }
-
-            // Sesi Siang
-            $jadwalSesi[] = [
-                'id' => 'sesi-siang-' . $venue->id,
-                'tipe' => 'sesi_permainan',
-                'judul' => 'Sesi Bermain Siang (Casual & Ranked)',
-                'deskripsi' => 'Sesi permainan reguler santai atau latih tanding dengan meja otomatis Amos Rexx III.',
-                'tanggal' => $dateFilter ?: now()->toDateString(),
-                'tanggal_formatted' => $dateFilter ? date('d F Y', strtotime($dateFilter)) : 'Hari Ini (' . now()->translatedFormat('d F Y') . ')',
-                'waktu' => '13:00 - 18:30 WIB',
-                'venue' => $venue->nama_venue,
-                'venue_id' => $venue->id,
-                'alamat' => $venue->alamat,
-                'status' => 'Tersedia ' . ($venue->mejas_count ?? 12) . ' Meja',
-                'status_code' => 'tersedia',
-                'kapasitas' => 'Maks. 4 Pemain per Meja',
-                'biaya' => 'Rp 95.000 / kursi',
-                'fasilitas' => 'Meja Otomatis + Free Oolong Tea',
-            ];
-
-            // Sesi Malam
-            $jadwalSesi[] = [
-                'id' => 'sesi-malam-' . $venue->id,
-                'tipe' => 'sesi_permainan',
-                'judul' => 'Sesi Bermain Malam (Prime Time)',
-                'deskripsi' => 'Sesi prime time komunitas setelah jam kerja dengan wasit siaga dan verifikasi skor resmi.',
-                'tanggal' => $dateFilter ?: now()->toDateString(),
-                'tanggal_formatted' => $dateFilter ? date('d F Y', strtotime($dateFilter)) : 'Hari Ini (' . now()->translatedFormat('d F Y') . ')',
-                'waktu' => '19:00 - 23:00 WIB',
-                'venue' => $venue->nama_venue,
-                'venue_id' => $venue->id,
-                'alamat' => $venue->alamat,
-                'status' => 'Sisa Meja Terbatas',
-                'status_code' => 'kritis',
-                'kapasitas' => 'Maks. 4 Pemain per Meja',
-                'biaya' => 'Rp 110.000 / kursi',
-                'fasilitas' => 'Meja Otomatis + Scoring Screen',
-            ];
-        }
-
         return response()->json([
             'success' => true,
-            'message' => 'Jadwal berhasil dimuat',
+            'message' => 'Jadwal permainan Game House berhasil dimuat',
             'data' => [
                 'events' => $jadwalEvents,
-                'sesi_permainan' => $jadwalSesi,
+                'sesi_permainan' => [],
             ],
         ]);
     }

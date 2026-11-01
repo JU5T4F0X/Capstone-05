@@ -9,14 +9,12 @@ import {
   Clock,
   MapPin,
   Trophy,
-  Coffee,
   CheckCircle,
   AlertCircle,
   RotateCcw,
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Layers,
   ChevronRight,
   Users
 } from 'lucide-react';
@@ -25,59 +23,7 @@ import '@/app/events-venues/events-venues.css';
 
 const fallbackJadwalData: ApiJadwalData = {
   events: [],
-  sesi_permainan: [
-    {
-      id: 'sesi-gh-pagi',
-      venue_id: 1,
-      tipe: 'sesi_permainan',
-      judul: 'Sesi Pagi (07.30 - 12.00 WIB)',
-      deskripsi: 'Sesi bermain pagi hari di Game House dengan ubin otomatis Amos Rexx III dan pendingin ruangan HEPA.',
-      tanggal: '2026-10-31',
-      tanggal_formatted: 'Setiap Hari',
-      waktu: '07:30 - 12:00 WIB',
-      venue: 'Game House',
-      alamat: 'Sedayu City Kelapa Gading SCBRC, Blok C No. 18, RT 03/RW 09, Kelapa Gading, Jakarta Utara',
-      status: 'Tersedia 34 Meja Otomatis',
-      status_code: 'tersedia',
-      kapasitas: 'Maks. 4 Pemain per Meja',
-      biaya: 'Rp 75.000 / kursi',
-      fasilitas: 'Amos Rexx III Pro + Free Roasted Oolong'
-    },
-    {
-      id: 'sesi-gh-siang',
-      venue_id: 1,
-      tipe: 'sesi_permainan',
-      judul: 'Sesi Siang (12.30 - 17.00 WIB)',
-      deskripsi: 'Sesi ramai komunitas dengan wasit siaga dan verifikasi skor digital resmi.',
-      tanggal: '2026-10-31',
-      tanggal_formatted: 'Setiap Hari',
-      waktu: '12:30 - 17:00 WIB',
-      venue: 'Game House',
-      alamat: 'Sedayu City Kelapa Gading SCBRC, Blok C No. 18, RT 03/RW 09, Kelapa Gading, Jakarta Utara',
-      status: 'Tersedia 34 Meja Otomatis',
-      status_code: 'tersedia',
-      kapasitas: 'Maks. 4 Pemain per Meja',
-      biaya: 'Rp 95.000 / kursi',
-      fasilitas: 'Amos Rexx III Pro + Scoring Screen'
-    },
-    {
-      id: 'sesi-gh-malam',
-      venue_id: 1,
-      tipe: 'sesi_permainan',
-      judul: 'Sesi Malam (17.30 - 21.30 WIB)',
-      deskripsi: 'Sesi prime time malam hari, sparring kompetitif dan turnamen internal komunitas.',
-      tanggal: '2026-10-31',
-      tanggal_formatted: 'Setiap Hari',
-      waktu: '17:30 - 21:30 WIB',
-      venue: 'Game House',
-      alamat: 'Sedayu City Kelapa Gading SCBRC, Blok C No. 18, RT 03/RW 09, Kelapa Gading, Jakarta Utara',
-      status: 'Sesi Terbuka',
-      status_code: 'tersedia',
-      kapasitas: 'Maks. 4 Pemain per Meja',
-      biaya: 'Rp 110.000 / kursi',
-      fasilitas: 'Amos Rexx III Pro + Refreshment'
-    }
-  ]
+  sesi_permainan: []
 };
 
 function JadwalContent() {
@@ -131,17 +77,6 @@ function JadwalContent() {
       return matchVenue;
     });
   }, [jadwal.events, venueFilter]);
-
-  const filteredSessions = useMemo(() => {
-    return (jadwal.sesi_permainan || []).filter((item) => {
-      const matchVenue =
-        venueFilter === 'all' ||
-        item.venue?.toLowerCase().includes(venueFilter.toLowerCase()) ||
-        String(item.venue_id) === venueFilter;
-
-      return matchVenue;
-    });
-  }, [jadwal.sesi_permainan, venueFilter]);
 
   const handleResetFilters = () => {
     setVenueFilter('all');
@@ -248,17 +183,17 @@ function JadwalContent() {
               <div className="ev-schedule-block-header">
                 <h2 className="ev-schedule-block-title">
                   <Trophy size={20} color="#E2BC55" />
-                  <span>Jadwal Permainan Khusus di Game House</span>
+                  <span>Jadwal Permainan di Game House (Sedayu City)</span>
                 </h2>
                 <span className="ev-schedule-badge">
-                  {filteredEvents.length} Sesi Terjadwal
+                  {filteredEvents.length} Jadwal Permainan
                 </span>
               </div>
 
               {filteredEvents.length === 0 ? (
                 <div className="ev-empty-box" style={{ padding: '32px 20px', margin: '16px 0' }}>
                   <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>
-                    Belum ada jadwal sesi permainan khusus (Non-Event) yang diatur di Game House.
+                    Belum ada jadwal permainan yang diatur di Game House Sedayu City SCBRC.
                   </p>
                 </div>
               ) : (
@@ -323,102 +258,6 @@ function JadwalContent() {
                         </div>
                         <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#183629' }}>
                           {ev.biaya}
-                        </div>
-                      </div>
-
-                      <Link
-                        href="/pemesanan"
-                        className="ev-btn-detail"
-                        style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-                      >
-                        <span>Reservasi Sesi</span>
-                        <ArrowRight size={14} />
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              )}
-            </section>
-
-            {/* ── SECTION 2: JADWAL SESI BERMAIN REGULER ── */}
-            <section className="ev-schedule-block" style={{ marginTop: '48px' }}>
-              <div className="ev-schedule-block-header">
-                <h2 className="ev-schedule-block-title">
-                  <Coffee size={20} color="#183629" />
-                  <span>Jadwal Sesi Bermain Reguler di Game House</span>
-                </h2>
-                <span className="ev-schedule-badge">
-                  {filteredSessions.length} Sesi Aktif
-                </span>
-              </div>
-
-              {filteredSessions.length === 0 ? (
-                <div className="ev-empty-box" style={{ padding: '32px 20px', margin: '16px 0' }}>
-                  <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>
-                    Tidak ada sesi bermain reguler untuk filter yang Anda tentukan.
-                  </p>
-                </div>
-              ) : (
-                filteredSessions.map((session) => (
-                  <div key={session.id} className="ev-schedule-item-card">
-                    {/* Time block */}
-                    <div className="ev-schedule-time-box">
-                      <div className="ev-schedule-time-val">{session.waktu}</div>
-                      <div className="ev-schedule-date-val">{session.tanggal_formatted}</div>
-                    </div>
-
-                    {/* Info */}
-                    <div className="ev-schedule-info-col">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <span
-                          style={{
-                            fontSize: '0.725rem',
-                            fontWeight: 700,
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            background: '#ECFDF5',
-                            color: '#065F46',
-                            textTransform: 'uppercase'
-                          }}
-                        >
-                          Sesi Bermain Reguler
-                        </span>
-                        <span
-                          style={{
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            color: session.status_code === 'kritis' ? '#D97706' : '#10B981'
-                          }}
-                        >
-                          ● {session.status}
-                        </span>
-                      </div>
-
-                      <h3 className="ev-schedule-item-title">{session.judul}</h3>
-                      <p style={{ margin: '0 0 10px 0', fontSize: '0.85rem', color: '#4B5563' }}>
-                        {session.deskripsi}
-                      </p>
-
-                      <div className="ev-schedule-item-meta">
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                          <MapPin size={14} color="#183629" />
-                          <span style={{ fontWeight: 600 }}>{session.venue}</span>
-                        </span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                          <Layers size={14} color="#183629" />
-                          <span>{session.fasilitas}</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Action */}
-                    <div className="ev-schedule-action-col">
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.725rem', color: '#6B7280', textTransform: 'uppercase' }}>
-                          Tarif Kursi
-                        </div>
-                        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#183629' }}>
-                          {session.biaya}
                         </div>
                       </div>
 
