@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import ApiClient from '@/lib/api';
 import Link from 'next/link';
 import {
   Award,
@@ -20,11 +21,32 @@ import '@/app/events-venues/events-venues.css';
 export default function LeaderboardPage() {
   const [activeTier, setActiveTier] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [livePlayers, setLivePlayers] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const topPlayer = LEADERBOARD_PLAYERS[0];
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchLeaderboard() {
+      try {
+        const res = await ApiClient.getLeaderboard();
+        if (isMounted && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          setLivePlayers(res.data);
+        }
+      } catch (e) {
+        console.error('Failed to load leaderboard', e);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchLeaderboard();
+    return () => { isMounted = false; };
+  }, []);
+
+  const playerList = livePlayers.length > 0 ? livePlayers : LEADERBOARD_PLAYERS;
+  const topPlayer = playerList[0];
 
   const filteredPlayers = useMemo(() => {
-    return LEADERBOARD_PLAYERS.filter((player) => {
+    return playerList.filter((player) => {
       const matchSearch =
         searchQuery === '' ||
         player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -204,7 +226,7 @@ export default function LeaderboardPage() {
                 color: activeTier === 'all' ? '#FFFFFF' : '#2B3830',
               }}
             >
-              Semua Atlet ({LEADERBOARD_PLAYERS.length})
+              Semua Atlet ({playerList.length})
             </button>
             <button
               type="button"

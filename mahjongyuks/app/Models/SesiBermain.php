@@ -15,6 +15,8 @@ class SesiBermain extends Model
 
     protected $fillable = [
         'pemesanan_id',
+        'event_id',
+        'nama_sesi',
         'tanggal_permainan',
         'waktu_mulai',
         'waktu_selesai',
@@ -31,6 +33,11 @@ class SesiBermain extends Model
     public function pemesanan(): BelongsTo
     {
         return $this->belongsTo(Pemesanan::class);
+    }
+
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 
     public function skorPemains(): HasMany

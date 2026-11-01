@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\VenueController;
 use App\Http\Controllers\Api\JadwalController;
+use App\Http\Controllers\Api\SkorLeaderboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,3 +58,15 @@ Route::delete('/venues/{id}', [VenueController::class, 'destroy']);
 
 // Modul Jadwal
 Route::get('/jadwal', [JadwalController::class, 'index']);
+
+// Modul Leaderboard & Atlet (RF-08)
+Route::get('/leaderboard', [SkorLeaderboardController::class, 'leaderboard']);
+Route::get('/players', [SkorLeaderboardController::class, 'playersList']);
+Route::get('/sesi-bermain', [SkorLeaderboardController::class, 'sessions']);
+
+// Modul Skor & Sesi Wasit (RF-06 & RF-07)
+Route::post('/skor-pemain', [SkorLeaderboardController::class, 'recordScore']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user/game-history', [SkorLeaderboardController::class, 'myGameHistory']);
+});

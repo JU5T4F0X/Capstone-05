@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ApiClient from '@/lib/api';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -32,6 +33,17 @@ export default function DashboardPage() {
   const [showPartnershipModal, setShowPartnershipModal] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('Mahjong Lounge Senopati');
+
+  // ── LEADERBOARD: Live data from API ──
+  const [liveLeaderboard, setLiveLeaderboard] = useState<any[]>([]);
+
+  useEffect(() => {
+    ApiClient.getLeaderboard({ limit: 5 }).then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setLiveLeaderboard(res.data);
+      }
+    }).catch(() => {});
+  }, []);
 
   const userName = user?.nama || 'Pemain';
   const kemahiranLevel = normalizeKemahiran(user?.kemahiran || user?.dan_rank);
@@ -229,6 +241,7 @@ export default function DashboardPage() {
                   <div className="db-section-subtitle">Log Aktivitas</div>
                   <h3 className="db-section-title">Aktivitas Terbaru</h3>
                 </div>
+                <span className="db-panel-link" onClick={() => router.push('/game-history')}>Riwayat Saya ›</span>
               </div>
 
               <div className="db-activity-card">
@@ -253,102 +266,140 @@ export default function DashboardPage() {
                 </div>
                 <span
                   className="db-panel-link"
-                  onClick={() => router.push('/#leaderboard')}
+                  onClick={() => router.push('/leaderboard')}
                 >
                   Seluruh Klasemen ›
                 </span>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* Rank 1 */}
-                <div className="db-rank-row">
-                  <div className="db-rank-left">
-                    <div className="db-rank-num gold">1</div>
-                    <div className="db-rank-avatar">
-                      <Image src="/assets/avatar_budi.png" alt="Budi" fill style={{ objectFit: 'cover' }} />
+                {liveLeaderboard.length > 0 ? (
+                  liveLeaderboard.map((player, idx) => {
+                    const rank = idx + 1;
+                    const isCurrentUser = player.user_id === user?.id;
+                    const rankColors: Record<number, string> = { 1: 'gold', 2: 'silver', 3: 'bronze' };
+                    return (
+                      <div key={player.id || rank} className={`db-rank-row${isCurrentUser ? ' current-user' : ''}`}>
+                        <div className="db-rank-left">
+                          <div className={`db-rank-num${rank === 1 ? ' gold' : ''}`}>{rank}</div>
+                          <div className="db-rank-avatar" style={isCurrentUser ? { border: '1.5px solid #A3E6C5' } : {}}>
+                            <Image
+                              src={player.avatar_url || '/assets/avatar_kevin.jpg'}
+                              alt={player.nama || 'Player'}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                            />
+                          </div>
+                          <div>
+                            <div className="db-rank-player-name">
+                              {player.name || player.nama || 'Unknown'}{isCurrentUser ? ' (Anda) ' : ' '}
+                              <span style={{ fontSize: '10px', color: isCurrentUser ? '#A3E6C5' : '#78807B' }}>
+                                {player.rankTitle || player.kemahiran || ''}
+                              </span>
+                            </div>
+                            <div className="db-rank-sub">{player.danRank || ''} • {player.totalMatches || 0} Hanchan</div>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div className="db-rank-pts">{(player.eloRating || 0).toLocaleString()}</div>
+                          <span style={{ fontSize: '9.5px', color: isCurrentUser ? '#D3DFD8' : '#78807B', fontWeight: 600 }}>PTS</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <>
+                    {/* Fallback: Rank 1 */}
+                    <div className="db-rank-row">
+                      <div className="db-rank-left">
+                        <div className="db-rank-num gold">1</div>
+                        <div className="db-rank-avatar">
+                          <Image src="/assets/avatar_budi.png" alt="Budi" fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <div className="db-rank-player-name">Budi Pratama <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
+                          <div className="db-rank-sub">Win Rate 34.2% • 48 Hanchan</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="db-rank-pts">28,400</div>
+                        <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
+                      </div>
                     </div>
-                    <div>
-                      <div className="db-rank-player-name">Budi Pratama <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                      <div className="db-rank-sub">Win Rate 34.2% • 48 Hanchan</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="db-rank-pts">28,400</div>
-                    <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
-                  </div>
-                </div>
 
-                {/* Rank 2 */}
-                <div className="db-rank-row">
-                  <div className="db-rank-left">
-                    <div className="db-rank-num">2</div>
-                    <div className="db-rank-avatar">
-                      <Image src="/assets/avatar_amanda.png" alt="Amanda" fill style={{ objectFit: 'cover' }} />
+                    {/* Fallback: Rank 2 */}
+                    <div className="db-rank-row">
+                      <div className="db-rank-left">
+                        <div className="db-rank-num">2</div>
+                        <div className="db-rank-avatar">
+                          <Image src="/assets/avatar_amanda.png" alt="Amanda" fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <div className="db-rank-player-name">Amanda Wijaya <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
+                          <div className="db-rank-sub">Win Rate 31.8% • 42 Hanchan</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="db-rank-pts">24,150</div>
+                        <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
+                      </div>
                     </div>
-                    <div>
-                      <div className="db-rank-player-name">Amanda Wijaya <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                      <div className="db-rank-sub">Win Rate 31.8% • 42 Hanchan</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="db-rank-pts">24,150</div>
-                    <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
-                  </div>
-                </div>
 
-                {/* Rank 3 */}
-                <div className="db-rank-row">
-                  <div className="db-rank-left">
-                    <div className="db-rank-num">3</div>
-                    <div className="db-rank-avatar">
-                      <Image src="/assets/avatar_rendy.png" alt="Rendy" fill style={{ objectFit: 'cover' }} />
+                    {/* Fallback: Rank 3 */}
+                    <div className="db-rank-row">
+                      <div className="db-rank-left">
+                        <div className="db-rank-num">3</div>
+                        <div className="db-rank-avatar">
+                          <Image src="/assets/avatar_rendy.png" alt="Rendy" fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <div className="db-rank-player-name">Rendy Tanaka <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
+                          <div className="db-rank-sub">Win Rate 28.5% • 39 Hanchan</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="db-rank-pts">19,800</div>
+                        <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
+                      </div>
                     </div>
-                    <div>
-                      <div className="db-rank-player-name">Rendy Tanaka <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                      <div className="db-rank-sub">Win Rate 28.5% • 39 Hanchan</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="db-rank-pts">19,800</div>
-                    <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
-                  </div>
-                </div>
 
-                {/* Rank 4: Current User Highlight */}
-                <div className="db-rank-row current-user">
-                  <div className="db-rank-left">
-                    <div className="db-rank-num">4</div>
-                    <div className="db-rank-avatar" style={{ border: '1.5px solid #A3E6C5' }}>
-                      <Image src={user?.avatar_url || '/assets/avatar_kevin.jpg'} alt={userName} fill style={{ objectFit: 'cover' }} />
+                    {/* Fallback: Rank 4 Current User */}
+                    <div className="db-rank-row current-user">
+                      <div className="db-rank-left">
+                        <div className="db-rank-num">4</div>
+                        <div className="db-rank-avatar" style={{ border: '1.5px solid #A3E6C5' }}>
+                          <Image src={user?.avatar_url || '/assets/avatar_kevin.jpg'} alt={userName} fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <div className="db-rank-player-name">{userName} (Anda) <span style={{ fontSize: '10px', color: '#A3E6C5' }}>{kemahiranDetail.level}</span></div>
+                          <div className="db-rank-sub">Target berikutnya: 19,801 pts</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="db-rank-pts">{user?.points ? user.points.toLocaleString() : '14,850'}</div>
+                        <span style={{ fontSize: '9.5px', color: '#D3DFD8', fontWeight: 600 }}>PTS</span>
+                      </div>
                     </div>
-                    <div>
-                      <div className="db-rank-player-name">{userName} (Anda) <span style={{ fontSize: '10px', color: '#A3E6C5' }}>{kemahiranDetail.level}</span></div>
-                      <div className="db-rank-sub">Target berikutnya: 19,801 pts</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="db-rank-pts">{user?.points ? user.points.toLocaleString() : '14,850'}</div>
-                    <span style={{ fontSize: '9.5px', color: '#D3DFD8', fontWeight: 600 }}>PTS</span>
-                  </div>
-                </div>
 
-                {/* Rank 5 */}
-                <div className="db-rank-row">
-                  <div className="db-rank-left">
-                    <div className="db-rank-num">5</div>
-                    <div className="db-rank-avatar">
-                      <Image src="/assets/avatar_felicia.png" alt="Felicia" fill style={{ objectFit: 'cover' }} />
+                    {/* Fallback: Rank 5 */}
+                    <div className="db-rank-row">
+                      <div className="db-rank-left">
+                        <div className="db-rank-num">5</div>
+                        <div className="db-rank-avatar">
+                          <Image src="/assets/avatar_felicia.png" alt="Felicia" fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div>
+                          <div className="db-rank-player-name">Felicia Zhang <span style={{ fontSize: '10px', color: '#78807B' }}>Intermediate</span></div>
+                          <div className="db-rank-sub">Win Rate 26.2% • 31 Hanchan</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div className="db-rank-pts">13,200</div>
+                        <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
+                      </div>
                     </div>
-                    <div>
-                      <div className="db-rank-player-name">Felicia Zhang <span style={{ fontSize: '10px', color: '#78807B' }}>Intermediate</span></div>
-                      <div className="db-rank-sub">Win Rate 26.2% • 31 Hanchan</div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="db-rank-pts">13,200</div>
-                    <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             </div>
 

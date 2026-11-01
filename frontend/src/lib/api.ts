@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MahjongYuks API Client
  * Mengacu pada AGENTS.md (Single API Client for Laravel Backend)
  */
@@ -421,6 +421,59 @@ export class ApiClient {
   public static async getMejas(venueId?: number | string): Promise<ApiResponse<any[]>> {
     const qs = venueId ? `?venue_id=${venueId}` : '';
     return this.request(`/mejas${qs}`);
+  }
+
+  // -- Leaderboard & Skor Atlet (RF-07 & RF-08) ------------------------------
+  public static async getLeaderboard(params?: { tier?: string; q?: string; limit?: number }): Promise<ApiResponse<any[]>> {
+    const query = new URLSearchParams();
+    if (params?.tier) query.append('tier', params.tier);
+    if (params?.q) query.append('q', params.q);
+    if (params?.limit) query.append('limit', String(params.limit));
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    return this.request<any[]>(`/leaderboard${qs}`);
+  }
+
+  public static async getPlayersList(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/players');
+  }
+
+  public static async getSessions(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/sesi-bermain');
+  }
+
+  public static async recordScore(payload: {
+    player_id: number;
+    skor: number;
+    peringkat: number;
+    event_id?: number | string;
+    sesi_id?: number;
+    catatan_wasit?: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/skor-pemain', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public static async getMyGameHistory(): Promise<ApiResponse<{
+    stats: {
+      totalMatches: number;
+      totalWins: number;
+      winRate: string;
+      totalPoints: number;
+    };
+    history: Array<{
+      id: number;
+      match_name: string;
+      tanggal: string;
+      peringkat: number;
+      skor: number;
+      catatan_wasit?: string | null;
+      sesi_id?: number;
+      event_name?: string | null;
+    }>;
+  }>> {
+    return this.request('/user/game-history');
   }
 }
 
