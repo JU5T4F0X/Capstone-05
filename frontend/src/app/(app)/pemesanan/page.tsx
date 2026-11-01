@@ -25,6 +25,7 @@ import { useAuth } from '@/context/AuthContext';
 import ApiClient, { ApiMyEventRegistration } from '@/lib/api';
 import { KemahiranLevel, KEMAHIRAN_MAP, normalizeKemahiran } from '@/lib/kemahiran';
 import '@/app/events-venues/events-venues.css';
+import { muatSnap, buatPesanan, bukaPopupBayar, tungguStatus, cekStatus } from '@/lib/midtrans';
 
 // Orientasi mata angin mahjong (Hong Kong Style)
 type WindPosition = 'ton' | 'nan' | 'sha' | 'pei';
@@ -266,8 +267,8 @@ export default function PemesananPage() {
     setSelectedSeat(pos);
   };
 
-  // Submit & buka modal pembayaran simulasi
-  const handleProceedPayment = () => {
+  // Submit: buat pesanan di backend, lalu buka popup pembayaran Midtrans
+  const handleProceedPayment = async () => {
     if (!selectedSeat) {
       alert('Silakan pilih salah satu kursi mata angin yang tersedia.');
       return;
@@ -276,7 +277,80 @@ export default function PemesananPage() {
       alert('Harap menyetujui regulasi dan etika permainan sebelum melanjutkan.');
       return;
     }
-    setIsPayModalOpen(true);
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+    try {
+      await muatSnap();
+
+      const pesanan = await buatPesanan({
+        meja_id: selectedTableId,
+        tanggal_main: selectedDate,
+        waktu_mulai: selectedTime.slice(0, 5),
+        durasi_jam: durationHours,
+        jenis_pemesanan: mode,
+        kursi_pilihan: selectedSeat,
+      });
+
+      const hasilPopup = await bukaPopupBayar(pesanan.snap_token);
+
+      // Keputusan akhir selalu dari backend, bukan dari popup
+      const hasil =
+        hasilPopup === 'closed' || hasilPopup === 'error'
+          ? await cekStatus(pesanan.pemesanan_id)
+          : await tungguStatus(pesanan.pemesanan_id);
+
+      if (hasil.status === 'paid') {
+        const currentTable = tables.find((t) => t.id === selectedTableId);
+        const windInfo = WIND_DETAILS[selectedSeat];
+        const total = hasil.tiket?.total_bayar ?? pesanan.total_bayar;
+
+        const newBooking = {
+          id: hasil.kode_booking,
+          type: 'meja' as const,
+          title: mode === 'Competitive' ? 'Sesi Pertandingan Kompetitif Hong Kong Style' : 'Sesi Sparing Casual Hong Kong Style',
+          venue: 'Alicia Bakery Sedayu City (Game House MahjongYuks)',
+          address: 'Sedayu City Kelapa Gading SCBRC Blok C No. 18, Jakarta Utara',
+          table: `${currentTable?.nomor} (${currentTable?.tipe})`,
+          seatKanji: windInfo.kanji,
+          seatName: windInfo.name,
+          seatPosition: selectedSeat,
+          dateTime: `${selectedDate} \u2022 ${selectedTime} WIB (${durationHours} Jam)`,
+          duration: durationHours,
+          price: `Rp ${total.toLocaleString('id-ID')}`,
+          mode,
+          playerName: namaLengkap || 'Kevin Sanjaya',
+          playerEmail: email || 'kevin@example.com',
+          playerPhone: noTelp || '08123456789',
+          licenseId,
+          tingkatKemahiran,
+          status: 'confirmed',
+          statusLabel: 'Terkonfirmasi & Lunas',
+          createdAt: new Date().toISOString(),
+        };
+
+        const updated = [newBooking, ...localBookings];
+        setLocalBookings(updated);
+        try {
+          localStorage.setItem('mahjongyuks_bookings', JSON.stringify(updated));
+        } catch {
+          // abaikan
+        }
+
+        setConfirmedData(newBooking);
+        setShowSuccessTicket(true);
+      } else if (hasil.status === 'pending') {
+        alert('Pembayaran belum selesai. Klik tombol bayar lagi untuk melanjutkan pesanan yang sama.');
+      } else if (hasil.status === 'expired') {
+        alert('Waktu pembayaran habis. Silakan pesan ulang.');
+      } else {
+        alert('Pembayaran gagal atau dibatalkan. Silakan coba lagi.');
+      }
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Terjadi kesalahan saat memproses pembayaran.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Eksekusi simulasi bayar

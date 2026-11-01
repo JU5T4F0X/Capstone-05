@@ -81,7 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pemesanans', [PemesananController::class, 'store']);
     Route::get('/pemesanans/{id}', [PemesananController::class, 'show']);
     Route::get('/pemesanans/{id}/status', [PemesananController::class, 'status']);
-    Route::post('/pemesanans/{id}/cancel', [PemesananController::class, 'cancel']);
+    Route::match(['put', 'post'], '/pemesanans/{id}/cancel', [PemesananController::class, 'cancel']);
 
     Route::get('/pembayarans', [PembayaranController::class, 'index']);
     Route::post('/pembayarans/{id}/verifikasi', [PembayaranController::class, 'verifikasi']);
