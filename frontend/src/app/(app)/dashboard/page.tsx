@@ -321,11 +321,11 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="db-rank-player-name">Budi Pratama <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                          <div className="db-rank-sub">Win Rate 34.2% • 48 Hanchan</div>
+                          <div className="db-rank-sub">Win Rate 0.0% • 0 Hanchan</div>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="db-rank-pts">28,400</div>
+                        <div className="db-rank-pts">0</div>
                         <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
                       </div>
                     </div>
@@ -339,11 +339,11 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="db-rank-player-name">Amanda Wijaya <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                          <div className="db-rank-sub">Win Rate 31.8% • 42 Hanchan</div>
+                          <div className="db-rank-sub">Win Rate 0.0% • 0 Hanchan</div>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="db-rank-pts">24,150</div>
+                        <div className="db-rank-pts">0</div>
                         <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
                       </div>
                     </div>
@@ -357,11 +357,11 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="db-rank-player-name">Rendy Tanaka <span style={{ fontSize: '10px', color: '#78807B' }}>Advance</span></div>
-                          <div className="db-rank-sub">Win Rate 28.5% • 39 Hanchan</div>
+                          <div className="db-rank-sub">Win Rate 0.0% • 0 Hanchan</div>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="db-rank-pts">19,800</div>
+                        <div className="db-rank-pts">0</div>
                         <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
                       </div>
                     </div>
@@ -375,7 +375,7 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="db-rank-player-name">{userName} (Anda) <span style={{ fontSize: '10px', color: '#A3E6C5' }}>{kemahiranDetail.level}</span></div>
-                          <div className="db-rank-sub">Target berikutnya: 19,801 pts</div>
+                          <div className="db-rank-sub">Poin Musim Ini</div>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -393,11 +393,11 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <div className="db-rank-player-name">Felicia Zhang <span style={{ fontSize: '10px', color: '#78807B' }}>Intermediate</span></div>
-                          <div className="db-rank-sub">Win Rate 26.2% • 31 Hanchan</div>
+                          <div className="db-rank-sub">Win Rate 0.0% • 0 Hanchan</div>
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="db-rank-pts">13,200</div>
+                        <div className="db-rank-pts">0</div>
                         <span style={{ fontSize: '9.5px', color: '#78807B', fontWeight: 600 }}>PTS</span>
                       </div>
                     </div>

@@ -82,7 +82,38 @@ export default function LeaderboardPage() {
 
       {/* Main Content */}
       <main className="ev-container" style={{ flex: 1, padding: '32px 0 64px 0' }}>
-        {/* Spotlight Card: Peringkat #1 Nasional */}
+        {loading ? (
+          <div style={{
+            padding: '72px 24px',
+            textAlign: 'center',
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            border: '1px solid #D7E6DB',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px'
+          }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              border: '3px solid #E8F0EB',
+              borderTopColor: '#004F27',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite'
+            }} />
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#111E18' }}>
+                Memuat Klasemen Resmi Atlet...
+              </div>
+              <div style={{ fontSize: '12px', color: '#78807B', marginTop: '4px' }}>
+                Sinkronisasi data skor dan rating WRC terkini
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Spotlight Card: Peringkat #1 Nasional */}
         {topPlayer && (
           <div style={{
             backgroundColor: '#FFFFFF',
@@ -424,6 +455,8 @@ export default function LeaderboardPage() {
             </table>
           </div>
         </div>
+          </>
+        )}
       </main>
 
     </div>
