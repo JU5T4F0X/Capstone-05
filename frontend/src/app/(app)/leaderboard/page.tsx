@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import ApiClient from '@/lib/api';
@@ -42,8 +42,8 @@ export default function LeaderboardPage() {
     return () => { isMounted = false; };
   }, []);
 
-  const playerList = livePlayers.length > 0 ? livePlayers : LEADERBOARD_PLAYERS;
-  const topPlayer = playerList[0];
+  const playerList = !loading && livePlayers.length > 0 ? livePlayers : LEADERBOARD_PLAYERS;
+  const topPlayer = loading ? null : playerList[0];
 
   const filteredPlayers = useMemo(() => {
     return playerList.filter((player) => {
@@ -60,7 +60,7 @@ export default function LeaderboardPage() {
 
       return matchSearch && matchTier;
     });
-  }, [searchQuery, activeTier]);
+  }, [loading, playerList, searchQuery, activeTier]);
 
   return (
     <div className="ev-page-wrapper">
@@ -177,7 +177,7 @@ export default function LeaderboardPage() {
                   fontSize: '11px',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                 }}>
-                  👑
+                  ðŸ‘‘
                 </div>
               </div>
 
@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
                   {topPlayer.name}
                 </h2>
                 <div style={{ fontSize: '12.5px', color: '#5A675E', marginTop: '4px' }}>
-                  Club: <strong style={{ color: '#183629' }}>{topPlayer.club}</strong> • Gelar: <strong>{topPlayer.rankTitle}</strong>
+                  Club: <strong style={{ color: '#183629' }}>{topPlayer.club}</strong> â€¢ Gelar: <strong>{topPlayer.rankTitle}</strong>
                 </div>
               </div>
             </div>
@@ -411,7 +411,7 @@ export default function LeaderboardPage() {
                               {player.name}
                             </div>
                             <div style={{ fontSize: '11.5px', color: '#7A897F' }}>
-                              {player.club} • {player.rankTitle}
+                              {player.club} â€¢ {player.rankTitle}
                             </div>
                           </div>
                         </div>
