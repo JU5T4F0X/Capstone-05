@@ -182,17 +182,25 @@ function EventsListContent() {
   }, []);
 
   // Compute Available Categories from Real Data
+  // Saring: Di Halaman Event, hanya data dengan jenis_event 'Event' yang diproses (Non-Event disembunyikan)
+  const eventOnlyList = useMemo(() => {
+    return events.filter(
+      (ev) => !ev.jenis_event || (ev.jenis_event !== 'Non-Event' && ev.jenis_event.toLowerCase() !== 'non-event')
+    );
+  }, [events]);
+
+  // Compute Available Categories from Real Data
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
-    events.forEach((ev) => {
+    eventOnlyList.forEach((ev) => {
       if (ev.kategori) set.add(ev.kategori);
     });
     return Array.from(set);
-  }, [events]);
+  }, [eventOnlyList]);
 
   // Compute Hero Summary Metrics from Real Data
   const heroSummary = useMemo(() => {
-    if (events.length === 0) return null;
+    if (eventOnlyList.length === 0) return null;
 
     let activeCount = 0;
     let tournamentCount = 0;
@@ -202,7 +210,7 @@ function EventsListContent() {
     const now = Date.now();
     let minDiff = Infinity;
 
-    events.forEach((ev) => {
+    eventOnlyList.forEach((ev) => {
       const status = computeEventStatus(ev);
       if (status.type === 'active') activeCount++;
 
@@ -232,11 +240,11 @@ function EventsListContent() {
       nearestDate: nearestDate || 'Segera Diumumkan',
       nearestName: nearestName || '',
     };
-  }, [events]);
+  }, [eventOnlyList]);
 
   // Filter & Sort Logic
   const filteredEvents = useMemo(() => {
-    const filtered = events.filter((ev) => {
+    const filtered = eventOnlyList.filter((ev) => {
       // Search by title, venue, or description
       const searchTarget = `${ev.nama_event} ${ev.venue || ''} ${ev.deskripsi || ''}`.toLowerCase();
       const matchSearch =

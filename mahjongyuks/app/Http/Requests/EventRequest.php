@@ -28,6 +28,7 @@ class EventRequest extends FormRequest
             'waktu_mulai' => ['required', 'string'],
             'waktu_selesai' => ['required', 'string'],
             'status' => ['required', 'string', 'in:active,cancelled,selesai,upcoming,draft'],
+            'jenis_event' => ['nullable', 'string', 'in:Event,Non-Event,event,non-event'],
             'venue_id' => ['nullable', 'exists:venues,id'],
             'biaya' => ['nullable', 'string', 'max:100'],
             'kuota' => ['nullable', 'string', 'max:100'],

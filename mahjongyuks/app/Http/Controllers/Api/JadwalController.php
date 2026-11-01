@@ -18,39 +18,60 @@ class JadwalController extends Controller
         $venueFilter = $request->input('venue_id');
         $dateFilter = $request->input('tanggal');
 
-        // 1. Jadwal Event Turnamen & Kompetisi
-        $eventQuery = Event::query();
-        if ($dateFilter) {
+        // 1. Jadwal Permainan Non-Event khusus Game House (Sedayu City Kelapa Gading SCBRC)
+        // Aturan:
+        // - Jika jenis_event 'Event', maka TIDAK tertampil di halaman Jadwal (hanya di halaman Event)
+        // - Jika jenis_event 'Non-Event', maka tertampil di halaman Jadwal (dan TIDAK di halaman Event)
+        // - Di halaman Jadwal hanya permainan yang di-set di GameHouse (Sedayu City Kelapa Gading SCBRC)
+        $eventQuery = Event::with('venue')
+            ->where(function ($q) {
+                $q->where('jenis_event', 'Non-Event')
+                  ->orWhere('jenis_event', 'non-event');
+            })
+            ->where(function ($q) {
+                $q->where('venue_id', 1)
+                  ->orWhereNull('venue_id')
+                  ->orWhereHas('venue', function ($vq) {
+                      $vq->where('nama_venue', 'like', '%Game House%')
+                         ->orWhere('alamat', 'like', '%Sedayu City%');
+                  });
+            });
+
+        if ($dateFilter && $dateFilter !== 'all') {
             $eventQuery->where('tanggal_event', $dateFilter);
         }
+
         $events = $eventQuery->orderBy('tanggal_event', 'asc')
                              ->orderBy('waktu_mulai', 'asc')
                              ->get();
 
         $jadwalEvents = $events->map(function ($event) {
-            $venueName = 'Mahjong Lounge Senopati';
-            if (stripos($event->deskripsi, 'PIK') !== false || stripos($event->nama_event, 'PIK') !== false) {
-                $venueName = 'Green Bamboo Club PIK';
-            } elseif (stripos($event->deskripsi, 'Bandung') !== false) {
-                $venueName = 'Bandung Tile Society';
-            } elseif (stripos($event->deskripsi, 'Sedayu') !== false) {
-                $venueName = 'Alicia Bakery Sedayu City';
+            $venueName = 'Game House';
+            $venueAlamat = 'Sedayu City Kelapa Gading SCBRC, Blok C No. 18, RT 03/RW 09, Kelapa Gading, Jakarta Utara';
+            if ($event->venue) {
+                $venueName = $event->venue->nama_venue;
+                if (!empty($event->venue->alamat)) {
+                    $venueAlamat = $event->venue->alamat;
+                }
             }
 
             return [
                 'id' => 'ev-' . $event->id,
                 'event_id' => $event->id,
-                'tipe' => 'event',
+                'tipe' => 'non_event',
+                'jenis_event' => $event->jenis_event ?? 'Non-Event',
                 'judul' => $event->nama_event,
                 'deskripsi' => $event->deskripsi,
                 'tanggal' => $event->tanggal_event ? $event->tanggal_event->format('Y-m-d') : null,
                 'tanggal_formatted' => $event->tanggal_event ? $event->tanggal_event->translatedFormat('d F Y') : null,
                 'waktu' => substr($event->waktu_mulai, 0, 5) . ' - ' . substr($event->waktu_selesai, 0, 5) . ' WIB',
                 'venue' => $venueName,
-                'status' => $event->status === 'active' ? 'Pendaftaran Dibuka' : 'Selesai',
+                'alamat' => $venueAlamat,
+                'status' => $event->status === 'active' ? 'Pendaftaran Dibuka' : ucfirst($event->status),
                 'status_code' => $event->status,
-                'biaya' => 'Rp 150.000 / kursi',
-                'aturan' => 'World Riichi Championship (WRC)',
+                'biaya' => $event->biaya ?: 'Rp 95.000 / kursi',
+                'kuota' => $event->kuota ?: 'Sisa 4 Kursi (1 Meja)',
+                'aturan' => 'Standar Permainan Resmi Game House Sedayu City',
             ];
         });
 

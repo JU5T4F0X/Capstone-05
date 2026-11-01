@@ -26,9 +26,16 @@ class EventController extends Controller
 
         $query = Event::with(['venue', 'pendaftarans']);
 
-        // Jika bukan Admin, sembunyikan event draf
+        // Jika bukan Admin, sembunyikan event draf dan non-event (hanya tampilkan jenis_event 'Event')
         if (! $isAdmin) {
             $query->where('status', '!=', 'draft');
+            $query->where(function ($q) {
+                $q->where('jenis_event', 'Event')
+                  ->orWhere('jenis_event', 'event')
+                  ->orWhereNull('jenis_event');
+            });
+        } elseif ($request->filled('jenis_event') && $request->jenis_event !== 'all') {
+            $query->where('jenis_event', $request->jenis_event);
         }
 
         // Filter pencarian nama atau deskripsi
@@ -386,6 +393,13 @@ class EventController extends Controller
             $validated['biaya'] = 'Rp 150.000 /kursi';
         }
 
+        // Normalisasi jenis_event (Event vs Non-Event)
+        if (empty($validated['jenis_event'])) {
+            $validated['jenis_event'] = 'Event';
+        } else {
+            $validated['jenis_event'] = strcasecmp($validated['jenis_event'], 'Non-Event') === 0 ? 'Non-Event' : 'Event';
+        }
+
         $event = Event::create($validated);
         $event->load('venue');
 
@@ -424,6 +438,11 @@ class EventController extends Controller
         } elseif (empty($validated['foto'])) {
             // Pertahankan foto yang sudah ada
             unset($validated['foto']);
+        }
+
+        // Normalisasi jenis_event jika ada dalam request
+        if (isset($validated['jenis_event'])) {
+            $validated['jenis_event'] = strcasecmp($validated['jenis_event'], 'Non-Event') === 0 ? 'Non-Event' : 'Event';
         }
 
         $event->update($validated);
@@ -549,6 +568,7 @@ class EventController extends Controller
         return [
             'id' => $event->id,
             'nama_event' => $event->nama_event,
+            'jenis_event' => $event->jenis_event ?? 'Event',
             'deskripsi' => $event->deskripsi,
             'tanggal_event' => $event->tanggal_event ? $event->tanggal_event->format('Y-m-d') : null,
             'tanggal_formatted' => $event->tanggal_event ? $event->tanggal_event->translatedFormat('l, d F Y') : null,

@@ -20,6 +20,7 @@ class Event extends Model
         'waktu_mulai',
         'waktu_selesai',
         'status',
+        'jenis_event',
         'biaya',
         'kuota',
         'foto',

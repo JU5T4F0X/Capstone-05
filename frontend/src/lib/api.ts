@@ -37,6 +37,7 @@ export interface ApiEvent {
   waktu_formatted?: string;
   status: string;
   status_label?: string;
+  jenis_event?: 'Event' | 'Non-Event' | string;
   venue?: string;
   venue_id?: number | string;
   biaya?: string;
@@ -114,7 +115,8 @@ export interface ApiVenue {
 export interface ApiJadwalItem {
   id: string;
   event_id?: number | string;
-  tipe: 'event' | 'sesi_permainan';
+  tipe: 'event' | 'sesi_permainan' | 'non_event' | string;
+  jenis_event?: 'Event' | 'Non-Event' | string;
   judul: string;
   deskripsi: string;
   tanggal: string | null;
