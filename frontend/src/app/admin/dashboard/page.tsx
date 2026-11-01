@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import '@/app/admin/admin.css';
 
@@ -442,6 +442,29 @@ function AdminDashboardContent() {
       showToast('Error: Tidak dapat terhubung ke server. Pastikan backend aktif.');
     } finally {
       setIsSubmittingScore(false);
+    }
+  };
+
+  const [isResettingScore, setIsResettingScore] = useState(false);
+
+  const handleResetLeaderboard = async () => {
+    if (!confirm('Apakah Anda yakin ingin me-reset seluruh poin atlet menjadi 0? Tindakan ini akan mengosongkan riwayat skor.')) {
+      return;
+    }
+    setIsResettingScore(true);
+    try {
+      const res = await ApiClient.resetLeaderboardScores();
+      if (res.success) {
+        showToast('Seluruh poin atlet berhasil di-reset menjadi 0.');
+        const lb = await ApiClient.getLeaderboard({ limit: 10 });
+        if (lb.success && lb.data) setLiveLeaderboard(lb.data);
+      } else {
+        showToast(res.message || 'Gagal me-reset poin.');
+      }
+    } catch {
+      showToast('Error koneksi ke server saat me-reset poin.');
+    } finally {
+      setIsResettingScore(false);
     }
   };
 
@@ -1919,11 +1942,34 @@ function AdminDashboardContent() {
                     flexDirection: 'column',
                     gap: '16px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '4px', height: '18px', backgroundColor: '#183629', borderRadius: '2px' }} />
-                      <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#111E18', margin: 0 }}>
-                        Klasemen Atlet Riichi Teratas (Season 2025/2026)
-                      </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '4px', height: '18px', backgroundColor: '#183629', borderRadius: '2px' }} />
+                        <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#111E18', margin: 0 }}>
+                          Klasemen Atlet Riichi Teratas (Season 2025/2026)
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleResetLeaderboard}
+                        disabled={isResettingScore}
+                        className="adm-btn-secondary"
+                        style={{
+                          fontSize: '11.5px',
+                          padding: '5px 10px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          color: '#DC2626',
+                          borderColor: '#FECACA',
+                          backgroundColor: '#FEF2F2',
+                          cursor: isResettingScore ? 'not-allowed' : 'pointer'
+                        }}
+                        title="Reset seluruh poin atlet ke 0"
+                      >
+                        <RotateCcw size={12} />
+                        <span>{isResettingScore ? 'Mereset...' : 'Reset Poin (0 PTS)'}</span>
+                      </button>
                     </div>
 
                     <div className="adm-table-container">

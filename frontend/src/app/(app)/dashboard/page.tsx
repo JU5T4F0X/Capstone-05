@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import ApiClient from '@/lib/api';
@@ -44,6 +44,9 @@ export default function DashboardPage() {
       }
     }).catch(() => {});
   }, []);
+
+  const currentUserEntry = liveLeaderboard.find((p) => p.user_id === user?.id);
+  const userPoints = currentUserEntry ? (currentUserEntry.eloRating ?? 0) : (user?.points ?? 0);
 
   const userName = user?.nama || 'Pemain';
   const kemahiranLevel = normalizeKemahiran(user?.kemahiran || user?.dan_rank);
@@ -198,7 +201,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="db-metric-val-row">
                   <span className="db-metric-num">
-                    {user?.points ? user.points.toLocaleString() : '14,850'}
+                    {userPoints.toLocaleString()}
                   </span>
                   <span className="db-metric-unit" style={{ color: '#183629', fontWeight: 700 }}>PTS</span>
                 </div>
@@ -376,7 +379,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="db-rank-pts">{user?.points ? user.points.toLocaleString() : '14,850'}</div>
+                        <div className="db-rank-pts">{userPoints.toLocaleString()}</div>
                         <span style={{ fontSize: '9.5px', color: '#D3DFD8', fontWeight: 600 }}>PTS</span>
                       </div>
                     </div>

@@ -33,21 +33,20 @@ class SkorLeaderboardController extends Controller
             $totalWins = $skors->where('peringkat', 1)->count();
             $winRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 1) . '%' : '0.0%';
 
-            // Total akumulasi skor dari skor_pemains
+            // Total akumulasi skor dari skor_pemains (Poin atlet dimulai murni dari 0)
             $scoreSum = (float) $skors->sum('skor');
+            $eloRating = (float) round($scoreSum, 1);
 
-            // Kalkulasi Elo Rating / Poin WRC resmi
-            // Base rating awal berdasarkan tingkat kemahiran + akumulasi skor
-            $basePoints = match (strtolower($player->tingkat_kemahiran ?? 'intermediate')) {
-                'advance' => 18000,
-                'intermediate' => 12000,
-                default => 8000,
-            };
-            $eloRating = (int) ($basePoints + ($scoreSum * 10));
+            // Dan Rank & Rank Title berdasarkan tingkat kemahiran awal & perkembangan poin
+            $defaultRanks = [
+                'advance' => ['title' => 'Master', 'dan' => '7-Dan'],
+                'intermediate' => ['title' => 'Skilled', 'dan' => '3-Dan'],
+                'beginner' => ['title' => 'Novice', 'dan' => '1-Kyu'],
+            ];
+            $tier = strtolower($player->tingkat_kemahiran ?? 'intermediate');
+            $rankTitle = $defaultRanks[$tier]['title'] ?? 'Novice';
+            $danRank = $defaultRanks[$tier]['dan'] ?? '1-Kyu';
 
-            // Tentukan Dan Rank & Rank Title
-            $rankTitle = 'Novice';
-            $danRank = '1-Kyu';
             if ($eloRating >= 26000) {
                 $rankTitle = 'Grandmaster';
                 $danRank = '9-Dan';
@@ -282,5 +281,18 @@ class SkorLeaderboardController extends Controller
             ],
         ]);
     }
-}
 
+    /**
+     * Reset seluruh skor dan poin atlet menjadi 0 (Pengaturan awal musim / reset skor).
+     */
+    public function resetScores(): JsonResponse
+    {
+        SkorPemain::query()->delete();
+        SesiBermain::whereNull('pemesanan_id')->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Seluruh skor dan poin atlet berhasil di-reset menjadi 0.',
+        ]);
+    }
+}

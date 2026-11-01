@@ -61,6 +61,7 @@ Route::get('/jadwal', [JadwalController::class, 'index']);
 
 // Modul Leaderboard & Atlet (RF-08)
 Route::get('/leaderboard', [SkorLeaderboardController::class, 'leaderboard']);
+Route::post('/leaderboard/reset', [SkorLeaderboardController::class, 'resetScores']);
 Route::get('/players', [SkorLeaderboardController::class, 'playersList']);
 Route::get('/sesi-bermain', [SkorLeaderboardController::class, 'sessions']);
 

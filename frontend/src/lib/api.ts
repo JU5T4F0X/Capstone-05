@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MahjongYuks API Client
  * Mengacu pada AGENTS.md (Single API Client for Laravel Backend)
  */
@@ -431,6 +431,12 @@ export class ApiClient {
     if (params?.limit) query.append('limit', String(params.limit));
     const qs = query.toString() ? `?${query.toString()}` : '';
     return this.request<any[]>(`/leaderboard${qs}`);
+  }
+
+  public static async resetLeaderboardScores(): Promise<ApiResponse<any>> {
+    return this.request<any>('/leaderboard/reset', {
+      method: 'POST',
+    });
   }
 
   public static async getPlayersList(): Promise<ApiResponse<any[]>> {
