@@ -4,6 +4,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\VenueController;
 use App\Http\Controllers\Api\JadwalController;
+use App\Http\Controllers\Api\MejaController;
+use App\Http\Controllers\Api\PembayaranController;
+use App\Http\Controllers\Api\PemesananController;
 use App\Http\Controllers\Api\SkorLeaderboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +61,32 @@ Route::delete('/venues/{id}', [VenueController::class, 'destroy']);
 
 // Modul Jadwal
 Route::get('/jadwal', [JadwalController::class, 'index']);
+
+/*
+|--------------------------------------------------------------------------
+| BARU: Meja, Pemesanan, Pembayaran (Midtrans)
+|--------------------------------------------------------------------------
+*/
+
+// Daftar meja + kursi terisi (publik, hanya baca)
+Route::get('/mejas', [MejaController::class, 'index']);
+Route::get('/mejas/{id}', [MejaController::class, 'show']);
+
+// Webhook Midtrans: publik karena yang memanggil server Midtrans.
+// Keamanannya ada di verifikasi signature di dalam controller.
+Route::post('/payments/notification', [PembayaranController::class, 'notification']);
+
+// Pemesanan & pembayaran (wajib login)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/pemesanans', [PemesananController::class, 'index']);
+    Route::post('/pemesanans', [PemesananController::class, 'store']);
+    Route::get('/pemesanans/{id}', [PemesananController::class, 'show']);
+    Route::get('/pemesanans/{id}/status', [PemesananController::class, 'status']);
+    Route::match(['put', 'post'], '/pemesanans/{id}/cancel', [PemesananController::class, 'cancel']);
+
+    Route::get('/pembayarans', [PembayaranController::class, 'index']);
+    Route::post('/pembayarans/{id}/verifikasi', [PembayaranController::class, 'verifikasi']);
+});
 
 // Modul Leaderboard & Atlet (RF-08)
 Route::get('/leaderboard', [SkorLeaderboardController::class, 'leaderboard']);
