@@ -57,4 +57,9 @@ class Player extends Model
             ->withPivot(['status_pendaftaran', 'tanggal_daftar', 'catatan'])
             ->withTimestamps();
     }
+
+    public function winRecords(): HasMany
+    {
+        return $this->hasMany(WinRecord::class, 'winner_id');
+    }
 }

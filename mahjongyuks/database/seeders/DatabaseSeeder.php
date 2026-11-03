@@ -203,7 +203,25 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 6. Sesi Bermain & Skor Pemain (Dikosongkan agar poin seluruh atlet mulai dari 0 PTS)
-        // Skor dan poin pertandingan atlet akan dicatat secara dinamis oleh wasit melalui Admin Dashboard (Desk Wasit).
+        // 6. Sesi Bermain Aktif (Hong Kong Mahjong)
+        $sesi1 = SesiBermain::updateOrCreate(
+            ['nama_sesi' => 'HK Championship 2026 — Sesi Siang (Sedayu City)'],
+            [
+                'tanggal_permainan' => now()->toDateString(),
+                'waktu_mulai' => '10:00:00',
+                'waktu_selesai' => '23:59:00',
+                'status' => 'ongoing',
+            ]
+        );
+
+        $sesi2 = SesiBermain::updateOrCreate(
+            ['nama_sesi' => 'Liga Komunitas Hong Kong Style — Sesi Malam'],
+            [
+                'tanggal_permainan' => now()->toDateString(),
+                'waktu_mulai' => '19:00:00',
+                'waktu_selesai' => '23:59:00',
+                'status' => 'pending',
+            ]
+        );
     }
 }

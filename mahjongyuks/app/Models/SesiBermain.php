@@ -44,4 +44,34 @@ class SesiBermain extends Model
     {
         return $this->hasMany(SkorPemain::class, 'sesi_id');
     }
+
+    public function gameTables(): HasMany
+    {
+        return $this->hasMany(GameTable::class, 'sesi_id');
+    }
+
+    public function winRecords(): HasMany
+    {
+        return $this->hasMany(WinRecord::class, 'sesi_id');
+    }
+
+    /**
+     * Cek apakah sesi masih aktif dan belum melewati batas waktu selesai.
+     */
+    public function isCurrentlyPlayable(): bool
+    {
+        if ($this->status === 'closed') {
+            return false;
+        }
+
+        // Cek apakah tanggal dan waktu selesai sudah terlewat
+        if ($this->tanggal_permainan && $this->waktu_selesai) {
+            $endDateTime = \Carbon\Carbon::parse($this->tanggal_permainan->format('Y-m-d') . ' ' . $this->waktu_selesai);
+            if (now()->greaterThanOrEqualTo($endDateTime)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

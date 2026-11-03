@@ -1,5 +1,6 @@
 {
   "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(app)/events/[id]/page": "app/(app)/events/[id]/page.js",
   "/(app)/events/page": "app/(app)/events/page.js",
   "/(app)/jadwal/page": "app/(app)/jadwal/page.js",
   "/(app)/leaderboard/page": "app/(app)/leaderboard/page.js",

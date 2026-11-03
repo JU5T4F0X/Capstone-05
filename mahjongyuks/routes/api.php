@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MejaController;
 use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\Api\PemesananController;
 use App\Http\Controllers\Api\SkorLeaderboardController;
+use App\Http\Controllers\Api\HkScoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -88,13 +89,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pembayarans/{id}/verifikasi', [PembayaranController::class, 'verifikasi']);
 });
 
-// Modul Leaderboard & Atlet (RF-08)
-Route::get('/leaderboard', [SkorLeaderboardController::class, 'leaderboard']);
-Route::post('/leaderboard/reset', [SkorLeaderboardController::class, 'resetScores']);
+// Modul Leaderboard & Atlet (RF-08) - Hong Kong Mahjong Dynamic Aggregation
+Route::get('/leaderboard', [HkScoreController::class, 'leaderboard']);
+Route::post('/leaderboard/reset', [HkScoreController::class, 'resetScores']);
 Route::get('/players', [SkorLeaderboardController::class, 'playersList']);
-Route::get('/sesi-bermain', [SkorLeaderboardController::class, 'sessions']);
+Route::get('/sesi-bermain', [HkScoreController::class, 'sessions']);
 
-// Modul Skor & Sesi Wasit (RF-06 & RF-07)
+// Modul Hong Kong Mahjong Desk Wasit & Scoring
+Route::prefix('hk')->group(function () {
+    Route::get('/config', [HkScoreController::class, 'config']);
+    Route::get('/sessions', [HkScoreController::class, 'sessions']);
+    Route::get('/sessions/{id}/tables', [HkScoreController::class, 'getTables']);
+    Route::post('/record-win', [HkScoreController::class, 'recordWin']);
+    Route::post('/win-records/{id}/void', [HkScoreController::class, 'voidWin']);
+    Route::get('/sessions/{id}/history', [HkScoreController::class, 'sessionHistory']);
+    Route::get('/leaderboard', [HkScoreController::class, 'leaderboard']);
+    Route::post('/leaderboard/reset', [HkScoreController::class, 'resetScores']);
+});
+
+// Legacy Modul Skor (RF-06 & RF-07)
 Route::post('/skor-pemain', [SkorLeaderboardController::class, 'recordScore']);
 
 Route::middleware('auth:sanctum')->group(function () {

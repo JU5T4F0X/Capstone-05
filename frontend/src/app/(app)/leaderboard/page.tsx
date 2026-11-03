@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
 import ApiClient from '@/lib/api';
@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
 
           <h1 className="ev-hero-title">Klasemen Resmi Atlet MahjongYuks</h1>
           <p className="ev-hero-subtitle">
-            Peringkat kompetitif atlet dihitung secara transparan berdasarkan regulasi World Riichi Championship (WRC) dari seluruh turnamen resmi berlisensi.
+            Peringkat kompetitif atlet dihitung secara transparan berdasarkan akumulasi poin aturan resmi Hong Kong Mahjong dari seluruh pertandingan turnamen dan sesi kompetitif MahjongYuks.
           </p>
         </div>
       </section>

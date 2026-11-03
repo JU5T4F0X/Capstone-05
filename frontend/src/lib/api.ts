@@ -463,6 +463,55 @@ export class ApiClient {
     });
   }
 
+  // -- Hong Kong Mahjong Scoring & Referee Desk ─────────────────────────────
+  public static async getHkConfig(): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/config');
+  }
+
+  public static async getHkSessions(status: string = 'active'): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>(`/hk/sessions?status=${status}`);
+  }
+
+  public static async getHkTables(sessionId: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/hk/sessions/${sessionId}/tables`);
+  }
+
+  public static async recordHkWin(payload: {
+    sesi_id: number;
+    game_table_id: number;
+    winner_id: number;
+    win_method: 'self_draw' | 'discard';
+    discarder_id?: number | null;
+    hand_codes: string[];
+    idempotency_key: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/record-win', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public static async voidHkWin(
+    recordId: number,
+    reason: string = 'Koreksi wasit'
+  ): Promise<ApiResponse<any>> {
+    return this.request<any>(`/hk/win-records/${recordId}/void`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  public static async getHkSessionHistory(sessionId: number): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>(`/hk/sessions/${sessionId}/history`);
+  }
+
+  public static async resetHkLeaderboard(newSeason?: string): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/leaderboard/reset', {
+      method: 'POST',
+      body: JSON.stringify({ new_season: newSeason }),
+    });
+  }
+
   public static async getMyGameHistory(): Promise<ApiResponse<{
     stats: {
       totalMatches: number;
