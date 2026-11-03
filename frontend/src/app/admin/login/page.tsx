@@ -11,23 +11,19 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
+  ShieldCheck,
   ShieldAlert,
-  KeyRound,
-  Store,
-  Terminal,
-  Clock,
   Layers,
-  Award,
+  CalendarCheck,
   CreditCard,
-  Scale,
-  QrCode,
-  Headphones,
+  Trophy,
   Check,
   ExternalLink,
   AlertCircle,
-  AlertTriangle,
+  HelpCircle,
   X
 } from 'lucide-react';
+import '@/app/login/login.css';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -58,12 +54,12 @@ export default function AdminLoginPage() {
     if (result.success) {
       router.push('/admin/dashboard');
     } else {
-      setErrorMessage(result.message || 'Alamat Email Admin atau Kata Sandi SSO salah. Silakan periksa kembali.');
+      setErrorMessage(result.message || 'Alamat Email Admin atau Kata Sandi salah. Silakan periksa kembali kredensial Anda.');
     }
   };
 
   return (
-    <div style={{ flex: '1 0 auto', minHeight: 'auto', width: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4' }}>
+    <div style={{ flex: '1 0 auto', minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#F1FCF4' }}>
       
       {/* TOP DESKTOP NAVBAR */}
       <header style={{
@@ -79,50 +75,45 @@ export default function AdminLoginPage() {
       }}>
         {/* Brand & Backoffice Badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <Image
-              src="/assets/mahjongyuks_logo.png"
+              src="/assets/logo.png"
               alt="Mahjongyuks"
-              width={48}
-              height={36}
+              width={52}
+              height={40}
               priority
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
             />
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#004F27', letterSpacing: '-0.3px' }}>
               Mahjongyuks
             </span>
-          </div>
+          </Link>
 
           <span className="badge-pill badge-mint" style={{ fontSize: '11px', padding: '3px 10px' }}>
-            BACKOFFICE & STAF
+            PANEL ADMINISTRATOR
           </span>
 
           <span style={{ color: '#D7E6DB', fontSize: '16px' }}>|</span>
 
-          <span style={{ fontSize: '12px', color: '#5A675E', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Store size={14} color="#004F27" />
-            Game House MahjongYuks Sedayu City • Kelapa Gading Hub #01
+          <span style={{ fontSize: '12px', color: '#5A675E', fontWeight: 500 }}>
+            Game House & Turnamen System
           </span>
         </div>
 
-        {/* Server Status & Player Portal Link */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#EBF6EE',
-            border: '1px solid #D7E6DB',
-            padding: '6px 12px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '11px',
-            fontWeight: 700,
-            color: '#004F27'
-          }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-            Sistem Server Normal <span style={{ color: '#5A675E', fontWeight: 500 }}>99.98%</span>
-          </div>
-
+        {/* Right Header: Back to Landing & Player Portal */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link
+            href="/"
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#5A675E',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            ← Kembali ke Beranda
+          </Link>
           <Link
             href="/login"
             style={{
@@ -136,11 +127,12 @@ export default function AdminLoginPage() {
               border: '1px solid #D7E6DB',
               padding: '6px 14px',
               borderRadius: 'var(--radius-full)',
+              textDecoration: 'none',
               transition: 'background 0.2s'
             }}
           >
             <ExternalLink size={13} />
-            Portal Tamu & Peserta
+            <span>Portal Pemain</span>
           </Link>
         </div>
       </header>
@@ -151,7 +143,7 @@ export default function AdminLoginPage() {
         maxWidth: '1240px',
         width: '100%',
         margin: '0 auto',
-        padding: '36px 24px',
+        padding: '40px 24px',
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))',
         gap: '32px',
@@ -164,7 +156,7 @@ export default function AdminLoginPage() {
           borderRadius: '24px',
           padding: '36px 32px',
           boxShadow: 'var(--shadow-lg)',
-          border: '1px solid var(--border-card)',
+          border: '1px solid #D7E6DB',
           display: 'flex',
           flexDirection: 'column',
           gap: '20px'
@@ -173,59 +165,14 @@ export default function AdminLoginPage() {
           {/* Badge & Title */}
           <div>
             <span className="badge-pill badge-gold" style={{ fontSize: '11px', padding: '4px 10px', marginBottom: '8px' }}>
-              <KeyRound size={12} /> Otoritas Petugas & Juri
+              <ShieldCheck size={13} /> OTORITAS OPERASIONAL & STAF
             </span>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111E18', marginTop: '6px' }}>
-              Masuk Staf & Operasional
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111E18', marginTop: '6px', letterSpacing: '-0.3px' }}>
+              Masuk Konsol Admin
             </h1>
             <p style={{ fontSize: '13px', color: '#5A675E', marginTop: '4px', lineHeight: '1.5' }}>
-              Gunakan email resmi administrator & kata sandi SSO untuk membuka instans meja dan panel skor.
+              Gunakan email resmi administrator dan kata sandi untuk mengelola data venue, meja, jadwal, dan pencatatan skor.
             </p>
-          </div>
-
-          {/* OTP Development Warning Notice Banner */}
-          <div style={{
-            backgroundColor: '#FFFBEB',
-            border: '1.5px solid #FCD34D',
-            borderRadius: '14px',
-            padding: '14px 16px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-          }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              backgroundColor: '#FEF3C7',
-              color: '#D97706',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              marginTop: '1px'
-            }}>
-              <AlertTriangle size={18} />
-            </div>
-            <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#92400E', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>Sistem Verifikasi OTP Tahap Pengembangan</span>
-                <span style={{
-                  fontSize: '10px',
-                  backgroundColor: '#FDE68A',
-                  color: '#78350F',
-                  padding: '2px 7px',
-                  borderRadius: '6px',
-                  fontWeight: 800,
-                  textTransform: 'uppercase'
-                }}>
-                  Under Dev
-                </span>
-              </div>
-              <div style={{ fontSize: '12px', color: '#B45309', lineHeight: '1.45' }}>
-                Integrasi sistem OTP otomatis (seperti <strong>Nodemailer / Email Gateway</strong> dan SMS 2FA) saat ini masih dalam proses pengembangan. Masuk konsol diverifikasi langsung ke database menggunakan <strong>Alamat Email Admin</strong> dan <strong>Kata Sandi SSO</strong>.
-              </div>
-            </div>
           </div>
 
           {/* Error Alert Banner */}
@@ -239,7 +186,7 @@ export default function AdminLoginPage() {
               alignItems: 'flex-start',
               gap: '10px',
               color: '#991B1B',
-              fontSize: '12px',
+              fontSize: '12.5px',
               lineHeight: '1.4',
               fontWeight: 600
             }}>
@@ -248,7 +195,7 @@ export default function AdminLoginPage() {
             </div>
           )}
 
-          {/* Form with strict autocomplete off */}
+          {/* Form */}
           <form
             onSubmit={handleSubmit}
             autoComplete="off"
@@ -256,20 +203,20 @@ export default function AdminLoginPage() {
           >
             
             {/* Field 1: Alamat Email Admin */}
-            <div className="form-group">
-              <div className="form-label">
-                <span>Alamat Email Admin / Staf</span>
-                <span style={{ fontSize: '11px', color: '#7A897F' }}>Email Terdaftar</span>
-              </div>
-              <div className="form-input-wrapper">
-                <div className="input-icon-left">
+            <div className="login-form-group">
+              <label htmlFor="admin_email_input" className="login-form-label">
+                <span>Alamat Email Admin</span>
+                <span style={{ fontSize: '11px', color: '#7A897F', fontWeight: 500 }}>Email Terdaftar</span>
+              </label>
+              <div className="login-form-input-wrapper">
+                <div className="login-input-icon-left">
                   <Mail size={16} />
                 </div>
                 <input
                   type="email"
                   id="admin_email_input"
-                  name="admin_email_prevent_autofill"
-                  className="form-input"
+                  name="admin_email_input"
+                  className="login-form-input"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="admin@mahjongyuks.id"
@@ -282,418 +229,288 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {/* Field 2: Password SSO */}
-            <div className="form-group">
-              <div className="form-label">
-                <span>Kata Sandi SSO</span>
-                <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); setShowSpvModal(true); }}
-                  style={{ fontSize: '11px', color: '#004F27', fontWeight: 700 }}
+            {/* Field 2: Password Admin */}
+            <div className="login-form-group">
+              <div className="login-form-label">
+                <label htmlFor="admin_password_input">Kata Sandi Akun</label>
+                <button
+                  type="button"
+                  onClick={() => setShowSpvModal(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '11px',
+                    color: '#004F27',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
                 >
-                  Lupa Kunci?
-                </a>
+                  Bantuan Kunci?
+                </button>
               </div>
-              <div className="form-input-wrapper">
-                <div className="input-icon-left">
+              <div className="login-form-input-wrapper">
+                <div className="login-input-icon-left">
                   <Lock size={16} />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="admin_password_input"
-                  name="admin_password_prevent_autofill"
-                  className="form-input"
+                  name="admin_password_input"
+                  className="login-form-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  autoComplete="new-password"
+                  placeholder="Masukkan kata sandi"
+                  autoComplete="current-password"
                   required
                 />
-                <div className="input-icon-right" onClick={() => setShowPassword(!showPassword)}>
+                <button
+                  type="button"
+                  className="login-input-icon-right"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 14px' }}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </div>
+                </button>
               </div>
             </div>
 
-            {/* Remember Me & Session Duration */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
-              <div
-                className="checkbox-label"
+            {/* Remember Me & Sanctum Session Info */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px' }}>
+              <label
+                className="login-checkbox-label"
                 onClick={() => setRememberMe(!rememberMe)}
               >
-                <div className={`custom-checkbox ${rememberMe ? 'checked' : ''}`}>
+                <div className={`login-custom-checkbox ${rememberMe ? 'checked' : ''}`}>
                   {rememberMe && <Check size={12} color="white" />}
                 </div>
-                <span style={{ color: '#2B3830', fontWeight: 600 }}>Ingat sesi di perangkat terminal ini</span>
-              </div>
-              <span style={{
-                backgroundColor: '#F1F5F2',
-                color: '#5A675E',
-                fontSize: '11px',
-                padding: '3px 8px',
-                borderRadius: '6px',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <Clock size={11} /> Sesi 8 Jam
+                <span>Ingat sesi di perangkat ini</span>
+              </label>
+              <span style={{ color: '#5A675E', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                <ShieldCheck size={14} color="#16A34A" />
+                <span>Token Sanctum</span>
               </span>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="btn-primary"
+              id="btn_admin_login_submit"
+              className="login-submit-btn"
               disabled={loading}
-              style={{
-                height: '48px',
-                fontSize: '15px',
-                backgroundColor: '#004F27'
-              }}
+              style={{ marginTop: '4px' }}
             >
               {loading ? 'Mengotentikasi...' : (
                 <>
-                  <span>Masuk Dashboard Konsol</span>
-                  <ArrowRight size={18} />
+                  <span>Masuk ke Panel Admin</span>
+                  <ArrowRight size={17} />
                 </>
               )}
             </button>
           </form>
 
-          {/* Warning Notice Box */}
-          <div style={{
-            backgroundColor: '#FEF2F2',
-            border: '1px solid #FECACA',
-            borderRadius: '12px',
-            padding: '12px 14px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '10px'
-          }}>
-            <ShieldAlert size={16} color="#DC2626" style={{ flexShrink: 0, marginTop: '2px' }} />
-            <span style={{ fontSize: '11px', color: '#991B1B', lineHeight: '1.45' }}>
-              Akses terbatas staf terdaftar Mahjongyuks. Semua transaksi koin, faan, dan pergantian meja tercatat pada audit log HKMA.
-            </span>
-          </div>
-
-          {/* Terminal Footer */}
+          {/* Security Notice */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            gap: '8px',
             fontSize: '11px',
             color: '#7A897F',
-            fontFamily: 'monospace',
+            lineHeight: '1.4',
             paddingTop: '8px',
             borderTop: '1px solid #F0F5F1'
           }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Terminal size={12} /> Terminal ID: SEDAYU-01
-            </span>
-            <span>v2.4.0-staf (TLS 1.3)</span>
+            <ShieldAlert size={14} color="#5A675E" style={{ flexShrink: 0 }} />
+            <span>Halaman ini khusus pengelola operasional resmi MahjongYuks. Akses tidak sah akan diblokir.</span>
           </div>
 
         </div>
 
-        {/* RIGHT COLUMN: Live Operations Overview (Mint Panel) */}
+        {/* RIGHT COLUMN: Official MahjongYuks Operational Overview */}
         <div style={{
           backgroundColor: '#E8F6ED',
           border: '1px solid #D2E7D8',
           borderRadius: '24px',
-          padding: '28px',
+          padding: '36px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '20px'
         }}>
           
-          {/* Live Hub Header Card */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '16px',
-            padding: '16px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '14px',
-            border: '1px solid #E2EDE5',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              backgroundColor: '#EBF6EE',
-              color: '#004F27',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Check size={20} strokeWidth={2.5} />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#111E18' }}>
-                  Game House MahjongYuks Sedayu City
-                </span>
-                <span className="badge-pill badge-mint" style={{ fontSize: '9px', padding: '2px 8px' }}>
-                  ● Live Hub
-                </span>
-              </div>
-              <div style={{ fontSize: '11px', color: '#5A675E', marginTop: '2px' }}>
-                Pusat Operasional Meja Otomatis & Turnamen Komunitas
-              </div>
-            </div>
+          {/* Top Badge */}
+          <div>
+            <span className="badge-pill badge-mint" style={{ fontSize: '11px', padding: '4px 12px' }}>
+              <ShieldCheck size={13} /> PANEL OPERASIONAL
+            </span>
           </div>
 
-          {/* 3 Live Tables Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          {/* Heading */}
+          <div>
+            <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#111E18', lineHeight: '1.25', letterSpacing: '-0.4px' }}>
+              Pusat Kendali Operasional MahjongYuks
+            </h2>
+            <p style={{ fontSize: '13.5px', color: '#3F4940', marginTop: '6px', lineHeight: '1.5' }}>
+              Portal terpadu pengelola untuk monitoring venue, reservasi meja, verifikasi pembayaran, dan pencatatan sesi permainan.
+            </p>
+          </div>
+
+          {/* 4 Real Core Capabilities based on AGENTS.md */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginTop: '4px' }}>
             
-            {/* Table 1 */}
+            {/* Feature 1 */}
             <div style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '14px',
-              padding: '12px',
-              border: '1px solid #E2EDE5',
+              padding: '14px 16px',
+              border: '1px solid #D7E6DB',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '8px'
+              gap: '6px'
             }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#111E18' }}>Meja A1 - Auto</span>
-                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#15803D', backgroundColor: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>
-                    In-Game
-                  </span>
-                </div>
-                <div style={{ fontSize: '10px', color: '#5A675E', lineHeight: '1.3' }}>
-                  Round: East 3 • Mahjong HK 8 Faan
-                </div>
-              </div>
-              <div style={{ fontSize: '9px', color: '#7A897F', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #F0F5F1', paddingTop: '6px' }}>
-                <strong style={{ color: '#004F27' }}>Shuffler: 100% Ready</strong>
-                <span>42 Min Sisa</span>
-              </div>
-            </div>
-
-            {/* Table 2 */}
-            <div style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '14px',
-              padding: '12px',
-              border: '1px solid #E2EDE5',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '8px'
-            }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#111E18' }}>Meja A2 - Auto</span>
-                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#855E00', backgroundColor: '#FFF4D6', padding: '2px 6px', borderRadius: '4px' }}>
-                    Shuffle
-                  </span>
-                </div>
-                <div style={{ fontSize: '10px', color: '#5A675E', lineHeight: '1.3' }}>
-                  Siklus Tile Wash Sedang Berjalan
-                </div>
-              </div>
-              <div style={{ fontSize: '9px', color: '#7A897F', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #F0F5F1', paddingTop: '6px' }}>
-                <strong style={{ color: '#004F27' }}>Sensor: Clean</strong>
-                <span>Ready in 20s</span>
-              </div>
-            </div>
-
-            {/* Table 3 */}
-            <div style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '14px',
-              padding: '12px',
-              border: '1px solid #E2EDE5',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '8px'
-            }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#111E18' }}>Meja B1 - VIP</span>
-                  <span style={{ fontSize: '9px', fontWeight: 800, color: '#4B5563', backgroundColor: '#E5E7EB', padding: '2px 6px', borderRadius: '4px' }}>
-                    Standby
-                  </span>
-                </div>
-                <div style={{ fontSize: '10px', color: '#5A675E', lineHeight: '1.3' }}>
-                  Reservasi Turnamen Pukul 15:00
-                </div>
-              </div>
-              <div style={{ fontSize: '9px', color: '#7A897F', borderTop: '1px solid #F0F5F1', paddingTop: '6px' }}>
-                Mesin: Standby Tile Set Blue
-              </div>
-            </div>
-
-          </div>
-
-          {/* Active Tournament Bracket Card */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '16px',
-            padding: '16px 20px',
-            border: '1px solid #E2EDE5',
-            boxShadow: 'var(--shadow-sm)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
                   width: '28px',
                   height: '28px',
-                  borderRadius: '50%',
-                  backgroundColor: '#004F27',
-                  color: '#98F6C2',
+                  borderRadius: '8px',
+                  backgroundColor: '#EBF6EE',
+                  color: '#004F27',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}>
-                  <Award size={16} />
+                  <Layers size={15} />
                 </div>
                 <span style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>
-                  Bracket Turnamen Aktif: Sedayu Open Q2
+                  Venue & Meja
                 </span>
               </div>
-              <span className="badge-pill badge-gold" style={{ fontSize: '10px', padding: '2px 8px' }}>
-                Babak 16 Besar
-              </span>
+              <p style={{ fontSize: '11.5px', color: '#5A675E', lineHeight: '1.45', margin: 0 }}>
+                Kelola meja otomatis toko utama Sedayu City dan set meja manual untuk event komunitas.
+              </p>
             </div>
 
-            <p style={{ fontSize: '11px', color: '#5A675E', lineHeight: '1.45', marginLeft: '36px' }}>
-              12 dari 16 peserta sudah check-in via QR tiket. Meja eliminasi sinkron otomatis ke papan klasemen.
-            </p>
-
-            <div style={{ marginLeft: '36px', fontSize: '11px', fontWeight: 700, color: '#004F27', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>🀄 HK Style Auto-Faan</span>
-              <span>•</span>
-              <span style={{ color: '#5A675E', fontWeight: 500 }}>Aturan: Min 3 Faan - Max 10 Faan</span>
+            {/* Feature 2 */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              border: '1px solid #D7E6DB',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  backgroundColor: '#EBF6EE',
+                  color: '#004F27',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <CalendarCheck size={15} />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>
+                  Reservasi Kursi
+                </span>
+              </div>
+              <p style={{ fontSize: '11.5px', color: '#5A675E', lineHeight: '1.45', margin: 0 }}>
+                Validasi pemesanan kursi pemain secara real-time dengan batas maksimal 4 kursi per meja.
+              </p>
             </div>
-          </div>
 
-          {/* Fungsi Terbuka Pasca-Login (3 Mini Cards) */}
-          <div>
-            <div style={{ fontSize: '10px', fontWeight: 800, color: '#7A897F', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
-              FUNGSI TERBUKA PASCA-LOGIN
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-              
-              <div style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '12px',
-                padding: '12px',
-                border: '1px solid #E2EDE5',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#EBF6EE', color: '#004F27', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {/* Feature 3 */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              border: '1px solid #D7E6DB',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  backgroundColor: '#EBF6EE',
+                  color: '#004F27',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
                   <CreditCard size={15} />
                 </div>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#111E18' }}>Kasir & Topup</div>
-                  <div style={{ fontSize: '10px', color: '#6F7A71' }}>EDC & QRIS</div>
-                </div>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>
+                  Verifikasi Bayar
+                </span>
               </div>
-
-              <div style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '12px',
-                padding: '12px',
-                border: '1px solid #E2EDE5',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#EBF6EE', color: '#004F27', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Scale size={15} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#111E18' }}>Validasi Juri</div>
-                  <div style={{ fontSize: '10px', color: '#6F7A71' }}>Dispute Log</div>
-                </div>
-              </div>
-
-              <div style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '12px',
-                padding: '12px',
-                border: '1px solid #E2EDE5',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#EBF6EE', color: '#004F27', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <QrCode size={15} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#111E18' }}>Pemindai Tiket</div>
-                  <div style={{ fontSize: '10px', color: '#6F7A71' }}>Check-in Cepat</div>
-                </div>
-              </div>
-
+              <p style={{ fontSize: '11.5px', color: '#5A675E', lineHeight: '1.45', margin: 0 }}>
+                Pantau rekonsiliasi pembayaran simulasi dan konfirmasi status pelunasan booking.
+              </p>
             </div>
+
+            {/* Feature 4 */}
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              border: '1px solid #D7E6DB',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '8px',
+                  backgroundColor: '#EBF6EE',
+                  color: '#004F27',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Trophy size={15} />
+                </div>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>
+                  Sesi & Skor Fan
+                </span>
+              </div>
+              <p style={{ fontSize: '11.5px', color: '#5A675E', lineHeight: '1.45', margin: 0 }}>
+                Buka sesi bermain meja, catat poin pemain kompetitif, dan integrasi klasemen leaderboard.
+              </p>
+            </div>
+
           </div>
 
-          {/* SPV Assistance Box */}
+          {/* Internal Assistance Note */}
           <div style={{
             backgroundColor: '#DCF1E3',
             border: '1px solid #BDDFCA',
             borderRadius: '14px',
-            padding: '14px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
+            padding: '12px 16px',
+            fontSize: '11.5px',
+            color: '#2B3830',
+            lineHeight: '1.5'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Headphones size={16} color="#004F27" />
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#004F27' }}>
-                Butuh Otorisasi Supervisor (SPV)?
-              </span>
-            </div>
-            <p style={{ fontSize: '11px', color: '#2B3830', lineHeight: '1.4' }}>
-              Hubungi Duty Manager lantai via intercom atau panggil bantuan teknis meja.
-            </p>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '2px' }}>
-              <span style={{
-                backgroundColor: '#FFFFFF',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 700,
-                color: '#004F27',
-                border: '1px solid #C4DFC8'
-              }}>
-                Intercom: Ext 402
-              </span>
-              <span style={{
-                backgroundColor: '#FFFFFF',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 700,
-                color: '#855E00',
-                border: '1px solid #FFE4A3'
-              }}>
-                Emergency Shuffler Reset #9
-              </span>
-            </div>
+            <strong>Bantuan Operasional Internal:</strong> Untuk registrasi staf baru atau pengaturan izin akses modul, hubungi Administrator Utama di <strong>admin@mahjongyuks.id</strong>.
           </div>
 
         </div>
 
       </main>
 
-
-
-      {/* SPV / SSO NOTICE MODAL */}
+      {/* SPV / SSO ASSISTANCE MODAL */}
       {showSpvModal && (
         <div style={{
           position: 'fixed',
@@ -722,7 +539,11 @@ export default function AdminLoginPage() {
                 position: 'absolute',
                 top: '16px',
                 right: '16px',
-                color: '#7A897F'
+                color: '#7A897F',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px'
               }}
             >
               <X size={20} />
@@ -739,15 +560,15 @@ export default function AdminLoginPage() {
               justifyContent: 'center',
               marginBottom: '14px'
             }}>
-              <AlertTriangle size={24} />
+              <HelpCircle size={24} />
             </div>
 
             <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111E18', marginBottom: '6px' }}>
-              Reset Otorisasi Kunci Staf
+              Bantuan Akses Kredensial Admin
             </h3>
 
             <p style={{ fontSize: '13px', color: '#5A675E', lineHeight: '1.5', marginBottom: '18px' }}>
-              Fitur reset mandiri melalui email gateway (seperti <strong>Nodemailer</strong> / SMTP) dan kode OTP saat ini masih dalam tahap pengembangan teknis. Untuk alasan kepatuhan regulasi, pemulihan ID dan kunci operator wajib melalui verifikasi Duty Manager / Supervisor Venue.
+              Untuk alasan kepatuhan keamanan dan perlindungan data operasional, reset kata sandi akun administrator dilakukan melalui verifikasi Administrator Utama.
             </p>
 
             <div style={{
@@ -757,20 +578,19 @@ export default function AdminLoginPage() {
               padding: '12px',
               fontSize: '12px',
               color: '#2B3830',
-              lineHeight: '1.45',
+              lineHeight: '1.5',
               marginBottom: '18px'
             }}>
-              <div><strong>Intercom Operasional:</strong> Ext 402</div>
-              <div><strong>Terminal Supervisor:</strong> Game House MahjongYuks Sedayu Hub Zone B</div>
+              <div>Silakan hubungi administrator sistem melalui email: <strong>admin@mahjongyuks.id</strong> untuk prosedur verifikasi dan pemulihan kredensial staf.</div>
             </div>
 
             <button
               type="button"
               onClick={() => setShowSpvModal(false)}
-              className="btn-primary"
+              className="login-submit-btn"
               style={{ width: '100%' }}
             >
-              Tutup
+              Mengerti & Kembali
             </button>
           </div>
         </div>

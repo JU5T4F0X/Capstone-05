@@ -523,8 +523,8 @@ export default function AdminVenueManager() {
             <span>Manajemen Venue Mahjong</span>
           </h1>
           <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#5A675E' }}>
-            Kelola data cabang venue resmi MahjongYuks, inventaris meja otomatis Amos Rexx III, kapasitas pemain,
-            fasilitas unggulan, dan relasi jadwal turnamen.
+            Kelola data venue resmi MahjongYuks, inventaris meja otomatis empat sisi, kapasitas pemain,
+            fasilitas unggulan, dan relasi jadwal sesi bermain.
           </p>
         </div>
 
@@ -534,7 +534,7 @@ export default function AdminVenueManager() {
           className="adm-btn-primary"
         >
           <Plus size={16} />
-          <span>+ Daftarkan Venue Baru</span>
+          <span>Daftarkan Venue Baru</span>
         </button>
       </div>
 

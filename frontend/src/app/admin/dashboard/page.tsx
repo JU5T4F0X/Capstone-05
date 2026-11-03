@@ -500,7 +500,7 @@ function AdminDashboardContent() {
             <div className="adm-header-left">
               <Link href="/admin/dashboard" onClick={() => switchTab('overview')} className="adm-brand" title="Mahjongyuks Administrator">
                 <Image
-                  src="/assets/mahjongyuks_logo.png"
+                  src="/assets/logo.png"
                   alt="Mahjongyuks Logo"
                   width={50}
                   height={36}
@@ -509,7 +509,7 @@ function AdminDashboardContent() {
                 />
                 <div>
                   <div className="adm-brand-title">Mahjongyuks</div>
-                  <div className="adm-brand-badge">Mode Admin</div>
+                  <div className="adm-brand-badge">Admin Panel</div>
                 </div>
               </Link>
             </div>
@@ -531,8 +531,7 @@ function AdminDashboardContent() {
                 className={`adm-nav-link ${activeTab === 'event' ? 'active' : ''}`}
               >
                 <Calendar size={15} />
-                <span>Kelola Event</span>
-                {realEvents.length > 0 && <span className="adm-nav-badge">{realEvents.length}</span>}
+                <span>Event</span>
               </button>
 
               <button
@@ -541,8 +540,7 @@ function AdminDashboardContent() {
                 className={`adm-nav-link ${activeTab === 'venue' ? 'active' : ''}`}
               >
                 <Building size={15} />
-                <span>Kelola Venue</span>
-                {realVenues.length > 0 && <span className="adm-nav-badge">{realVenues.length}</span>}
+                <span>Venue</span>
               </button>
 
               <button
@@ -551,8 +549,7 @@ function AdminDashboardContent() {
                 className={`adm-nav-link ${activeTab === 'pemesanan' ? 'active' : ''}`}
               >
                 <Ticket size={15} />
-                <span>Kelola Pemesanan</span>
-                <span className="adm-nav-badge">{bookings.length}</span>
+                <span>Pemesanan</span>
               </button>
 
               <button
@@ -561,12 +558,7 @@ function AdminDashboardContent() {
                 className={`adm-nav-link ${activeTab === 'pembayaran' ? 'active' : ''}`}
               >
                 <CreditCard size={15} />
-                <span>Kelola Pembayaran</span>
-                {pendingTxCount > 0 && (
-                  <span className="adm-nav-badge" style={{ backgroundColor: '#D97706' }}>
-                    {pendingTxCount}
-                  </span>
-                )}
+                <span>Pembayaran</span>
               </button>
 
               <button
@@ -575,22 +567,12 @@ function AdminDashboardContent() {
                 className={`adm-nav-link ${activeTab === 'skor' ? 'active' : ''}`}
               >
                 <Award size={15} />
-                <span>Kelola Skor</span>
+                <span>Skor</span>
               </button>
             </nav>
 
-            {/* Right: Mode Switcher & Admin Dropdown */}
+            {/* Right: Admin Profile Dropdown */}
             <div className="adm-header-right">
-              
-              <Link
-                href="/dashboard"
-                className="adm-mode-btn"
-                title="Beralih ke Dashboard Pemain"
-              >
-                <ExternalLink size={13} color="#E2BC55" />
-                <span>Mode Pemain</span>
-              </Link>
-
               <div className="adm-admin-pill-wrap" style={{ position: 'relative' }}>
                 <button
                   type="button"
@@ -641,15 +623,6 @@ function AdminDashboardContent() {
                       <span>Buka Profil Admin</span>
                     </button>
 
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setAdminDropdownOpen(false)}
-                      className="adm-dropdown-item"
-                    >
-                      <ExternalLink size={14} color="#004F27" />
-                      <span>Masuk Mode Pemain</span>
-                    </Link>
-
                     <button
                       type="button"
                       onClick={() => {
@@ -685,11 +658,11 @@ function AdminDashboardContent() {
           <div className="adm-mobile-drawer">
             {[
               { id: 'overview', label: 'Dashboard', icon: Layers },
-              { id: 'event', label: 'Kelola Event', icon: Calendar, badge: realEvents.length },
-              { id: 'venue', label: 'Kelola Venue', icon: Building, badge: realVenues.length },
-              { id: 'pemesanan', label: 'Kelola Pemesanan', icon: Ticket, badge: bookings.length },
-              { id: 'pembayaran', label: 'Kelola Pembayaran', icon: CreditCard, badge: pendingTxCount },
-              { id: 'skor', label: 'Kelola Skor', icon: Award },
+              { id: 'event', label: 'Event', icon: Calendar },
+              { id: 'venue', label: 'Venue', icon: Building },
+              { id: 'pemesanan', label: 'Pemesanan', icon: Ticket },
+              { id: 'pembayaran', label: 'Pembayaran', icon: CreditCard },
+              { id: 'skor', label: 'Skor', icon: Award },
               { id: 'profil', label: 'Profil Admin', icon: UserIcon },
             ].map(item => {
               const Icon = item.icon;
@@ -706,22 +679,11 @@ function AdminDashboardContent() {
                 >
                   <Icon size={16} />
                   <span>{item.label}</span>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="adm-nav-badge">{item.badge}</span>
-                  )}
                 </button>
               );
             })}
 
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', marginTop: '8px', paddingTop: '8px' }}>
-              <Link
-                href="/dashboard"
-                className="adm-nav-link"
-                style={{ justifyContent: 'flex-start' }}
-              >
-                <ExternalLink size={15} color="#E2BC55" />
-                <span>Buka Dashboard Pemain</span>
-              </Link>
               <button
                 type="button"
                 onClick={() => {
@@ -803,6 +765,16 @@ function AdminDashboardContent() {
                     >
                       <Building size={15} />
                       <span>Tambah Venue</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => switchTab('skor')}
+                      className="adm-btn-secondary"
+                      style={{ color: '#004F27', borderColor: '#A3D9B1', backgroundColor: '#EBF6EE' }}
+                    >
+                      <Award size={15} color="#004F27" />
+                      <span>Kelola Skor</span>
                     </button>
 
                     <button

@@ -96,7 +96,7 @@ export default function DashboardNavbar({
           <div className="db-header-left">
             <Link href="/" className="landing-brand" title="Mahjongyuks Beranda">
               <Image
-                src="/assets/mahjongyuks_logo.png"
+                src="/assets/logo.png"
                 alt="Mahjongyuks Logo"
                 width={60}
                 height={44}

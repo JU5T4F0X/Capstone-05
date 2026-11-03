@@ -66,7 +66,7 @@ export default function LandingFooter() {
           {/* 1. Logo MahjongYuks (Rata Tengah Sempurna) */}
           <Link href="/" className="landing-footer-logo-link" aria-label="Beranda MahjongYuks">
             <Image
-              src="/assets/mahjongyuks_logo.png"
+              src="/assets/logo.png"
               alt="Logo MahjongYuks"
               width={180}
               height={60}
@@ -77,7 +77,7 @@ export default function LandingFooter() {
 
           {/* 2. Tagline Resmi */}
           <p className="landing-footer-tagline">
-            Platform reservasi meja &amp; turnamen Riichi Mahjong resmi di Indonesia.
+            Platform reservasi meja &amp; turnamen Hong Kong Mahjong Style resmi di Indonesia.
           </p>
 
           {/* 3. Baris Ikon Media Sosial (Hanya yang memiliki tautan valid) */}
@@ -102,9 +102,9 @@ export default function LandingFooter() {
           {/* 4. Garis Pemisah Tipis */}
           <div className="landing-footer-divider" />
 
-          {/* 5. Teks Hak Cipta */}
+          {/* 5. Teks Copyright */}
           <p className="landing-footer-copyright">
-            &copy; {currentYear} MahjongYuks. Hak cipta dilindungi undang-undang.
+            &copy; {currentYear} MahjongYuks.
           </p>
         </div>
       </div>

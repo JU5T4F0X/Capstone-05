@@ -139,7 +139,6 @@ html {
   height: 44px;
   width: auto;
   object-fit: contain;
-  filter: brightness(1.1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 

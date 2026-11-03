@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { KemahiranLevel, KEMAHIRAN_MAP } from '@/lib/kemahiran';
-import './register.css';
+import '@/app/login/login.css';
 import {
   User as UserIcon,
   AtSign,
@@ -15,13 +15,18 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Award,
   Sparkles,
-  Building,
   Check,
   ArrowRight,
   AlertTriangle,
-  X
+  Store,
+  Trophy,
+  ShieldCheck,
+  Layers,
+  BarChart3,
+  Users,
+  UserPlus,
+  AlertCircle
 } from 'lucide-react';
 
 export default function RegisterPage() {
@@ -38,7 +43,6 @@ export default function RegisterPage() {
   const [agreed, setAgreed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showDevNoticeModal, setShowDevNoticeModal] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,115 +75,311 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSignup = () => {
-    setShowDevNoticeModal(true);
-  };
-
   return (
-    <div className="auth-wrapper" style={{ padding: '32px 16px' }}>
-      <div style={{ maxWidth: '480px', width: '100%', display: 'flex', flexDirection: 'column', gap: '18px', margin: 'auto' }}>
-        
-        {/* Top Header Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{
+      minHeight: '100vh',
+      backgroundColor: '#FAF8F5',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      
+      {/* HEADER BAR */}
+      <header style={{
+        height: '76px',
+        backgroundColor: '#FFFFFF',
+        borderBottom: '1px solid #D7E6DB',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 40px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        {/* Brand & Club Portal */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
             <Image
-              src="/assets/mahjongyuks_logo.png"
+              src="/assets/logo.png"
               alt="Mahjongyuks"
-              width={64}
-              height={48}
+              width={52}
+              height={40}
               priority
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
             />
-            <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#004F27', lineHeight: '1.2' }}>
-                Mahjongyuks
-              </div>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: '#6F7A71', letterSpacing: '0.5px' }}>
-                KOMUNITAS & TURNAMEN
-              </div>
-            </div>
-          </div>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: '#004F27', letterSpacing: '-0.3px' }}>
+              Mahjongyuks
+            </span>
+          </Link>
 
-          <div style={{
-            backgroundColor: '#FFDF94',
-            color: '#584300',
-            padding: '5px 12px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '11px',
-            fontWeight: 800,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px'
-          }}>
-            <Sparkles size={13} />
-            REGISTRASI KOMUNITAS
-          </div>
+          <span className="badge-pill badge-mint" style={{ fontSize: '11px', padding: '3px 10px' }}>
+            REGISTRASI ANGGOTA
+          </span>
+
+          <span style={{ color: '#D7E6DB', fontSize: '16px' }}>|</span>
+
+          <span style={{ fontSize: '12px', color: '#5A675E', fontWeight: 500 }}>
+            Komunitas & Superapp Hong Kong Mahjong Indonesia
+          </span>
         </div>
 
-        {/* Title */}
-        <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#111E18', marginBottom: '4px' }}>
-            Daftar Akun Mahjongyuks
-          </h1>
-          <p style={{ fontSize: '13px', color: '#5A675E', lineHeight: '1.45' }}>
-            Peringkat dan Elo rating murni dihitung dari skor riil di meja parlor otomatis maupun turnamen offline resmi.
-          </p>
+        {/* Right Header: Back to Landing & Login Link */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link
+            href="/"
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#5A675E',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            ← Kembali ke Beranda
+          </Link>
+          <Link
+            href="/login"
+            className="login-register-btn"
+            style={{
+              width: 'auto',
+              padding: '8px 16px',
+              fontSize: '12.5px',
+              borderRadius: '10px'
+            }}
+          >
+            <UserIcon size={14} />
+            <span>Masuk ke Akun</span>
+          </Link>
         </div>
+      </header>
 
-        {/* Notice Card: Fairplay */}
+      {/* MAIN CONTENT AREA: 2-COLUMN BALANCED GRID */}
+      <main style={{
+        flex: 1,
+        maxWidth: '1240px',
+        width: '100%',
+        margin: '0 auto',
+        padding: '40px 24px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))',
+        gap: '32px',
+        alignItems: 'start'
+      }}>
+
+        {/* LEFT COLUMN: Community & Membership Value */}
         <div style={{
-          backgroundColor: '#EBF6EE',
+          backgroundColor: '#E8F6ED',
           border: '1px solid #D2E7D8',
-          borderRadius: 'var(--radius-lg)',
-          padding: '14px 16px',
+          borderRadius: '24px',
+          padding: '36px',
           display: 'flex',
-          gap: '12px',
-          alignItems: 'flex-start'
+          flexDirection: 'column',
+          gap: '20px'
         }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '8px',
-            backgroundColor: '#004F27',
-            color: '#98F6C2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Award size={18} />
+          
+          {/* Top Badges */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span className="badge-pill badge-mint" style={{ fontSize: '11px', padding: '4px 12px' }}>
+              <Sparkles size={13} /> AUTENTIK & KOMPETITIF
+            </span>
+            <span className="badge-pill badge-gold" style={{ fontSize: '11px', padding: '4px 12px' }}>
+              Season 2025 Live
+            </span>
           </div>
+
+          {/* Heading */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#004F27', marginBottom: '2px' }}>
-              Sistem Poin Kompetitif Fairplay
-            </div>
-            <p style={{ fontSize: '12px', color: '#3F4940', lineHeight: '1.45' }}>
-              Di Mahjongyuks, Poin Rating (Elo) hanya diperoleh dari hasil nyata di meja permainan dan turnamen resmi — tidak ada sistem beli atau bonus instan.
+            <h1 style={{ fontSize: '32px', fontWeight: 800, color: '#111E18', lineHeight: '1.2', letterSpacing: '-0.5px' }}>
+              Daftar Akun Anggota Mahjongyuks.
+            </h1>
+            <p style={{ fontSize: '14px', color: '#3F4940', marginTop: '10px', lineHeight: '1.55' }}>
+              Dapatkan satu ID komunitas terpadu untuk reservasi meja otomatis, melacak perolehan poin Elo riil, dan bergabung di arena turnamen Hong Kong Style offline bergengsi.
             </p>
           </div>
+
+          {/* Parlor Photo Banner */}
+          <div style={{
+            position: 'relative',
+            height: '240px',
+            borderRadius: '18px',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid #C4DFC8'
+          }}>
+            <Image
+              src="/assets/mahjong_parlor_players.jpg"
+              alt="Pemain di Meja Parlor Mahjongyuks"
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+            />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: '12px 18px',
+              background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              color: '#FFFFFF'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700 }}>
+                <Trophy size={15} color="#FFDF94" />
+                <span>Official Player Pass • MahjongYuks Hub</span>
+              </div>
+              <span style={{
+                backgroundColor: '#004F27',
+                color: '#98F6C2',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 800
+              }}>
+                Pendaftaran Gratis
+              </span>
+            </div>
+          </div>
+
+          {/* 3 Features Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '14px 12px',
+              border: '1px solid #E2EDE5',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                backgroundColor: '#EBF6EE',
+                color: '#004F27',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '8px'
+              }}>
+                <Layers size={16} />
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>Satu ID Terpadu</div>
+              <div style={{ fontSize: '11px', color: '#6F7A71', marginTop: '2px' }}>Akses Sedayu City Hub</div>
+            </div>
+
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '14px 12px',
+              border: '1px solid #E2EDE5',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                backgroundColor: '#EBF6EE',
+                color: '#004F27',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '8px'
+              }}>
+                <BarChart3 size={16} />
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>Live MMR & Elo</div>
+              <div style={{ fontSize: '11px', color: '#6F7A71', marginTop: '2px' }}>Skor resmi kompetitif</div>
+            </div>
+
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '14px 12px',
+              border: '1px solid #E2EDE5',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <div style={{
+                width: '30px',
+                height: '30px',
+                borderRadius: '8px',
+                backgroundColor: '#EBF6EE',
+                color: '#004F27',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '8px'
+              }}>
+                <Users size={16} />
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#111E18' }}>1.400+ Pemain</div>
+              <div style={{ fontSize: '11px', color: '#6F7A71', marginTop: '2px' }}>Komunitas Jabodetabek</div>
+            </div>
+          </div>
+
+          {/* Standard Olahraga Pikiran & Rekreasi Box */}
+          <div style={{
+            backgroundColor: '#DCF1E3',
+            border: '1px solid #BDDFCA',
+            borderRadius: '14px',
+            padding: '14px 16px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px'
+          }}>
+            <ShieldCheck size={18} color="#004F27" style={{ marginTop: '2px', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#004F27', marginBottom: '2px' }}>
+                Standard Olahraga Pikiran & Fairplay Resmi
+              </div>
+              <div style={{ fontSize: '11.5px', color: '#2B3830', lineHeight: '1.45' }}>
+                Poin Rating (Elo) di Mahjongyuks hanya diperoleh dari hasil nyata di meja parlor dan turnamen offline resmi. Murni strategi Hong Kong Style, bebas dari taruhan/judi.
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        {/* Main Form */}
-        <form
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          className="auth-card"
-          style={{ gap: '16px', padding: '24px' }}
-        >
+        {/* RIGHT COLUMN: Real Registration Form Card */}
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '24px',
+          padding: '36px 32px',
+          boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--border-card)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
           
+          {/* Card Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#7A897F', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+                AKUN ANGGOTA BARU
+              </span>
+              <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#111E18', marginTop: '2px' }}>
+                Formulir Pendaftaran
+              </h2>
+            </div>
+            <span className="badge-pill badge-mint" style={{ fontSize: '11.5px', padding: '5px 12px' }}>
+              <UserPlus size={13} color="#004F27" />
+              <span>Registrasi Gratis</span>
+            </span>
+          </div>
+
           {/* OTP Development Warning Notice Banner */}
           <div style={{
             backgroundColor: '#FFFBEB',
             border: '1.5px solid #FCD34D',
             borderRadius: '14px',
-            padding: '14px 16px',
+            padding: '12px 14px',
             display: 'flex',
             alignItems: 'flex-start',
-            gap: '12px',
+            gap: '10px',
           }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '30px',
+              height: '30px',
               borderRadius: '8px',
               backgroundColor: '#FEF3C7',
               color: '#D97706',
@@ -189,360 +389,298 @@ export default function RegisterPage() {
               flexShrink: 0,
               marginTop: '1px'
             }}>
-              <AlertTriangle size={18} />
+              <AlertTriangle size={16} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#92400E', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#92400E', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span>Sistem OTP Tahap Pengembangan</span>
                 <span style={{
-                  fontSize: '10px',
+                  fontSize: '9px',
                   backgroundColor: '#FDE68A',
                   color: '#78350F',
-                  padding: '2px 7px',
-                  borderRadius: '6px',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
                   fontWeight: 800,
                   textTransform: 'uppercase'
                 }}>
                   Under Dev
                 </span>
               </div>
-              <div style={{ fontSize: '12px', color: '#B45309', lineHeight: '1.45' }}>
-                Layanan pengiriman kode OTP verifikasi (via Email seperti <strong>Nodemailer / SMTP</strong> atau WhatsApp Gateway) saat ini belum disambungkan ke server dan masih dalam tahap pengembangan aktif. Akun yang didaftarkan langsung aktif menggunakan <strong>Email</strong> dan <strong>Kata Sandi</strong>.
+              <div style={{ fontSize: '11.5px', color: '#B45309', lineHeight: '1.45' }}>
+                Akun yang didaftarkan langsung aktif secara otomatis tanpa perlu verifikasi kode OTP email. Masuk langsung menggunakan <strong>Email</strong> dan <strong>Kata Sandi</strong>.
               </div>
             </div>
           </div>
 
+          {/* Error Alert Banner */}
           {error && (
             <div style={{
-              backgroundColor: 'var(--danger-light)',
-              color: 'var(--danger)',
-              padding: '10px 14px',
-              borderRadius: 'var(--radius-md)',
+              backgroundColor: '#FEF2F2',
+              border: '1.5px solid #FCA5A5',
+              borderRadius: '12px',
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              color: '#991B1B',
               fontSize: '12px',
+              lineHeight: '1.4',
               fontWeight: 600
             }}>
-              {error}
+              <AlertCircle size={18} color="#DC2626" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <div>{error}</div>
             </div>
           )}
 
-          {/* Nama Lengkap */}
-          <div className="form-group">
-            <label className="form-label">Nama Lengkap (Sesuai KTP/ID)</label>
-            <div className="form-input-wrapper">
-              <div className="input-icon-left">
-                <UserIcon size={16} />
+          {/* Registration Form */}
+          <form
+            onSubmit={handleSubmit}
+            autoComplete="off"
+            style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+          >
+            {/* ROW 1: Nama Lengkap & Mahjong Handle (2-col grid) */}
+            <div className="login-form-grid-2">
+              {/* Field 1: Nama Lengkap */}
+              <div className="login-form-group">
+                <label htmlFor="reg_player_nama" className="login-form-label">
+                  <span>Nama Lengkap (KTP/ID)</span>
+                </label>
+                <div className="login-form-input-wrapper">
+                  <div className="login-input-icon-left">
+                    <UserIcon size={17} color="#5A675E" />
+                  </div>
+                  <input
+                    type="text"
+                    id="reg_player_nama"
+                    name="reg_player_nama_prevent_autofill"
+                    className="login-form-input"
+                    placeholder="Nama lengkap Anda"
+                    value={nama}
+                    onChange={(e) => setNama(e.target.value)}
+                    autoComplete="off"
+                    autoCapitalize="words"
+                    spellCheck={false}
+                    required
+                  />
+                </div>
               </div>
-              <input
-                type="text"
-                id="reg_player_nama"
-                name="reg_player_nama_prevent_autofill"
-                className="form-input"
-                placeholder="Nama lengkap"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="words"
-                spellCheck={false}
-                required
-              />
-            </div>
-          </div>
 
-          {/* Mahjong Handle */}
-          <div className="form-group">
-            <div className="form-label">
-              <span>Mahjong Handle / Nickname Meja</span>
-              <span style={{ fontSize: '11px', color: '#855E00', fontWeight: 600 }}>Tampil di Layar Meja</span>
-            </div>
-            <div className="form-input-wrapper">
-              <div className="input-icon-left">
-                <AtSign size={16} />
-              </div>
-              <input
-                type="text"
-                id="reg_player_handle"
-                name="reg_player_handle_prevent_autofill"
-                className="form-input"
-                placeholder="Damien_Jkt"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-              />
-            </div>
-          </div>
-
-          {/* WhatsApp */}
-          <div className="form-group">
-            <div className="form-label">
-              <span>Nomor WhatsApp Aktif</span>
-              <span style={{ fontSize: '11px', color: '#B45309', fontWeight: 700 }}>OTP: Tahap Pengembangan</span>
-            </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '0 12px',
-                backgroundColor: 'var(--bg-input)',
-                borderRadius: 'var(--radius-md)',
-                fontSize: '13px',
-                fontWeight: 700,
-                color: '#111E18'
-              }}>
-                <span>🇮🇩</span>
-                <span>+62</span>
-              </div>
-              <div className="form-input-wrapper" style={{ flex: 1 }}>
-                <input
-                  type="tel"
-                  id="reg_player_phone"
-                  name="reg_player_phone_prevent_autofill"
-                  className="form-input"
-                  placeholder="812-3456-7890"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  autoComplete="off"
-                  required
-                />
-                <div className="input-icon-right">
-                  <Phone size={16} />
+              {/* Field 2: Mahjong Handle */}
+              <div className="login-form-group">
+                <label htmlFor="reg_player_handle" className="login-form-label">
+                  <span>Nickname Meja</span>
+                  <span style={{ fontSize: '10.5px', color: '#004F27', fontWeight: 700 }}>Layar Meja</span>
+                </label>
+                <div className="login-form-input-wrapper">
+                  <div className="login-input-icon-left">
+                    <AtSign size={17} color="#5A675E" />
+                  </div>
+                  <input
+                    type="text"
+                    id="reg_player_handle"
+                    name="reg_player_handle_prevent_autofill"
+                    className="login-form-input"
+                    placeholder="Contoh: Kevin_Jkt"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value)}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                  />
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label className="form-label">Alamat Email</label>
-            <div className="form-input-wrapper">
-              <div className="input-icon-left">
-                <Mail size={16} />
+            {/* ROW 2: Email & WhatsApp (2-col grid) */}
+            <div className="login-form-grid-2">
+              {/* Field 3: Email */}
+              <div className="login-form-group">
+                <label htmlFor="reg_player_email" className="login-form-label">
+                  <span>Alamat Email</span>
+                </label>
+                <div className="login-form-input-wrapper">
+                  <div className="login-input-icon-left">
+                    <Mail size={17} color="#5A675E" />
+                  </div>
+                  <input
+                    type="email"
+                    id="reg_player_email"
+                    name="reg_player_email_prevent_autofill"
+                    className="login-form-input"
+                    placeholder="nama@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    required
+                  />
+                </div>
               </div>
-              <input
-                type="email"
-                id="reg_player_email"
-                name="reg_player_email_prevent_autofill"
-                className="form-input"
-                placeholder="nama@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                required
-              />
-            </div>
-          </div>
 
-          {/* Password */}
-          <div className="form-group">
-            <label className="form-label">Kata Sandi Akun</label>
-            <div className="form-input-wrapper">
-              <div className="input-icon-left">
-                <Lock size={16} />
+              {/* Field 4: WhatsApp */}
+              <div className="login-form-group">
+                <label htmlFor="reg_player_phone" className="login-form-label">
+                  <span>Nomor WhatsApp</span>
+                  <span style={{ fontSize: '10.5px', color: '#004F27', fontWeight: 700 }}>Aktif (SMS/WA)</span>
+                </label>
+                <div className="login-form-input-wrapper">
+                  <div className="login-input-icon-left">
+                    <Phone size={17} color="#5A675E" />
+                  </div>
+                  <span style={{
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    color: '#2B3830',
+                    paddingRight: '10px',
+                    marginRight: '2px',
+                    borderRight: '1.5px solid #D7E6DB',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    height: '22px',
+                    userSelect: 'none',
+                    letterSpacing: '0.2px'
+                  }}>
+                    +62
+                  </span>
+                  <input
+                    type="tel"
+                    id="reg_player_phone"
+                    name="reg_player_phone_prevent_autofill"
+                    className="login-form-input"
+                    placeholder="812-3456-7890"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9-]/g, ''))}
+                    autoComplete="off"
+                    style={{ paddingLeft: '8px' }}
+                    required
+                  />
+                </div>
               </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="reg_player_password"
-                name="reg_player_password_prevent_autofill"
-                className="form-input"
-                placeholder="Minimal 8 karakter"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
-              <div className="input-icon-right" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </div>
+
+            {/* Field 5: Kata Sandi */}
+            <div className="login-form-group">
+              <label htmlFor="reg_player_password" className="login-form-label">
+                <span>Kata Sandi Akun</span>
+                <span style={{ fontSize: '11px', color: '#7A897F', fontWeight: 500 }}>Min. 8 karakter</span>
+              </label>
+              <div className="login-form-input-wrapper">
+                <div className="login-input-icon-left">
+                  <Lock size={17} color="#5A675E" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="reg_player_password"
+                  name="reg_player_password_prevent_autofill"
+                  className="login-form-input"
+                  placeholder="Masukkan kata sandi aman"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-input-icon-right"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 14px' }}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Tingkat Kemahiran Bermain */}
-          <div className="form-group">
-            <label className="form-label">Tingkat Kemahiran Bermain</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              {(['Beginner', 'Intermediate', 'Advance'] as const).map((level) => {
-                const isSelected = kemahiran === level;
-                return (
-                  <button
-                    key={level}
-                    type="button"
-                    onClick={() => setKemahiran(level)}
-                    style={{
-                      padding: '10px 6px',
-                      borderRadius: 'var(--radius-full)',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      textAlign: 'center',
-                      transition: 'all 0.2s',
-                      backgroundColor: isSelected ? '#004F27' : '#FFFFFF',
-                      color: isSelected ? '#FFFFFF' : '#3F4940',
-                      border: isSelected ? '1px solid #004F27' : '1px solid var(--border-color)',
-                      boxShadow: isSelected ? 'var(--shadow-sm)' : 'none'
-                    }}
-                  >
-                    {level}
-                  </button>
-                );
-              })}
+            {/* Field 6: Tingkat Kemahiran Bermain */}
+            <div className="login-form-group">
+              <label className="login-form-label">
+                <span>Tingkat Kemahiran Bermain</span>
+                <span style={{ fontSize: '11px', color: '#004F27', fontWeight: 700 }}>Bisa Diubah Kapan Saja</span>
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {(['Beginner', 'Intermediate', 'Advance'] as const).map((level) => {
+                  const isSelected = kemahiran === level;
+                  return (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setKemahiran(level)}
+                      style={{
+                        padding: '10px 6px',
+                        borderRadius: '10px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        backgroundColor: isSelected ? '#004F27' : '#F8FBF8',
+                        color: isSelected ? '#FFFFFF' : '#3F4940',
+                        border: isSelected ? '1.5px solid #004F27' : '1.5px solid #D7E6DB',
+                        boxShadow: isSelected ? '0 2px 8px rgba(0, 79, 39, 0.2)' : 'none'
+                      }}
+                    >
+                      {level}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{
+                marginTop: '4px',
+                padding: '8px 12px',
+                backgroundColor: '#F8FAF8',
+                borderRadius: '10px',
+                border: '1px solid #D7E6DB',
+                fontSize: '11.5px',
+                color: '#2B3830',
+                lineHeight: '1.45'
+              }}>
+                <strong>{kemahiran}:</strong> {KEMAHIRAN_MAP[kemahiran].deskripsi}
+              </div>
             </div>
-            <div style={{ marginTop: '8px', padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '8px', border: '1px solid #E8E5DE', fontSize: '11.5px', color: '#3F4940', lineHeight: '1.45' }}>
-              <strong>{kemahiran}:</strong> {KEMAHIRAN_MAP[kemahiran].deskripsi}
-            </div>
-            <p style={{ fontSize: '11px', color: '#6F7A70', marginTop: '6px', lineHeight: '1.4' }}>
-              ⓘ Catatan: Tingkat kemahiran ini dapat Anda sesuaikan kapan saja nantinya di pengaturan profil akun.
-            </p>
-          </div>
 
-          {/* Agreement Checkbox */}
-          <div
-            className="checkbox-label"
-            onClick={() => setAgreed(!agreed)}
-            style={{ alignItems: 'flex-start', marginTop: '4px' }}
-          >
-            <div className={`custom-checkbox ${agreed ? 'checked' : ''}`} style={{ marginTop: '2px' }}>
-              {agreed && <Check size={12} color="white" />}
-            </div>
-            <div style={{ fontSize: '12px', color: '#2B3830', lineHeight: '1.4' }}>
-              Saya menyetujui <span style={{ fontWeight: 700, color: '#004F27' }}>Ketentuan Fairplay Komunitas</span> & Kebijakan Gamehouse Mahjongyuks.
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button type="submit" className="btn-primary" disabled={loading} style={{ marginTop: '4px' }}>
-            {loading ? 'Mendaftarkan Akun...' : 'Daftar Akun Sekarang →'}
-          </button>
-
-          {/* Divider */}
-          <div className="divider-text">ATAU DAFTAR INSTAN</div>
-
-          {/* Google Button */}
-          <button type="button" className="btn-social" onClick={handleGoogleSignup}>
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-            </svg>
-            Daftar Cepat dengan Google
-          </button>
-
-          {/* Already have account */}
-          <div style={{ textAlign: 'center', fontSize: '13px', color: '#5A675E', marginTop: '6px' }}>
-            Sudah memiliki akun member?{' '}
-            <Link href="/login" style={{ fontWeight: 800, color: '#004F27', textDecoration: 'underline' }}>
-              Masuk di sini
-            </Link>
-          </div>
-        </form>
-
-        {/* Bottom Card: Satu ID Komunitas Terpadu */}
-        <div style={{
-          backgroundColor: '#E8F5EC',
-          border: '1px solid #C8E6D2',
-          borderRadius: 'var(--radius-lg)',
-          padding: '14px 16px',
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'center'
-        }}>
-          <Building size={20} color="#004F27" style={{ flexShrink: 0 }} />
-          <div>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#004F27' }}>
-              Satu ID Komunitas Terpadu
-            </div>
-            <div style={{ fontSize: '11px', color: '#455A4C', lineHeight: '1.4' }}>
-              Akun otomatis aktif untuk Game House Sedayu City, Meja Otomatis Jabodetabek, dan seluruh Event Mitra Resmi.
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* DEV NOTICE MODAL FOR GOOGLE SIGNUP / OTP */}
-      {showDevNoticeModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          padding: '16px'
-        }}>
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '20px',
-            width: '100%',
-            maxWidth: '420px',
-            padding: '28px 24px',
-            boxShadow: 'var(--shadow-hover)',
-            position: 'relative'
-          }}>
-            <button
-              type="button"
-              onClick={() => setShowDevNoticeModal(false)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                color: '#7A897F'
-              }}
+            {/* Agreement Checkbox */}
+            <label
+              className="login-checkbox-label"
+              onClick={() => setAgreed(!agreed)}
+              style={{ alignItems: 'flex-start', marginTop: '4px' }}
             >
-              <X size={20} />
+              <div className={`login-custom-checkbox ${agreed ? 'checked' : ''}`} style={{ marginTop: '2px' }}>
+                {agreed && <Check size={12} color="white" />}
+              </div>
+              <span style={{ fontSize: '12px', color: '#2B3830', lineHeight: '1.4' }}>
+                Saya menyetujui <strong style={{ color: '#004F27' }}>Ketentuan Fairplay Komunitas</strong> & Kebijakan Gamehouse Mahjongyuks.
+              </span>
+            </label>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              id="btn_register_submit"
+              className="login-submit-btn"
+              disabled={loading}
+              style={{ marginTop: '4px' }}
+            >
+              {loading ? 'Mendaftarkan Akun...' : (
+                <>
+                  <span>Daftar Akun Sekarang</span>
+                  <ArrowRight size={17} />
+                </>
+              )}
             </button>
 
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              backgroundColor: '#FEF3C7',
-              color: '#D97706',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '14px'
-            }}>
-              <AlertTriangle size={24} />
+            {/* Already have account */}
+            <div style={{ textAlign: 'center', fontSize: '13px', color: '#5A675E', marginTop: '6px' }}>
+              Sudah memiliki akun member?{' '}
+              <Link href="/login" style={{ fontWeight: 800, color: '#004F27', textDecoration: 'underline' }}>
+                Masuk di sini
+              </Link>
             </div>
+          </form>
 
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#111E18', marginBottom: '6px' }}>
-              Fitur Masih Dalam Pengembangan
-            </h3>
-
-            <p style={{ fontSize: '13px', color: '#5A675E', lineHeight: '1.5', marginBottom: '18px' }}>
-              Integrasi pendaftaran instan melalui Google OAuth dan sistem verifikasi OTP via email (seperti <strong>Nodemailer</strong> / SMTP) saat ini masih dalam proses pengerjaan teknis.
-            </p>
-
-            <div style={{
-              backgroundColor: '#F8FAF8',
-              border: '1px solid #D2E7D8',
-              borderRadius: '12px',
-              padding: '12px',
-              fontSize: '12px',
-              color: '#2B3830',
-              lineHeight: '1.45',
-              marginBottom: '18px'
-            }}>
-              Silakan lengkapi formulir pendaftaran di atas secara manual dengan <strong>Email</strong> dan <strong>Kata Sandi</strong> untuk langsung mengaktifkan akun Anda.
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowDevNoticeModal(false)}
-              className="btn-primary"
-              style={{ width: '100%' }}
-            >
-              Mengerti & Kembali
-            </button>
-          </div>
         </div>
-      )}
+
+      </main>
 
     </div>
   );

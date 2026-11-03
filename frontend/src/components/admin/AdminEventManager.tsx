@@ -493,7 +493,7 @@ export default function AdminEventManager() {
           className="adm-btn-primary"
         >
           <Plus size={16} />
-          <span>+ Tambah Event Baru</span>
+          <span>Tambah Event Baru</span>
         </button>
       </div>
 
@@ -657,7 +657,7 @@ export default function AdminEventManager() {
               onClick={handleOpenCreate}
               className="adm-btn-primary"
             >
-              + Tambah Event Pertama
+              Tambah Event Pertama
             </button>
           </div>
         ) : (

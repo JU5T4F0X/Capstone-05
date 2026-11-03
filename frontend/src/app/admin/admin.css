@@ -69,14 +69,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Left: Logo & Brand */
 .adm-header-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -89,13 +91,13 @@
 }
 
 .adm-brand-logo {
-  height: 40px;
+  height: 38px;
   width: auto;
   object-fit: contain;
 }
 
 .adm-brand-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: #FAF8F5;
   letter-spacing: -0.3px;
@@ -109,28 +111,23 @@
   background-color: rgba(226, 188, 85, 0.15);
   border: 1px solid rgba(226, 188, 85, 0.35);
   color: #E2BC55;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: 6px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
-/* Center: Horizontal Navigation Menu (7 Menus) */
+/* Center: Horizontal Navigation Menu (6 Menus) */
 .adm-header-nav {
   display: none;
   align-items: center;
-  gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  gap: 3px;
+  flex: 0 1 auto;
 }
 
-.adm-header-nav::-webkit-scrollbar {
-  display: none;
-}
-
-@media (min-width: 1080px) {
+@media (min-width: 960px) {
   .adm-header-nav {
     display: flex;
   }
@@ -139,10 +136,10 @@
 .adm-nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
+  gap: 5px;
+  padding: 6px 9px;
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #C3D4CA;
   text-decoration: none;
@@ -180,17 +177,17 @@
 .adm-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .adm-mode-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
+  gap: 5px;
+  padding: 6px 10px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #C3D4CA;
   background-color: rgba(255, 255, 255, 0.06);
@@ -249,6 +246,7 @@
   display: flex;
   flex-direction: column;
   text-align: left;
+  max-width: 130px;
 }
 
 .adm-admin-name {
@@ -256,6 +254,9 @@
   font-weight: 700;
   color: #FFFFFF;
   line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .adm-admin-role {
@@ -263,9 +264,12 @@
   font-weight: 600;
   color: #E2BC55;
   letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .adm-admin-info {
     display: none;
   }

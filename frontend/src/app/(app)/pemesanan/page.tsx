@@ -136,7 +136,7 @@ export default function PemesananPage() {
 
   // State konfigurasi booking
   const [mode, setMode] = useState<'Casual' | 'Competitive'>('Competitive');
-  const [selectedDate, setSelectedDate] = useState('2026-11-01');
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [selectedTime, setSelectedTime] = useState('14:00');
   const [durationHours, setDurationHours] = useState(4);
   const [tables] = useState<TableArena[]>(INITIAL_TABLES);
