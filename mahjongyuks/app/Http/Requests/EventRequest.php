@@ -32,6 +32,7 @@ class EventRequest extends FormRequest
             'venue_id' => ['nullable', 'exists:venues,id'],
             'biaya' => ['nullable', 'string', 'max:100'],
             'kuota' => ['nullable', 'string', 'max:100'],
+            'jumlah_meja' => ['nullable', 'numeric', 'min:1', 'max:100'],
             'foto' => ['nullable'], // string path atau uploaded file
         ];
 

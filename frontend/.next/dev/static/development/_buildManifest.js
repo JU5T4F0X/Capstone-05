@@ -1,6 +1,10 @@
 self.__BUILD_MANIFEST = {
   "__rewrites": {
-    "afterFiles": [],
+    "afterFiles": [
+      {
+        "source": "/storage/:path*"
+      }
+    ],
     "beforeFiles": [],
     "fallback": []
   },

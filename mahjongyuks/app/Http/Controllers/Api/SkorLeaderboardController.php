@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\GameRound;
+use App\Models\GameTable;
 use App\Models\Player;
 use App\Models\SesiBermain;
 use App\Models\SkorPemain;
+use App\Models\TablePlayer;
 use App\Models\User;
+use App\Models\WinRecord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -221,6 +225,8 @@ class SkorLeaderboardController extends Controller
 
     /**
      * Riwayat pertandingan pribadi untuk pemain yang sedang login (RF-08).
+     * Terintegrasi dengan sistem skoring resmi Hong Kong Mahjong (WinRecord)
+     * dan mempertahankan backward compatibility dengan SkorPemain.
      */
     public function myGameHistory(Request $request): JsonResponse
     {
@@ -245,28 +251,121 @@ class SkorLeaderboardController extends Controller
             ]);
         }
 
-        $skors = SkorPemain::with(['sesiBermain.event', 'sesiBermain.pemesanan.meja'])
+        // 1. Ambil kemenangan aktif dari sistem skoring Hong Kong Mahjong (WinRecord)
+        $allHandsConfig = config('hk_hands.hands', []);
+        $winRecords = WinRecord::with(['sesiBermain.event', 'gameTable', 'gameRound', 'discarder.user'])
+            ->where('winner_id', $player->id)
+            ->whereNull('voided_at')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // 2. Ambil ronde di mana pemain melakukan buang tile penentu (discarder / kena Ron)
+        $discardRecords = WinRecord::with(['sesiBermain.event', 'gameTable', 'gameRound', 'winner.user'])
+            ->where('discarder_id', $player->id)
+            ->whereNull('voided_at')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // 3. Format riwayat kemenangan HK
+        $formattedWins = $winRecords->map(function ($w) use ($allHandsConfig) {
+            $sesi = $w->sesiBermain;
+            $tableName = $w->gameTable?->nomor_meja ?? 'Meja Pertandingan';
+            $roundNum = $w->gameRound?->round_number ?? 1;
+
+            $handNames = collect($w->hand_codes ?? [])->map(function ($code) use ($allHandsConfig) {
+                return $allHandsConfig[$code]['name_id'] ?? $allHandsConfig[$code]['name'] ?? $code;
+            })->filter()->implode(', ');
+
+            $methodText = $w->win_method === 'self_draw' ? 'Tarik Sendiri (Zi Mo)' : 'Buang Lawan (Discard)';
+            if ($w->discarder?->user?->nama) {
+                $methodText .= ' dari ' . $w->discarder->user->nama;
+            }
+
+            $catatan = "Menang {$methodText} • {$w->fan} Fan (+{$w->points_awarded} PTS)";
+            if (!empty($handNames)) {
+                $catatan .= " [{$handNames}]";
+            }
+
+            return [
+                'id' => $w->id,
+                'match_name' => "{$tableName} — Ronde #{$roundNum}",
+                'event_name' => $sesi?->event?->nama_event ?? $sesi?->nama_sesi ?? 'Pertandingan Sesi Meja',
+                'tanggal' => $w->created_at ? $w->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                'peringkat' => 1,
+                'skor' => (float) $w->points_awarded,
+                'catatan_wasit' => $catatan,
+                'sesi_id' => $w->sesi_id,
+                'created_at' => $w->created_at,
+            ];
+        });
+
+        // 4. Format riwayat discard (kena Ron)
+        $formattedDiscards = $discardRecords->map(function ($w) {
+            $sesi = $w->sesiBermain;
+            $tableName = $w->gameTable?->nomor_meja ?? 'Meja Pertandingan';
+            $roundNum = $w->gameRound?->round_number ?? 1;
+            $winnerName = $w->winner?->user?->nama ?? 'Pemain Lawan';
+
+            return [
+                'id' => 100000 + $w->id,
+                'match_name' => "{$tableName} — Ronde #{$roundNum}",
+                'event_name' => $sesi?->event?->nama_event ?? $sesi?->nama_sesi ?? 'Pertandingan Sesi Meja',
+                'tanggal' => $w->created_at ? $w->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                'peringkat' => 4,
+                'skor' => 0.0,
+                'catatan_wasit' => "Kena Ron (Buang Tile ke {$winnerName}) • {$w->fan} Fan (0 PTS)",
+                'sesi_id' => $w->sesi_id,
+                'created_at' => $w->created_at,
+            ];
+        });
+
+        // 5. Data dari tabel lama skor_pemains (backward compatibility)
+        $oldSkors = SkorPemain::with(['sesiBermain.event', 'sesiBermain.pemesanan.meja'])
             ->where('player_id', $player->id)
             ->orderBy('id', 'desc')
             ->get();
 
-        $totalMatches = $skors->count();
-        $totalWins = $skors->where('peringkat', 1)->count();
-        $winRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 1) . '%' : '0.0%';
-        $totalPoints = (float) $skors->sum('skor');
-
-        $history = $skors->map(function ($s) {
+        $formattedOld = $oldSkors->map(function ($s) {
             $sesi = $s->sesiBermain;
-            $namaMatch = $sesi->event->nama_event ?? $sesi->nama_sesi ?? 'Pertandingan Sesi Meja';
+            $namaMatch = $sesi?->event?->nama_event ?? $sesi?->nama_sesi ?? 'Pertandingan Sesi Meja';
             return [
-                'id' => $s->id,
+                'id' => 200000 + $s->id,
                 'match_name' => $namaMatch,
-                'tanggal' => $sesi->tanggal_permainan ? $sesi->tanggal_permainan->format('d M Y') : $s->created_at->format('d M Y'),
+                'event_name' => $sesi?->event?->nama_event ?? null,
+                'tanggal' => $sesi?->tanggal_permainan ? $sesi->tanggal_permainan->format('Y-m-d H:i:s') : ($s->created_at ? $s->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s')),
                 'peringkat' => $s->peringkat,
                 'skor' => (float) $s->skor,
                 'catatan_wasit' => $s->catatan_wasit,
+                'sesi_id' => $s->sesi_id,
+                'created_at' => $s->created_at,
             ];
         });
+
+        // Gabungkan seluruh riwayat dan urutkan dari yang terbaru
+        $history = $formattedWins
+            ->concat($formattedDiscards)
+            ->concat($formattedOld)
+            ->sortByDesc(fn ($item) => $item['created_at'])
+            ->values();
+
+        // 6. Hitung Total Match, Menang, Poin, dan Win Rate
+        $totalWins = $winRecords->count() + $oldSkors->where('peringkat', 1)->count();
+        $totalPoints = (float) ($winRecords->sum('points_awarded') + $oldSkors->sum('skor'));
+
+        // Cek total ronde yang pernah diikuti pemain di meja
+        $tableIds = TablePlayer::where('player_id', $player->id)->pluck('game_table_id');
+        $participatedRoundsCount = GameRound::whereIn('game_table_id', $tableIds)
+            ->where('status', 'selesai')
+            ->count();
+
+        $totalMatches = max(
+            $totalWins,
+            $participatedRoundsCount,
+            $history->count(),
+            $oldSkors->count()
+        );
+
+        $winRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 1) . '%' : ($totalWins > 0 ? '100%' : '0.0%');
 
         return response()->json([
             'success' => true,

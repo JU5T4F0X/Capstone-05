@@ -155,11 +155,8 @@ class EventController extends Controller
             ], 422);
         }
 
-        // 5. Validasi kuota pendaftaran
-        $maxCapacity = 16;
-        if (preg_match('/(\d+)/', (string)($event->kuota ?? ''), $matches)) {
-            $maxCapacity = (int)$matches[1];
-        }
+        // 5. Validasi kuota pendaftaran (1 meja = 4 pemain)
+        $maxCapacity = $this->parseEventCapacity($event->kuota);
 
         $activeRegistrationsCount = $event->pendaftarans()
             ->where('status_pendaftaran', '!=', 'batal')
@@ -385,9 +382,13 @@ class EventController extends Controller
             $validated['foto'] = '/assets/event_1.jpg';
         }
 
-        // Default kuota & biaya jika kosong
-        if (empty($validated['kuota'])) {
-            $validated['kuota'] = 'Sisa 4 Kursi (1 Meja)';
+        // Handle input alokasi meja (1 meja = 4 kursi pemain Mahjong)
+        if ($request->filled('jumlah_meja')) {
+            $mejaCount = max(1, (int)$request->input('jumlah_meja'));
+            $seatsCount = $mejaCount * 4;
+            $validated['kuota'] = "{$seatsCount} Kursi ({$mejaCount} Meja)";
+        } elseif (empty($validated['kuota'])) {
+            $validated['kuota'] = '4 Kursi (1 Meja)';
         }
         if (empty($validated['biaya'])) {
             $validated['biaya'] = 'Rp 150.000 /kursi';
@@ -445,6 +446,13 @@ class EventController extends Controller
             $validated['jenis_event'] = strcasecmp($validated['jenis_event'], 'Non-Event') === 0 ? 'Non-Event' : 'Event';
         }
 
+        // Handle update alokasi meja (1 meja = 4 kursi pemain Mahjong)
+        if ($request->filled('jumlah_meja')) {
+            $mejaCount = max(1, (int)$request->input('jumlah_meja'));
+            $seatsCount = $mejaCount * 4;
+            $validated['kuota'] = "{$seatsCount} Kursi ({$mejaCount} Meja)";
+        }
+
         $event->update($validated);
         $event->load('venue');
 
@@ -482,6 +490,29 @@ class EventController extends Controller
             'success' => true,
             'message' => "Event '{$namaEvent}' berhasil dihapus dari sistem.",
         ]);
+    }
+
+    /**
+     * Parse kapasitas kursi maksimal berdasarkan kuota/meja
+     * 1 meja = 4 kursi pemain Mahjong
+     */
+    private function parseEventCapacity(?string $kuota): int
+    {
+        $kuotaStr = (string)($kuota ?? '');
+        if (preg_match('/(\d+)\s*(?:kursi|seat|orang|player|peserta)/i', $kuotaStr, $seatMatches)) {
+            return max(4, (int)$seatMatches[1]);
+        }
+        if (preg_match('/(\d+)\s*(?:meja|table)/i', $kuotaStr, $mejaMatches)) {
+            return max(4, (int)$mejaMatches[1] * 4);
+        }
+        if (is_numeric(trim($kuotaStr))) {
+            $val = (int)trim($kuotaStr);
+            return ($val <= 10) ? max(4, $val * 4) : max(4, $val);
+        }
+        if (preg_match('/(\d+)/', $kuotaStr, $matches)) {
+            return max(4, (int)$matches[1]);
+        }
+        return 16;
     }
 
     /**
@@ -536,11 +567,9 @@ class EventController extends Controller
                 : 'Rp 150.000 /kursi';
         }
 
-        // Hitung kuota dinamis & sisa kursi
-        $maxCapacity = 16;
-        if (preg_match('/(\d+)/', (string)($event->kuota ?? ''), $matches)) {
-            $maxCapacity = (int)$matches[1];
-        }
+        // Hitung kuota dinamis & sisa kursi (1 meja = 4 kursi pemain Mahjong)
+        $maxCapacity = $this->parseEventCapacity($event->kuota);
+        $totalTables = max(1, (int)ceil($maxCapacity / 4));
 
         $pendaftaransCount = $event->relationLoaded('pendaftarans')
             ? $event->pendaftarans->where('status_pendaftaran', '!=', 'batal')->count()
@@ -548,8 +577,8 @@ class EventController extends Controller
 
         $sisaSeats = max(0, $maxCapacity - $pendaftaransCount);
         $kuotaLabel = $sisaSeats > 0 
-            ? "Sisa {$sisaSeats} Kursi (Kapasitas {$maxCapacity})"
-            : "Kuota Penuh ({$maxCapacity}/{$maxCapacity})";
+            ? "{$totalTables} Meja (Sisa {$sisaSeats} Kursi)"
+            : "Kuota Penuh ({$totalTables} Meja / {$maxCapacity} Kursi)";
 
         // Cek status pendaftaran player login
         $isRegistered = false;
@@ -583,6 +612,7 @@ class EventController extends Controller
             'kuota' => $kuotaLabel,
             'max_kuota' => $maxCapacity,
             'sisa_kuota' => $sisaSeats,
+            'jumlah_meja' => $totalTables,
             'pendaftarans_count' => $pendaftaransCount,
             'is_registered' => $isRegistered,
             'registration_status' => $myRegistrationStatus,
@@ -590,7 +620,7 @@ class EventController extends Controller
             'badge_class' => $badgeClass,
             'foto' => $image,
             'standar_aturan' => 'World Riichi Championship (WRC)',
-            'kapasitas_meja' => '4 Pemain per Meja (Amos Rexx III)',
+            'kapasitas_meja' => "{$totalTables} Meja (" . ($totalTables * 4) . " Kursi Pemain)",
         ];
     }
 }

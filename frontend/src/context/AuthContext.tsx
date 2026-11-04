@@ -23,7 +23,6 @@ const defaultPlayerUser: User = {
   kemahiran: 'Advance',
   dan_rank: 'DAN 5',
   points: 14850,
-  avatar_url: '/assets/avatar_kevin.jpg',
 };
 
 const defaultAdminUser: User = {
@@ -33,7 +32,6 @@ const defaultAdminUser: User = {
   no_telepon: '081987654321',
   role: 'admin',
   handle: 'ADM-JKT-042',
-  avatar_url: '/assets/avatar_kevin.jpg',
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

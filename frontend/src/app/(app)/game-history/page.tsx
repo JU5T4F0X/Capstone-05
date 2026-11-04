@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,7 +20,7 @@ import '../dashboard/dashboard.css';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface GameHistoryItem {
-  id: number;
+  id: number | string;
   sesi_id?: number;
   match_name: string;
   event_name?: string | null;
@@ -225,7 +225,7 @@ export default function GameHistoryPage() {
                     <th style={thStyle}>SESI / EVENT</th>
                     <th style={thStyle}>TANGGAL</th>
                     <th style={{ ...thStyle, textAlign: 'center' }}>POSISI</th>
-                    <th style={{ ...thStyle, textAlign: 'right' }}>SKOR UMA/OKA</th>
+                    <th style={{ ...thStyle, textAlign: 'right' }}>POIN (PTS)</th>
                     <th style={thStyle}>CATATAN WASIT</th>
                   </tr>
                 </thead>
@@ -266,10 +266,10 @@ export default function GameHistoryPage() {
                       <td style={{ ...tdStyle, textAlign: 'right' }}>
                         <strong style={{
                           fontSize: '14px',
-                          color: match.skor >= 0 ? '#16A34A' : '#DC2626',
+                          color: match.skor > 0 ? '#16A34A' : (match.skor < 0 ? '#DC2626' : '#5A675E'),
                           fontWeight: 800,
                         }}>
-                          {match.skor >= 0 ? `+${match.skor}` : match.skor}
+                          {match.skor > 0 ? `+${match.skor} PTS` : `${match.skor} PTS`}
                         </strong>
                       </td>
                       <td style={tdStyle}>

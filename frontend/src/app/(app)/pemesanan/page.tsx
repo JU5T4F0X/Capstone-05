@@ -20,6 +20,8 @@ import {
   Timer,
   Coffee,
   Lock,
+  Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import ApiClient, { ApiMyEventRegistration } from '@/lib/api';
@@ -48,6 +50,8 @@ interface TableArena {
   statusLabel: string;
   centerText: string;
   centerSub: string;
+  isLocked?: boolean;
+  lockReason?: string | null;
   seats: Record<WindPosition, SeatInfo>;
 }
 
@@ -57,75 +61,6 @@ const WIND_DETAILS: Record<WindPosition, { name: string; kanji: string; dir: str
   sha: { name: 'Angin Barat (Sha)', kanji: '西', dir: 'Barat' },
   pei: { name: 'Angin Utara (Pei)', kanji: '北', dir: 'Utara' },
 };
-
-// Peralatan Meja: Toko utama (Alicia Bakery Sedayu City) menggunakan meja otomatis,
-// sedangkan event luar menggunakan set manual (sesuai AGENTS.md)
-const INITIAL_TABLES: TableArena[] = [
-  {
-    id: 1,
-    nomor: 'Meja 01',
-    tipe: 'Meja Otomatis Empat Sisi',
-    badgeTipe: 'Meja Otomatis',
-    status: 'penuh',
-    statusLabel: 'Penuh (4/4)',
-    centerText: '01',
-    centerSub: 'LENGKAP',
-    seats: {
-      pei: { position: 'pei', label: 'Pei', kanji: '北', direction: 'Utara', status: 'taken', occupant: 'Hendra' },
-      ton: { position: 'ton', label: 'Ton', kanji: '東', direction: 'Timur', status: 'taken', occupant: 'Jess' },
-      nan: { position: 'nan', label: 'Nan', kanji: '南', direction: 'Selatan', status: 'taken', occupant: 'Rian' },
-      sha: { position: 'sha', label: 'Sha', kanji: '西', direction: 'Barat', status: 'taken', occupant: 'Bima' },
-    },
-  },
-  {
-    id: 2,
-    nomor: 'Meja 02',
-    tipe: 'Meja Otomatis Empat Sisi',
-    badgeTipe: 'Meja Otomatis',
-    status: 'terisi_sebagian',
-    statusLabel: '1 Tersedia',
-    centerText: '02',
-    centerSub: 'SISA 1',
-    seats: {
-      pei: { position: 'pei', label: 'Pei', kanji: '北', direction: 'Utara', status: 'available' },
-      ton: { position: 'ton', label: 'Ton', kanji: '東', direction: 'Timur', status: 'taken', occupant: 'Andi' },
-      nan: { position: 'nan', label: 'Nan', kanji: '南', direction: 'Selatan', status: 'taken', occupant: 'Siska' },
-      sha: { position: 'sha', label: 'Sha', kanji: '西', direction: 'Barat', status: 'taken', occupant: 'Fikri' },
-    },
-  },
-  {
-    id: 3,
-    nomor: 'Meja 03',
-    tipe: 'Meja Otomatis Empat Sisi',
-    badgeTipe: 'Meja Otomatis',
-    status: 'tersedia',
-    statusLabel: 'Pilihan Aktif',
-    centerText: '03',
-    centerSub: 'TERSEDIA',
-    seats: {
-      pei: { position: 'pei', label: 'Pei', kanji: '北', direction: 'Utara', status: 'taken', occupant: 'David' },
-      ton: { position: 'ton', label: 'Ton', kanji: '東', direction: 'Timur', status: 'available' },
-      nan: { position: 'nan', label: 'Nan', kanji: '南', direction: 'Selatan', status: 'available' },
-      sha: { position: 'sha', label: 'Sha', kanji: '西', direction: 'Barat', status: 'available' },
-    },
-  },
-  {
-    id: 4,
-    nomor: 'Meja 04',
-    tipe: 'Set Mahjong Manual & Mat Standar',
-    badgeTipe: 'Meja Manual',
-    status: 'penuh',
-    statusLabel: 'Penuh (4/4)',
-    centerText: '04',
-    centerSub: 'LENGKAP',
-    seats: {
-      pei: { position: 'pei', label: 'Pei', kanji: '北', direction: 'Utara', status: 'taken', occupant: 'Citra' },
-      ton: { position: 'ton', label: 'Ton', kanji: '東', direction: 'Timur', status: 'taken', occupant: 'Budi' },
-      nan: { position: 'nan', label: 'Nan', kanji: '南', direction: 'Selatan', status: 'taken', occupant: 'Yosef' },
-      sha: { position: 'sha', label: 'Sha', kanji: '西', direction: 'Barat', status: 'taken', occupant: 'Maya' },
-    },
-  },
-];
 
 export default function PemesananPage() {
   const router = useRouter();
@@ -139,9 +74,15 @@ export default function PemesananPage() {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [selectedTime, setSelectedTime] = useState('14:00');
   const [durationHours, setDurationHours] = useState(4);
-  const [tables] = useState<TableArena[]>(INITIAL_TABLES);
-  const [selectedTableId, setSelectedTableId] = useState<number>(3);
-  const [selectedSeat, setSelectedSeat] = useState<WindPosition>('ton');
+
+  // State Venue & Meja Real-time (Dinon-hardcode, bersumber dari database)
+  const [venues, setVenues] = useState<any[]>([]);
+  const [selectedVenueId, setSelectedVenueId] = useState<number | string>(1);
+  const [selectedVenue, setSelectedVenue] = useState<any>(null);
+  const [tables, setTables] = useState<TableArena[]>([]);
+  const [loadingTables, setLoadingTables] = useState<boolean>(true);
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
+  const [selectedSeat, setSelectedSeat] = useState<WindPosition | null>(null);
 
   // Form identitas pemain (Hong Kong Style)
   const [namaLengkap, setNamaLengkap] = useState('');
@@ -185,32 +126,141 @@ export default function PemesananPage() {
     }
   }, [user]);
 
+  // ── 1. Fetch Venues Asli dari Database ──
+  useEffect(() => {
+    ApiClient.getVenues().then((res) => {
+      if (res.success && res.data && res.data.length > 0) {
+        setVenues(res.data);
+        const sedayu = res.data.find((v: any) => v.nama_venue?.toLowerCase().includes('sedayu')) || res.data[0];
+        setSelectedVenueId(sedayu.id);
+        setSelectedVenue(sedayu);
+      }
+    }).catch(() => {});
+  }, []);
+
+  // Sinkronkan selectedVenue saat selectedVenueId berubah
+  useEffect(() => {
+    if (venues.length > 0 && selectedVenueId) {
+      const v = venues.find((item: any) => String(item.id) === String(selectedVenueId));
+      if (v) setSelectedVenue(v);
+    }
+  }, [selectedVenueId, venues]);
+
+  // ── 2. Fetch Meja Asli & Status Kursi Terisi dari Backend (Bukan Hardcode) ──
+  useEffect(() => {
+    if (!selectedVenueId) return;
+    setLoadingTables(true);
+
+    ApiClient.getMejas({
+      venue_id: selectedVenueId,
+      tanggal_main: selectedDate,
+      waktu_mulai: selectedTime,
+      durasi_jam: durationHours,
+    }).then((res) => {
+      if (res.success && res.data) {
+        const isSedayu = selectedVenue?.nama_venue?.toLowerCase().includes('sedayu');
+        const mappedTables: TableArena[] = res.data.map((m: any, idx: number) => {
+          const occupiedList: string[] = m.occupied_seats || [];
+          const seatDetails: Record<string, any> = m.seat_details || {};
+          const isAuto = isSedayu || m.nomor_meja?.toLowerCase().includes('otomatis');
+          const tipe = isAuto ? 'Meja Otomatis Empat Sisi' : 'Set Mahjong Manual & Mat Standar';
+          const badgeTipe = isAuto ? 'Meja Otomatis' : 'Meja Manual';
+
+          const centerNum = String(idx + 1).padStart(2, '0');
+          let centerSub = 'TERSEDIA';
+          if (m.is_full) {
+            centerSub = 'LENGKAP';
+          } else if (m.is_locked) {
+            centerSub = 'KUNCI';
+          } else if (m.is_partial) {
+            centerSub = `SISA ${m.kapasitas - m.occupied_count}`;
+          }
+
+          const seats: Record<WindPosition, SeatInfo> = {
+            pei: {
+              position: 'pei',
+              label: 'Pei',
+              kanji: '北',
+              direction: 'Utara',
+              status: occupiedList.includes('pei') ? 'taken' : 'available',
+              occupant: seatDetails['pei']?.occupant,
+            },
+            ton: {
+              position: 'ton',
+              label: 'Ton',
+              kanji: '東',
+              direction: 'Timur',
+              status: occupiedList.includes('ton') ? 'taken' : 'available',
+              occupant: seatDetails['ton']?.occupant,
+            },
+            nan: {
+              position: 'nan',
+              label: 'Nan',
+              kanji: '南',
+              direction: 'Selatan',
+              status: occupiedList.includes('nan') ? 'taken' : 'available',
+              occupant: seatDetails['nan']?.occupant,
+            },
+            sha: {
+              position: 'sha',
+              label: 'Sha',
+              kanji: '西',
+              direction: 'Barat',
+              status: occupiedList.includes('sha') ? 'taken' : 'available',
+              occupant: seatDetails['sha']?.occupant,
+            },
+          };
+
+          return {
+            id: m.id,
+            nomor: m.nomor_meja || `Meja ${centerNum}`,
+            tipe,
+            badgeTipe,
+            status: m.is_full ? 'penuh' : (m.is_partial ? 'terisi_sebagian' : 'tersedia'),
+            statusLabel: m.status_label || (m.is_full ? 'Penuh (4/4)' : 'Tersedia'),
+            centerText: centerNum,
+            centerSub,
+            isLocked: m.is_locked,
+            lockReason: m.lock_reason,
+            seats,
+          };
+        });
+
+        setTables(mappedTables);
+
+        // Pilih otomatis meja pertama yang tidak terkunci
+        setSelectedTableId((prev) => {
+          const currentValid = mappedTables.find((t) => t.id === prev && !t.isLocked);
+          if (currentValid) return prev;
+          const firstUnlocked = mappedTables.find((t) => !t.isLocked && Object.values(t.seats).some((s) => s.status === 'available'));
+          return firstUnlocked ? firstUnlocked.id : null;
+        });
+      }
+    }).catch(() => {}).finally(() => {
+      setLoadingTables(false);
+    });
+  }, [selectedVenueId, selectedDate, selectedTime, durationHours, selectedVenue]);
+
+  // Pastikan selectedSeat memilih kursi yang tersedia pada selectedTableId
+  useEffect(() => {
+    if (!selectedTableId || tables.length === 0) return;
+    const currentTable = tables.find((t) => t.id === selectedTableId);
+    if (!currentTable) return;
+    if (selectedSeat && currentTable.seats[selectedSeat]?.status === 'available') {
+      return;
+    }
+    const firstAvail = (['ton', 'nan', 'sha', 'pei'] as WindPosition[]).find(
+      (pos) => currentTable.seats[pos]?.status === 'available'
+    );
+    setSelectedSeat(firstAvail || null);
+  }, [selectedTableId, tables, selectedSeat]);
+
   // Load saved bookings dari localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem('mahjongyuks_bookings');
       if (stored) {
         setLocalBookings(JSON.parse(stored));
-      } else {
-        // Sample default regular booking jika belum ada
-        const defaultSample = [
-          {
-            id: 'TB-841-01',
-            type: 'meja',
-            title: 'Sesi Sparing Reguler Hong Kong Style (4 Jam)',
-            venue: 'Alicia Bakery Sedayu City (Game House MahjongYuks)',
-            address: 'Sedayu City Kelapa Gading SCBRC, Blok C No. 18, Jakarta Utara',
-            table: 'Meja Otomatis #02',
-            seatKanji: '東',
-            seatName: 'Angin Timur (Ton)',
-            dateTime: 'Sabtu, 1 November 2026 • 14:00 - 18:00 WIB',
-            status: 'confirmed',
-            statusLabel: 'Terkonfirmasi & Lunas',
-            price: 'Rp 125.000',
-          },
-        ];
-        setLocalBookings(defaultSample);
-        localStorage.setItem('mahjongyuks_bookings', JSON.stringify(defaultSample));
       }
     } catch {
       // fallback
@@ -256,12 +306,19 @@ export default function PemesananPage() {
   const platformFee = 5000;
   const totalPrice = tableRentalPrice + platformFee;
 
-  // Handler pemilihan kursi
+  // Handler pemilihan kursi dengan validasi regulasi penguncian meja
   const handleSelectSeat = (tableId: number, pos: WindPosition) => {
     const targetTable = tables.find((t) => t.id === tableId);
     if (!targetTable) return;
+    if (targetTable.isLocked) {
+      alert(targetTable.lockReason || 'Meja ini terkunci sesuai regulasi MahjongYuks: Silakan penuhi meja yang sedang terisi sebagian terlebih dahulu.');
+      return;
+    }
     const seat = targetTable.seats[pos];
-    if (seat.status === 'taken') return;
+    if (seat.status === 'taken') {
+      alert(`Kursi ini sudah terisi oleh ${seat.occupant || 'pemain lain'}.`);
+      return;
+    }
 
     setSelectedTableId(tableId);
     setSelectedSeat(pos);
@@ -269,8 +326,8 @@ export default function PemesananPage() {
 
   // Submit: buat pesanan di backend, lalu buka popup pembayaran Midtrans
   const handleProceedPayment = async () => {
-    if (!selectedSeat) {
-      alert('Silakan pilih salah satu kursi mata angin yang tersedia.');
+    if (!selectedTableId || !selectedSeat) {
+      alert('Silakan pilih salah satu meja dan kursi mata angin yang tersedia.');
       return;
     }
     if (!agreed) {
@@ -355,6 +412,10 @@ export default function PemesananPage() {
 
   // Eksekusi simulasi bayar
   const handleConfirmSimulation = async () => {
+    if (!selectedTableId || !selectedSeat) {
+      alert('Silakan pilih salah satu meja dan kursi mata angin yang tersedia.');
+      return;
+    }
     setIsProcessing(true);
 
     const bookingCode = `MJY-BOK-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -418,7 +479,7 @@ export default function PemesananPage() {
   };
 
   const selectedTable = tables.find((t) => t.id === selectedTableId);
-  const selectedWindInfo = WIND_DETAILS[selectedSeat];
+  const selectedWindInfo = selectedSeat ? WIND_DETAILS[selectedSeat] : WIND_DETAILS['ton'];
 
   return (
     <div className="ev-page-wrapper">
@@ -629,13 +690,37 @@ export default function PemesananPage() {
                     Aturan Hong Kong (HK Style)
                   </span>
                 </div>
+                {/* Selector Venue Asli dari Database */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#183629' }}>LOKASI VENUE:</label>
+                  <select
+                    value={selectedVenueId}
+                    onChange={(e) => setSelectedVenueId(e.target.value)}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      border: '1.5px solid #183629',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      backgroundColor: '#FFFFFF',
+                      color: '#183629',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {venues.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.nama_venue}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <h2 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: 800, color: '#183629' }}>
-                  Game House Sedayu City — Meja Otomatis Empat Sisi
+                  {selectedVenue?.nama_venue || 'Alicia Bakery Sedayu City'} — {selectedVenue?.nama_venue?.toLowerCase().includes('sedayu') ? 'Meja Otomatis Empat Sisi' : 'Set Mahjong Manual & Standar'}
                 </h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '13px', color: '#5A675E' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <MapPin size={14} color="#004F27" />
-                    <span>Alicia Bakery Sedayu City, Kelapa Gading</span>
+                    <span>{selectedVenue?.alamat || 'Alicia Bakery Sedayu City, Kelapa Gading'}</span>
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <Calendar size={14} color="#004F27" />
@@ -649,7 +734,7 @@ export default function PemesananPage() {
               </div>
             </div>
 
-            {/* Sisa Kuota Badge */}
+            {/* Sisa Kuota Badge (Dihitung Realtime dari Database) */}
             <div style={{
               textAlign: 'right',
               backgroundColor: '#F8FAF9',
@@ -661,11 +746,13 @@ export default function PemesananPage() {
                 Sisa Kuota Kursi
               </div>
               <div style={{ fontSize: '24px', fontWeight: 800, color: '#004F27', marginTop: '2px' }}>
-                3 / 16 Kursi
+                {loadingTables
+                  ? '...'
+                  : `${Math.max(0, tables.length * 4 - tables.reduce((acc, t) => acc + Object.values(t.seats).filter((s) => s.status === 'taken').length, 0))} / ${tables.length * 4} Kursi`}
               </div>
               <div style={{ fontSize: '11px', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '2px' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-                <span>Live Status</span>
+                <span>Live Terhubung DB</span>
               </div>
             </div>
           </div>
@@ -740,6 +827,26 @@ export default function PemesananPage() {
                   </div>
                 </div>
 
+                {/* Banner Regulasi Pengisian Meja MahjongYuks */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  backgroundColor: '#FEF9EC',
+                  border: '1px solid #FDE68A',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  marginBottom: '20px',
+                  fontSize: '12.5px',
+                  color: '#92400E',
+                  lineHeight: 1.5,
+                }}>
+                  <ShieldCheck size={18} color="#D97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <strong>Regulasi Pengisian Meja:</strong> Pemain wajib memenuhi kursi di meja yang sedang terisi sebagian terlebih dahulu agar sesi permainan dapat segera dimulai (minimal 4 pemain per meja). Meja kosong berikutnya otomatis dikunci jika ada meja aktif yang belum penuh.
+                  </div>
+                </div>
+
                 {/* Status Legend Bar */}
                 <div style={{
                   display: 'flex',
@@ -759,187 +866,227 @@ export default function PemesananPage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#DCFCE7', border: '1px dashed #16A34A' }} />
-                    <span>Tersedia</span>
+                    <span>Tersedia (Kosong)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5' }} />
-                    <span>Terisi / Penuh</span>
+                    <span>Terisi Pemain Lain</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#F1F5F9' }} />
-                    <span>Maintenance / Tutup</span>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#FEF3C7', border: '1px dashed #F59E0B' }} />
+                    <span>Terkunci Regulasi</span>
                   </div>
                 </div>
 
-                {/* Zona Indikator */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  color: '#8DA79B',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                  marginBottom: '16px'
-                }}>
-                  <span>Sisi Jendela Taman (Utara)</span>
-                  <span>Pintu Masuk Ruang Utama</span>
-                </div>
+                {/* The Tables Grid (Realtime dari Database) */}
+                {loadingTables ? (
+                  <div style={{ padding: '48px', textAlign: 'center', color: '#5A675E' }}>
+                    <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', margin: '0 auto 12px', display: 'block' }} />
+                    <p style={{ margin: 0, fontSize: '13px' }}>Memuat status meja dan kursi dari server...</p>
+                  </div>
+                ) : tables.length === 0 ? (
+                  <div style={{ padding: '48px', textAlign: 'center', color: '#78807B' }}>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>Belum ada meja yang terdaftar untuk venue ini.</p>
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '20px'
+                  }}>
+                    {tables.map((table) => {
+                      const isSelectedTable = selectedTableId === table.id;
+                      const isLocked = !!table.isLocked;
 
-                {/* The 4 Tables Grid */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                  gap: '20px'
-                }}>
-                  {tables.map((table) => {
-                    const isSelectedTable = selectedTableId === table.id;
-                    return (
-                      <div
-                        key={`table-arena-${table.id}`}
-                        style={{
-                          backgroundColor: isSelectedTable ? '#FCFDFC' : '#FFFFFF',
-                          borderRadius: '12px',
-                          border: isSelectedTable ? '2px solid #183629' : '1px solid #E4E0D8',
-                          padding: '18px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          boxShadow: isSelectedTable ? '0 4px 14px rgba(24, 54, 41, 0.12)' : 'none',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        {/* Table Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-                          <div>
-                            <div style={{ fontSize: '15px', fontWeight: 800, color: '#183629' }}>
-                              {table.nomor}
+                      return (
+                        <div
+                          key={`table-arena-${table.id}`}
+                          onClick={() => {
+                            if (isLocked) {
+                              alert(table.lockReason || 'Meja ini terkunci sesuai regulasi MahjongYuks: Silakan penuhi meja yang sedang terisi sebagian terlebih dahulu.');
+                            }
+                          }}
+                          style={{
+                            backgroundColor: isLocked ? '#F9FAFB' : (isSelectedTable ? '#FCFDFC' : '#FFFFFF'),
+                            borderRadius: '12px',
+                            border: isLocked
+                              ? '1px dashed #D1D5DB'
+                              : isSelectedTable
+                              ? '2px solid #183629'
+                              : '1px solid #E4E0D8',
+                            padding: '18px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            boxShadow: isSelectedTable ? '0 4px 14px rgba(24, 54, 41, 0.12)' : 'none',
+                            opacity: isLocked ? 0.72 : 1,
+                            position: 'relative',
+                            transition: 'all 0.2s ease',
+                            cursor: isLocked ? 'not-allowed' : 'default',
+                          }}
+                        >
+                          {/* Table Header */}
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+                            <div>
+                              <div style={{ fontSize: '15px', fontWeight: 800, color: isLocked ? '#6B7280' : '#183629' }}>
+                                {table.nomor}
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#5A675E' }}>
+                                {table.tipe}
+                              </div>
                             </div>
-                            <div style={{ fontSize: '11px', color: '#5A675E' }}>
-                              {table.tipe}
-                            </div>
-                          </div>
-                          <span style={{
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            padding: '3px 8px',
-                            borderRadius: '4px',
-                            backgroundColor:
-                              table.status === 'penuh'
+                            <span style={{
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              backgroundColor: isLocked
+                                ? '#FEF3C7'
+                                : table.status === 'penuh'
                                 ? '#FEE2E2'
                                 : table.status === 'terisi_sebagian'
                                 ? '#DCFCE7'
                                 : isSelectedTable
                                 ? '#183629'
-                                : '#FEF3C7',
-                            color:
-                              table.status === 'penuh'
+                                : '#E5E7EB',
+                              color: isLocked
+                                ? '#B45309'
+                                : table.status === 'penuh'
                                 ? '#B91C1C'
                                 : table.status === 'terisi_sebagian'
                                 ? '#15803D'
                                 : isSelectedTable
                                 ? '#FFFFFF'
-                                : '#B45309',
-                          }}>
-                            {isSelectedTable ? 'Pilihan Aktif' : table.statusLabel}
-                          </span>
-                        </div>
-
-                        {/* Interactive Compass Layout */}
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: '70px 100px 70px',
-                          gridTemplateRows: '50px 70px 50px',
-                          gap: '8px',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          margin: '12px 0 16px 0',
-                          padding: '12px',
-                          backgroundColor: '#F8FAF9',
-                          borderRadius: '10px'
-                        }}>
-                          {/* TOP: PEI (North) */}
-                          <div style={{ gridColumn: '2', gridRow: '1', display: 'flex', justifyContent: 'center' }}>
-                            <SeatButton
-                              seat={table.seats.pei}
-                              isSelected={isSelectedTable && selectedSeat === 'pei'}
-                              onClick={() => handleSelectSeat(table.id, 'pei')}
-                            />
+                                : '#374151',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}>
+                              {isLocked && <Lock size={11} />}
+                              {isLocked ? 'Terkunci' : isSelectedTable ? 'Pilihan Aktif' : table.statusLabel}
+                            </span>
                           </div>
 
-                          {/* LEFT: SHA (West) */}
-                          <div style={{ gridColumn: '1', gridRow: '2', display: 'flex', justifyContent: 'center' }}>
-                            <SeatButton
-                              seat={table.seats.sha}
-                              isSelected={isSelectedTable && selectedSeat === 'sha'}
-                              onClick={() => handleSelectSeat(table.id, 'sha')}
-                            />
-                          </div>
-
-                          {/* CENTER TABLE BLOCK */}
+                          {/* Interactive Compass Layout */}
                           <div style={{
-                            gridColumn: '2',
-                            gridRow: '2',
-                            backgroundColor: isSelectedTable ? '#183629' : table.status === 'penuh' ? '#E2E8F0' : '#E8F3EB',
-                            color: isSelectedTable ? '#FAF8F5' : table.status === 'penuh' ? '#64748B' : '#004F27',
-                            borderRadius: '8px',
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
+                            display: 'grid',
+                            gridTemplateColumns: '70px 100px 70px',
+                            gridTemplateRows: '50px 70px 50px',
+                            gap: '8px',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            padding: '6px',
-                            textAlign: 'center',
-                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                            margin: '12px 0 16px 0',
+                            padding: '12px',
+                            backgroundColor: isLocked ? '#F3F4F6' : '#F8FAF9',
+                            borderRadius: '10px'
                           }}>
-                            <div style={{ fontSize: '18px', fontWeight: 900, lineHeight: 1 }}>
-                              {table.centerText}
+                            {/* TOP: PEI (North) */}
+                            <div style={{ gridColumn: '2', gridRow: '1', display: 'flex', justifyContent: 'center' }}>
+                              <SeatButton
+                                seat={table.seats.pei}
+                                isSelected={isSelectedTable && selectedSeat === 'pei'}
+                                isTableLocked={isLocked}
+                                onClick={() => handleSelectSeat(table.id, 'pei')}
+                              />
                             </div>
-                            <div style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.04em', marginTop: '3px' }}>
-                              {table.centerSub}
+
+                            {/* LEFT: SHA (West) */}
+                            <div style={{ gridColumn: '1', gridRow: '2', display: 'flex', justifyContent: 'center' }}>
+                              <SeatButton
+                                seat={table.seats.sha}
+                                isSelected={isSelectedTable && selectedSeat === 'sha'}
+                                isTableLocked={isLocked}
+                                onClick={() => handleSelectSeat(table.id, 'sha')}
+                              />
+                            </div>
+
+                            {/* CENTER TABLE BLOCK */}
+                            <div style={{
+                              gridColumn: '2',
+                              gridRow: '2',
+                              backgroundColor: isLocked
+                                ? '#E5E7EB'
+                                : isSelectedTable
+                                ? '#183629'
+                                : table.status === 'penuh'
+                                ? '#E2E8F0'
+                                : '#E8F3EB',
+                              color: isLocked
+                                ? '#9CA3AF'
+                                : isSelectedTable
+                                ? '#FAF8F5'
+                                : table.status === 'penuh'
+                                ? '#64748B'
+                                : '#004F27',
+                              borderRadius: '8px',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '6px',
+                              textAlign: 'center',
+                              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                            }}>
+                              <div style={{ fontSize: '18px', fontWeight: 900, lineHeight: 1 }}>
+                                {table.centerText}
+                              </div>
+                              <div style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.04em', marginTop: '3px' }}>
+                                {isLocked ? 'KUNCI' : table.centerSub}
+                              </div>
+                            </div>
+
+                            {/* RIGHT: TON (East) */}
+                            <div style={{ gridColumn: '3', gridRow: '2', display: 'flex', justifyContent: 'center' }}>
+                              <SeatButton
+                                seat={table.seats.ton}
+                                isSelected={isSelectedTable && selectedSeat === 'ton'}
+                                isTableLocked={isLocked}
+                                onClick={() => handleSelectSeat(table.id, 'ton')}
+                              />
+                            </div>
+
+                            {/* BOTTOM: NAN (South) */}
+                            <div style={{ gridColumn: '2', gridRow: '3', display: 'flex', justifyContent: 'center' }}>
+                              <SeatButton
+                                seat={table.seats.nan}
+                                isSelected={isSelectedTable && selectedSeat === 'nan'}
+                                isTableLocked={isLocked}
+                                onClick={() => handleSelectSeat(table.id, 'nan')}
+                              />
                             </div>
                           </div>
 
-                          {/* RIGHT: TON (East) */}
-                          <div style={{ gridColumn: '3', gridRow: '2', display: 'flex', justifyContent: 'center' }}>
-                            <SeatButton
-                              seat={table.seats.ton}
-                              isSelected={isSelectedTable && selectedSeat === 'ton'}
-                              onClick={() => handleSelectSeat(table.id, 'ton')}
-                            />
-                          </div>
-
-                          {/* BOTTOM: NAN (South) */}
-                          <div style={{ gridColumn: '2', gridRow: '3', display: 'flex', justifyContent: 'center' }}>
-                            <SeatButton
-                              seat={table.seats.nan}
-                              isSelected={isSelectedTable && selectedSeat === 'nan'}
-                              onClick={() => handleSelectSeat(table.id, 'nan')}
-                            />
+                          {/* Footer Subtext per Table */}
+                          <div style={{
+                            fontSize: '11.5px',
+                            color: '#5A675E',
+                            textAlign: 'center',
+                            paddingTop: '8px',
+                            borderTop: '1px solid #F1F5F9'
+                          }}>
+                            {isLocked ? (
+                              <span style={{ color: '#B45309', fontWeight: 700, fontSize: '11px' }}>
+                                🔒 Penuhi Meja Terisi Sebelumnya
+                              </span>
+                            ) : isSelectedTable && selectedSeat ? (
+                              <span style={{ color: '#004F27', fontWeight: 700 }}>
+                                ✓ Terpilih: {WIND_DETAILS[selectedSeat].name}
+                              </span>
+                            ) : table.status === 'penuh' ? (
+                              <span>Sesi meja terisi penuh (4 pemain)</span>
+                            ) : table.status === 'terisi_sebagian' ? (
+                              <span style={{ color: '#15803D', fontWeight: 700 }}>
+                                ⚡ {table.statusLabel}
+                              </span>
+                            ) : (
+                              <span>Kursi mata angin tersedia (Kosong)</span>
+                            )}
                           </div>
                         </div>
-
-                        {/* Footer Subtext per Table */}
-                        <div style={{
-                          fontSize: '11.5px',
-                          color: '#5A675E',
-                          textAlign: 'center',
-                          paddingTop: '8px',
-                          borderTop: '1px solid #F1F5F9'
-                        }}>
-                          {isSelectedTable && selectedSeat ? (
-                            <span style={{ color: '#004F27', fontWeight: 700 }}>
-                              ✓ Terpilih: {WIND_DETAILS[selectedSeat].name}
-                            </span>
-                          ) : table.status === 'penuh' ? (
-                            <span>Sesi meja terisi penuh (4 pemain)</span>
-                          ) : (
-                            <span>Kursi mata angin tersedia</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Box Pilihan Durasi & Waktu Bermain */}
@@ -2263,18 +2410,21 @@ export default function PemesananPage() {
 function SeatButton({
   seat,
   isSelected,
+  isTableLocked,
   onClick,
 }: {
   seat: SeatInfo;
   isSelected: boolean;
+  isTableLocked?: boolean;
   onClick: () => void;
 }) {
   const isTaken = seat.status === 'taken';
+  const isDisabled = isTaken || isTableLocked;
 
   return (
     <button
       type="button"
-      disabled={isTaken}
+      disabled={isDisabled}
       onClick={onClick}
       style={{
         width: '56px',
@@ -2284,27 +2434,33 @@ function SeatButton({
           ? '2px solid #183629'
           : isTaken
           ? '1px solid #FECACA'
+          : isTableLocked
+          ? '1px dashed #D1D5DB'
           : '1px dashed #16A34A',
         backgroundColor: isSelected
           ? '#183629'
           : isTaken
           ? '#FEE2E2'
+          : isTableLocked
+          ? '#F3F4F6'
           : '#DCFCE7',
         color: isSelected
           ? '#FAF8F5'
           : isTaken
           ? '#B91C1C'
+          : isTableLocked
+          ? '#9CA3AF'
           : '#15803D',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '2px',
-        cursor: isTaken ? 'not-allowed' : 'pointer',
+        cursor: isDisabled ? 'not-allowed' : 'pointer',
         boxShadow: isSelected ? '0 2px 8px rgba(24, 54, 41, 0.3)' : 'none',
         transition: 'all 0.15s ease'
       }}
-      title={isTaken ? `Kursi ${seat.direction} terisi oleh ${seat.occupant}` : `Pilih Kursi ${seat.direction}`}
+      title={isTaken ? `Kursi ${seat.direction} terisi oleh ${seat.occupant}` : isTableLocked ? 'Meja ini terkunci regulasi' : `Pilih Kursi ${seat.direction}`}
     >
       <div style={{ fontSize: '13px', fontWeight: 900, lineHeight: 1 }}>
         {seat.kanji}
@@ -2317,7 +2473,7 @@ function SeatButton({
         whiteSpace: 'nowrap',
         maxWidth: '50px'
       }}>
-        {isSelected ? 'Anda' : isTaken ? seat.occupant : 'Pilih'}
+        {isSelected ? 'Anda' : isTaken ? seat.occupant : isTableLocked ? 'Kunci' : 'Pilih'}
       </div>
     </button>
   );

@@ -85,7 +85,6 @@ export default function DashboardNavbar({
     { id: 'jadwal', label: 'Jadwal', href: '/jadwal' },
     { id: 'pemesanan', label: 'Pemesanan', href: '/pemesanan' },
     { id: 'leaderboard', label: 'Leaderboard', href: '/leaderboard' },
-    { id: 'profil', label: 'Profil', href: '/profil' },
   ];
 
   return (
@@ -178,13 +177,22 @@ export default function DashboardNavbar({
                 aria-haspopup="true"
                 title="Menu Profil Akun"
               >
-                <div style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden' }}>
-                  <Image
-                    src={user?.avatar_url || '/assets/avatar_kevin.jpg'}
-                    alt={userName}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: '#0F231B',
+                  border: '1.5px solid #E2BC55',
+                  color: '#E2BC55',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  flexShrink: 0,
+                  textTransform: 'uppercase',
+                }}>
+                  {(userName || 'P').trim().charAt(0).toUpperCase()}
                 </div>
                 <span style={{ fontWeight: 600 }}>
                   {userName.split(' ')[0]}
@@ -297,13 +305,22 @@ export default function DashboardNavbar({
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden' }}>
-              <Image
-                src={user?.avatar_url || '/assets/avatar_kevin.jpg'}
-                alt={userName}
-                fill
-                style={{ objectFit: 'cover' }}
-              />
+            <div style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              backgroundColor: '#0F231B',
+              border: '1.5px solid #E2BC55',
+              color: '#E2BC55',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 800,
+              flexShrink: 0,
+              textTransform: 'uppercase',
+            }}>
+              {(userName || 'P').trim().charAt(0).toUpperCase()}
             </div>
             <div>
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>{userName}</div>

@@ -1,1 +1,14 @@
-{"timestamp":"00:00:01.757","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:01.705","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:03.258","source":"Browser","level":"INFO","message":"Download the React DevTools for a better development experience: https://react.dev/link/react-devtools"}
+{"timestamp":"00:01:22.907","source":"Server","level":"LOG","message":"✓ Compiled in 149ms"}
+{"timestamp":"00:01:37.337","source":"Server","level":"LOG","message":"✓ Compiled in 93ms"}
+{"timestamp":"00:02:08.315","source":"Server","level":"LOG","message":"✓ Compiled in 127ms"}
+{"timestamp":"00:02:38.552","source":"Server","level":"LOG","message":"✓ Compiled in 133ms"}
+{"timestamp":"00:03:00.915","source":"Server","level":"LOG","message":"✓ Compiled in 209ms"}
+{"timestamp":"00:03:31.594","source":"Server","level":"LOG","message":"✓ Compiled in 106ms"}
+{"timestamp":"00:05:16.267","source":"Browser","level":"WARN","message":"Image with src \"http://localhost:3000/assets/logo.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."}
+{"timestamp":"00:05:16.320","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"http://localhost:3000/assets/logo.png\\\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \\\"auto\\\"' or 'height: \\\"auto\\\"' to maintain the aspect ratio.\\u001b[39m\""}
+{"timestamp":"00:05:35.969","source":"Browser","level":"WARN","message":"Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\"smooth\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior"}
+{"timestamp":"00:05:36.117","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mDetected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior=\\\"smooth\\\"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior\\u001b[39m\""}
+{"timestamp":"00:07:06.450","source":"Browser","level":"WARN","message":"Image with src \"/landing/landing-hero.jpg\" is using quality \"90\" which is not configured in images.qualities [75]. Please update your config to [75, 90].\nRead more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities"}
+{"timestamp":"00:07:06.486","source":"Server","level":"WARN","message":"[browser] \"\\u001b[33mImage with src \\\"/landing/landing-hero.jpg\\\" is using quality \\\"90\\\" which is not configured in images.qualities [75]. Please update your config to [75, 90].\\nRead more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities\\u001b[39m\""}

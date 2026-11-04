@@ -23,6 +23,7 @@ import {
   Loader2,
   X,
   Upload,
+  Image as LucideImage,
   ExternalLink,
   ChevronDown,
   Layers,
@@ -146,6 +147,25 @@ export default function AdminEventManager() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<ApiEvent | null>(null);
 
+  // Helper untuk mengekstrak jumlah meja (1 meja = 4 pemain Mahjong)
+  const extractMejaCount = (kuotaStr?: string, maxQuota?: number, jumlahMeja?: number): number => {
+    if (jumlahMeja && jumlahMeja > 0) return jumlahMeja;
+    if (kuotaStr) {
+      const mejaMatch = kuotaStr.match(/(\d+)\s*(?:meja|table)/i);
+      if (mejaMatch) return Math.max(1, parseInt(mejaMatch[1], 10));
+
+      const seatMatch = kuotaStr.match(/(\d+)\s*(?:kursi|seat|orang|player|peserta)/i);
+      if (seatMatch) {
+        const seats = parseInt(seatMatch[1], 10);
+        return Math.max(1, Math.ceil(seats / 4));
+      }
+    }
+    if (maxQuota && maxQuota > 0) {
+      return Math.max(1, Math.ceil(maxQuota / 4));
+    }
+    return 1;
+  };
+
   // Form State
   const [formData, setFormData] = useState({
     nama_event: '',
@@ -156,7 +176,8 @@ export default function AdminEventManager() {
     status: 'active',
     jenis_event: 'Event',
     biaya: 'Rp 150.000 /kursi',
-    kuota: 'Sisa 4 Kursi (1 Meja)',
+    jumlah_meja: 1,
+    kuota: '4 Kursi (1 Meja)',
     deskripsi: '',
     foto_preset: '/assets/event_1.jpg',
   });
@@ -167,6 +188,7 @@ export default function AdminEventManager() {
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputEditRef = useRef<HTMLInputElement>(null);
 
   // Load Data
   const loadData = async () => {
@@ -233,7 +255,8 @@ export default function AdminEventManager() {
       status: 'active',
       jenis_event: 'Event',
       biaya: 'Rp 150.000 /kursi',
-      kuota: 'Sisa 4 Kursi (1 Meja)',
+      jumlah_meja: 1,
+      kuota: '4 Kursi (1 Meja)',
       deskripsi: '',
       foto_preset: '/assets/event_1.jpg',
     });
@@ -246,6 +269,7 @@ export default function AdminEventManager() {
   // Handle open edit modal
   const handleOpenEdit = (ev: ApiEvent) => {
     setSelectedEvent(ev);
+    const mejaCount = extractMejaCount(ev.kuota, ev.max_kuota, ev.jumlah_meja);
     setFormData({
       nama_event: ev.nama_event,
       venue_id: String(ev.venue_id || (venues[0]?.id || 1)),
@@ -255,7 +279,8 @@ export default function AdminEventManager() {
       status: ev.status || 'active',
       jenis_event: ev.jenis_event || 'Event',
       biaya: ev.biaya || 'Rp 150.000 /kursi',
-      kuota: ev.kuota || 'Sisa 4 Kursi (1 Meja)',
+      jumlah_meja: mejaCount,
+      kuota: ev.kuota || `${mejaCount * 4} Kursi (${mejaCount} Meja)`,
       deskripsi: ev.deskripsi || '',
       foto_preset: ev.foto || '/assets/event_1.jpg',
     });
@@ -331,7 +356,13 @@ export default function AdminEventManager() {
       postData.append('status', formData.status);
       postData.append('jenis_event', formData.jenis_event);
       postData.append('biaya', formData.biaya);
-      postData.append('kuota', formData.kuota);
+      
+      const tableCount = Math.max(1, Number(formData.jumlah_meja) || 1);
+      const calculatedSeats = tableCount * 4;
+      const calculatedKuota = `${calculatedSeats} Kursi (${tableCount} Meja)`;
+      postData.append('kuota', calculatedKuota);
+      postData.append('jumlah_meja', String(tableCount));
+
       postData.append('deskripsi', formData.deskripsi);
 
       if (photoFile) {
@@ -376,7 +407,13 @@ export default function AdminEventManager() {
       postData.append('status', formData.status);
       postData.append('jenis_event', formData.jenis_event);
       postData.append('biaya', formData.biaya);
-      postData.append('kuota', formData.kuota);
+      
+      const tableCount = Math.max(1, Number(formData.jumlah_meja) || 1);
+      const calculatedSeats = tableCount * 4;
+      const calculatedKuota = `${calculatedSeats} Kursi (${tableCount} Meja)`;
+      postData.append('kuota', calculatedKuota);
+      postData.append('jumlah_meja', String(tableCount));
+
       postData.append('deskripsi', formData.deskripsi);
 
       if (photoFile) {
@@ -699,7 +736,14 @@ export default function AdminEventManager() {
                                 src={ev.foto || '/assets/event_1.jpg'}
                                 alt={ev.nama_event}
                                 fill
+                                unoptimized
                                 style={{ objectFit: 'cover' }}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (target && !target.src.includes('/assets/event_1.jpg')) {
+                                    target.src = '/assets/event_1.jpg';
+                                  }
+                                }}
                               />
                             </div>
                             <div>
@@ -845,10 +889,10 @@ export default function AdminEventManager() {
             </div>
 
             <form onSubmit={handleSubmitCreate} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
-              <div className="adm-modal-body">
-                {/* Nama Event */}
+              <div className="adm-modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '24px 28px' }}>
+                {/* 1. Nama Event */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
                     Nama Event / Turnamen *
                   </label>
                   <input
@@ -859,23 +903,25 @@ export default function AdminEventManager() {
                     onChange={(e) => setFormData({ ...formData, nama_event: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '9px 12px',
+                      height: '42px',
+                      padding: '0 14px',
                       borderRadius: '8px',
                       border: '1px solid #D7E6DB',
                       fontSize: '13px',
                       outline: 'none',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      backgroundColor: '#FAF8F5'
                     }}
                   />
                   {formErrors.nama_event && (
-                    <span style={{ fontSize: '11px', color: '#DC2626' }}>{formErrors.nama_event[0]}</span>
+                    <span style={{ fontSize: '11px', color: '#DC2626', marginTop: '4px', display: 'block' }}>{formErrors.nama_event[0]}</span>
                   )}
                 </div>
 
-                {/* Venue & Status */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '12px' }}>
+                {/* 2. Venue & Status Pendaftaran */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
                       Lokasi Venue Mitra *
                     </label>
                     <select
@@ -883,12 +929,14 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, venue_id: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '9px 12px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     >
                       {venues.map((v) => (
@@ -900,7 +948,7 @@ export default function AdminEventManager() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
                       Status Pendaftaran *
                     </label>
                     <select
@@ -908,12 +956,14 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '9px 12px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     >
                       <option value="active">Aktif (Pendaftaran Dibuka)</option>
@@ -924,10 +974,10 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* Tanggal & Waktu */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px' }}>
+                {/* 3. Tanggal & Waktu Pelaksanaan */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
                       Tanggal Pelaksanaan *
                     </label>
                     <input
@@ -937,18 +987,20 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, tanggal_event: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '8px 10px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
                       Mulai *
                     </label>
                     <input
@@ -958,18 +1010,20 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, waktu_mulai: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '8px 10px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
                       Selesai *
                     </label>
                     <input
@@ -979,21 +1033,23 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, waktu_selesai: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '8px 10px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     />
                   </div>
                 </div>
 
-                {/* Biaya Registrasi, Alokasi Kuota / Kursi, & Jenis Event */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                {/* 4. Biaya Registrasi, Alokasi Meja, & Jenis Event (Sejajar Sempurna dengan Row 3) */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
                       Biaya Registrasi
                     </label>
                     <input
@@ -1003,39 +1059,48 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, biaya: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '9px 12px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
-                      Alokasi Kuota / Kursi
+                    <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
+                      <span>Alokasi Meja *</span>
+                      <span style={{ fontSize: '11px', color: '#004F27', fontWeight: 600 }}>({(Number(formData.jumlah_meja) || 1) * 4} Kursi)</span>
                     </label>
                     <input
-                      type="text"
-                      placeholder="Contoh: Sisa 4 Kursi (1 Meja)"
-                      value={formData.kuota}
-                      onChange={(e) => setFormData({ ...formData, kuota: e.target.value })}
+                      type="number"
+                      min={1}
+                      max={100}
+                      required
+                      value={formData.jumlah_meja}
+                      onChange={(e) => setFormData({ ...formData, jumlah_meja: Math.max(1, parseInt(e.target.value) || 1) })}
                       style={{
                         width: '100%',
-                        padding: '9px 12px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
+                        fontWeight: 700,
+                        textAlign: 'center',
                         outline: 'none',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        backgroundColor: '#FAF8F5'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px', height: '18px' }}>
                       Jenis Event *
                     </label>
                     <select
@@ -1043,13 +1108,14 @@ export default function AdminEventManager() {
                       onChange={(e) => setFormData({ ...formData, jenis_event: e.target.value })}
                       style={{
                         width: '100%',
-                        padding: '9px 12px',
+                        height: '42px',
+                        padding: '0 12px',
                         borderRadius: '8px',
                         border: '1px solid #D7E6DB',
                         fontSize: '13px',
                         outline: 'none',
                         boxSizing: 'border-box',
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: '#FAF8F5',
                         fontWeight: 600,
                         color: formData.jenis_event === 'Event' ? '#004F27' : '#92400E'
                       }}
@@ -1060,9 +1126,9 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* Deskripsi */}
+                {/* 5. Deskripsi & Aturan Turnamen */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '5px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
                     Deskripsi &amp; Aturan Turnamen
                   </label>
                   <textarea
@@ -1072,27 +1138,97 @@ export default function AdminEventManager() {
                     onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '9px 12px',
+                      minHeight: '80px',
+                      padding: '10px 14px',
                       borderRadius: '8px',
                       border: '1px solid #D7E6DB',
                       fontSize: '13px',
                       outline: 'none',
-                      resize: 'none',
-                      boxSizing: 'border-box'
+                      resize: 'vertical',
+                      boxSizing: 'border-box',
+                      backgroundColor: '#FAF8F5'
                     }}
                   />
                 </div>
 
-                {/* Pilihan Gambar Event */}
+                {/* 6. Foto / Banner Event */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '8px' }}>
                     Foto / Banner Event
                   </label>
-                  
+
+                  {/* Preview Banner yang Terpilih / Diunggah */}
+                  {photoPreview && (
+                    <div style={{
+                      position: 'relative',
+                      width: '100%',
+                      height: '130px',
+                      borderRadius: '10px',
+                      overflow: 'hidden',
+                      border: photoFile ? '2px solid #004F27' : '1px solid #D7E6DB',
+                      marginBottom: '12px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                      backgroundColor: '#FAF8F5'
+                    }}>
+                      <Image
+                        src={photoPreview}
+                        alt="Preview Banner Event"
+                        fill
+                        unoptimized
+                        style={{ objectFit: 'cover' }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        left: '8px',
+                        backgroundColor: 'rgba(24, 54, 41, 0.92)',
+                        color: '#FAF8F5',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        {photoFile ? (
+                          <span style={{ color: '#E2BC55' }}>✓ Foto Kustom Diunggah: {photoFile.name}</span>
+                        ) : (
+                          <span>Banner Terpilih</span>
+                        )}
+                      </div>
+                      {photoFile && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPhotoFile(null);
+                            setPhotoPreview(formData.foto_preset);
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            backgroundColor: 'rgba(220, 38, 38, 0.9)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '4px 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Hapus File
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   {/* Preset Photos Grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px', marginBottom: '10px' }}>
                     {PRESET_EVENT_IMAGES.map((preset) => {
-                      const isSelected = !photoFile && formData.foto_preset === preset.url;
+                      const isSelected = !photoFile && (photoPreview === preset.url || formData.foto_preset === preset.url);
                       return (
                         <div
                           key={preset.url}
@@ -1110,7 +1246,7 @@ export default function AdminEventManager() {
                           }}
                         >
                           <div style={{ position: 'relative', width: '100%', height: '54px' }}>
-                            <Image src={preset.url} alt={preset.label} fill style={{ objectFit: 'cover' }} />
+                            <Image src={preset.url} alt={preset.label} fill unoptimized style={{ objectFit: 'cover' }} />
                           </div>
                           <div style={{ padding: '4px', fontSize: '10px', textAlign: 'center', color: isSelected ? '#004F27' : '#5A675E', fontWeight: isSelected ? 700 : 500 }}>
                             {preset.label}
@@ -1149,18 +1285,6 @@ export default function AdminEventManager() {
                       <Upload size={14} />
                       <span>{photoFile ? photoFile.name : 'Unggah Foto Kustom'}</span>
                     </button>
-                    {photoFile && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPhotoFile(null);
-                          setPhotoPreview(formData.foto_preset);
-                        }}
-                        style={{ background: 'none', border: 'none', color: '#DC2626', fontSize: '11px', cursor: 'pointer' }}
-                      >
-                        Hapus File
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>
@@ -1289,9 +1413,9 @@ export default function AdminEventManager() {
                     <Calendar size={13} />
                     <span>Jadwal Pelaksanaan</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '12px', marginTop: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '16px', marginTop: '8px' }}>
                     <div>
-                      <label className="adm-form-label">
+                      <label className="adm-form-label" style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
                         <span>Tanggal Pelaksanaan</span>
                         <span style={{ color: '#DC2626' }}>*</span>
                       </label>
@@ -1301,11 +1425,12 @@ export default function AdminEventManager() {
                         value={formData.tanggal_event}
                         onChange={(e) => setFormData({ ...formData, tanggal_event: e.target.value })}
                         className="adm-form-input"
+                        style={{ height: '42px', padding: '0 12px', boxSizing: 'border-box' }}
                       />
                     </div>
 
                     <div>
-                      <label className="adm-form-label">
+                      <label className="adm-form-label" style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
                         <span>Mulai</span>
                         <span style={{ color: '#DC2626' }}>*</span>
                       </label>
@@ -1315,11 +1440,12 @@ export default function AdminEventManager() {
                         value={formData.waktu_mulai}
                         onChange={(e) => setFormData({ ...formData, waktu_mulai: e.target.value })}
                         className="adm-form-input"
+                        style={{ height: '42px', padding: '0 12px', boxSizing: 'border-box' }}
                       />
                     </div>
 
                     <div>
-                      <label className="adm-form-label">
+                      <label className="adm-form-label" style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
                         <span>Selesai</span>
                         <span style={{ color: '#DC2626' }}>*</span>
                       </label>
@@ -1329,20 +1455,21 @@ export default function AdminEventManager() {
                         value={formData.waktu_selesai}
                         onChange={(e) => setFormData({ ...formData, waktu_selesai: e.target.value })}
                         className="adm-form-input"
+                        style={{ height: '42px', padding: '0 12px', boxSizing: 'border-box' }}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* 4. BIAYA, ALOKASI KUOTA, & JENIS EVENT */}
+                {/* 4. BIAYA, ALOKASI MEJA, & JENIS EVENT (Sejajar Sempurna dengan Row 3) */}
                 <div>
                   <div className="adm-form-subheading">
                     <Ticket size={13} />
-                    <span>Biaya Registrasi, Alokasi Kuota, &amp; Jenis Event</span>
+                    <span>Biaya Registrasi, Alokasi Meja, &amp; Jenis Event</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px', marginTop: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '16px', marginTop: '8px' }}>
                     <div>
-                      <label className="adm-form-label">
+                      <label className="adm-form-label" style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
                         <span>Biaya Registrasi</span>
                       </label>
                       <input
@@ -1351,24 +1478,36 @@ export default function AdminEventManager() {
                         onChange={(e) => setFormData({ ...formData, biaya: e.target.value })}
                         placeholder="contoh: Rp 95.000 /kursi"
                         className="adm-form-input"
+                        style={{ height: '42px', padding: '0 12px', boxSizing: 'border-box' }}
                       />
                     </div>
 
                     <div>
-                      <label className="adm-form-label">
-                        <span>Alokasi Kuota</span>
+                      <label className="adm-form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '18px' }}>
+                        <span>Alokasi Meja *</span>
+                        <span style={{ fontSize: '11px', color: '#004F27', fontWeight: 600 }}>({(Number(formData.jumlah_meja) || 1) * 4} Kursi)</span>
                       </label>
                       <input
-                        type="text"
-                        value={formData.kuota}
-                        onChange={(e) => setFormData({ ...formData, kuota: e.target.value })}
-                        placeholder="contoh: Sisa 4 Kursi (Kapasitas 4)"
+                        type="number"
+                        min={1}
+                        max={100}
+                        required
+                        value={formData.jumlah_meja}
+                        onChange={(e) => setFormData({ ...formData, jumlah_meja: Math.max(1, parseInt(e.target.value) || 1) })}
                         className="adm-form-input"
+                        style={{
+                          height: '42px',
+                          padding: '0 12px',
+                          textAlign: 'center',
+                          backgroundColor: '#FAF8F5',
+                          boxSizing: 'border-box',
+                          fontWeight: 700
+                        }}
                       />
                     </div>
 
                     <div>
-                      <label className="adm-form-label">
+                      <label className="adm-form-label" style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
                         <span>Jenis Event</span>
                         <span style={{ color: '#DC2626' }}>*</span>
                       </label>
@@ -1377,6 +1516,9 @@ export default function AdminEventManager() {
                         onChange={(e) => setFormData({ ...formData, jenis_event: e.target.value })}
                         className="adm-form-input"
                         style={{
+                          height: '42px',
+                          padding: '0 12px',
+                          boxSizing: 'border-box',
                           backgroundColor: '#FFFFFF',
                           fontWeight: 600,
                           color: formData.jenis_event === 'Event' ? '#004F27' : '#92400E'
@@ -1404,6 +1546,145 @@ export default function AdminEventManager() {
                       className="adm-form-textarea"
                       style={{ minHeight: '100px' }}
                     />
+                  </div>
+                </div>
+
+                {/* 6. FOTO / BANNER EVENT */}
+                <div>
+                  <div className="adm-form-subheading">
+                    <LucideImage size={13} />
+                    <span>Foto / Banner Event</span>
+                  </div>
+                  <div style={{ marginTop: '8px' }}>
+                    {/* Live Preview */}
+                    {photoPreview && (
+                      <div style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '130px',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        border: photoFile ? '2px solid #004F27' : '1px solid #D7E6DB',
+                        marginBottom: '12px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                        backgroundColor: '#FAF8F5'
+                      }}>
+                        <Image
+                          src={photoPreview}
+                          alt="Preview Banner Event"
+                          fill
+                          unoptimized
+                          style={{ objectFit: 'cover' }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '8px',
+                          left: '8px',
+                          backgroundColor: 'rgba(24, 54, 41, 0.92)',
+                          color: '#FAF8F5',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          {photoFile ? (
+                            <span style={{ color: '#E2BC55' }}>✓ Foto Kustom Baru: {photoFile.name}</span>
+                          ) : (
+                            <span>Banner Aktif Event</span>
+                          )}
+                        </div>
+                        {photoFile && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPhotoFile(null);
+                              setPhotoPreview(selectedEvent.foto || formData.foto_preset);
+                              if (fileInputEditRef.current) fileInputEditRef.current.value = '';
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              backgroundColor: 'rgba(220, 38, 38, 0.9)',
+                              color: '#FFFFFF',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '4px 10px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Batal Ganti
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Preset Photos Grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '8px', marginBottom: '10px' }}>
+                      {PRESET_EVENT_IMAGES.map((preset) => {
+                        const isSelected = !photoFile && (photoPreview === preset.url || formData.foto_preset === preset.url);
+                        return (
+                          <div
+                            key={preset.url}
+                            onClick={() => {
+                              setFormData({ ...formData, foto_preset: preset.url });
+                              setPhotoFile(null);
+                              setPhotoPreview(preset.url);
+                            }}
+                            style={{
+                              border: isSelected ? '2px solid #004F27' : '1px solid #D7E6DB',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              cursor: 'pointer',
+                              backgroundColor: '#FAF8F5'
+                            }}
+                          >
+                            <div style={{ position: 'relative', width: '100%', height: '54px' }}>
+                              <Image src={preset.url} alt={preset.label} fill unoptimized style={{ objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ padding: '4px', fontSize: '10px', textAlign: 'center', color: isSelected ? '#004F27' : '#5A675E', fontWeight: isSelected ? 700 : 500 }}>
+                              {preset.label}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Upload Custom File */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                      <input
+                        type="file"
+                        ref={fileInputEditRef}
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputEditRef.current?.click()}
+                        style={{
+                          padding: '8px 14px',
+                          borderRadius: '8px',
+                          border: '1px dashed #004F27',
+                          backgroundColor: '#EBF6EE',
+                          color: '#004F27',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Upload size={14} />
+                        <span>{photoFile ? photoFile.name : 'Ganti dengan Foto Kustom'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -1486,7 +1767,14 @@ export default function AdminEventManager() {
                     src={selectedEvent.foto || '/assets/event_1.jpg'}
                     alt={selectedEvent.nama_event}
                     fill
+                    unoptimized
                     style={{ objectFit: 'cover' }}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target && !target.src.includes('/assets/event_1.jpg')) {
+                        target.src = '/assets/event_1.jpg';
+                      }
+                    }}
                   />
                   {/* Status Badge Top Right */}
                   <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
@@ -1582,11 +1870,11 @@ export default function AdminEventManager() {
                     </div>
 
                     <div className="adm-detail-card">
-                      <span className="adm-detail-card-label">Ketersediaan Kuota Kursi</span>
+                      <span className="adm-detail-card-label">Alokasi Meja &amp; Kapasitas Kursi</span>
                       <span className="adm-detail-card-val">
-                        {selectedEvent.kuota || selectedEvent.kapasitas_meja || 'Sisa 4 Kursi (1 Meja)'}
+                        {selectedEvent.kuota || `${extractMejaCount(selectedEvent.kuota, selectedEvent.max_kuota, selectedEvent.jumlah_meja)} Meja (${selectedEvent.max_kuota || 4} Kursi)`}
                       </span>
-                      <span className="adm-detail-card-sub">Format: 4 Pemain per Meja Otomatis</span>
+                      <span className="adm-detail-card-sub">Format: 4 Pemain per Meja (Penuh = {extractMejaCount(selectedEvent.kuota, selectedEvent.max_kuota, selectedEvent.jumlah_meja) * 4} Pemain)</span>
                       {/* Capacity Mini Progress Bar */}
                       <div style={{ width: '100%', height: '5px', backgroundColor: '#E4ECE6', borderRadius: '999px', marginTop: '6px', overflow: 'hidden' }}>
                         <div style={{ width: '75%', height: '100%', backgroundColor: '#004F27', borderRadius: '999px' }} />

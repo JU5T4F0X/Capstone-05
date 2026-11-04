@@ -887,9 +887,23 @@ export default function AdminScoreManager() {
                   <span>PEMAIN PEMENANG DI MEJA INI</span>
                 </label>
 
-                {currentTable.players.length === 0 ? (
-                  <div style={{ fontSize: '12px', color: '#991B1B' }}>
-                    Meja ini belum memiliki 4 pemain.
+                {(currentTable.players?.length || 0) < 4 ? (
+                  <div style={{
+                    fontSize: '12.5px',
+                    color: '#991B1B',
+                    backgroundColor: '#FEE2E2',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #FCA5A5',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '8px',
+                  }}>
+                    <AlertTriangle size={16} color="#DC2626" style={{ flexShrink: 0 }} />
+                    <span>
+                      <strong>Permainan Belum Dapat Dimulai:</strong> Meja ini baru memiliki {currentTable.players?.length || 0}/4 pemain. Sesuai regulasi MahjongYuks, permainan tidak dapat dimulai jika pemain yang hadir kurang dari 4 orang.
+                    </span>
                   </div>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
@@ -1317,21 +1331,23 @@ export default function AdminScoreManager() {
           <button
             type="button"
             onClick={handleRecordWin}
-            disabled={isSubmitting || !liveCalculation.isValid}
+            disabled={isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4}
             className="adm-btn-primary"
             style={{
               justifyContent: 'center',
               padding: '12px 20px',
               fontSize: '14px',
               fontWeight: 800,
-              opacity: isSubmitting || !liveCalculation.isValid ? 0.6 : 1,
-              cursor: isSubmitting || !liveCalculation.isValid ? 'not-allowed' : 'pointer'
+              opacity: isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4 ? 0.6 : 1,
+              cursor: isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4 ? 'not-allowed' : 'pointer'
             }}
           >
             <Award size={18} color="#E2BC55" />
             <span>
               {isSubmitting
                 ? 'Menyimpan & Menyinkronkan...'
+                : (currentTable?.players?.length ?? 0) < 4
+                ? `Menunggu 4 Pemain Lengkap (${currentTable?.players?.length ?? 0}/4)`
                 : `Catat Kemenangan Ronde #${currentTable?.current_round?.round_number ?? 1} (+${liveCalculation.pointsAwarded} PTS)`}
             </span>
           </button>

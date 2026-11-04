@@ -44,6 +44,7 @@ export interface ApiEvent {
   kuota?: string;
   max_kuota?: number;
   sisa_kuota?: number;
+  jumlah_meja?: number;
   pendaftarans_count?: number;
   is_registered?: boolean;
   registration_status?: string | null;
@@ -420,8 +421,23 @@ export class ApiClient {
   }
 
   // ── Meja Endpoints ────────────────────────────────────────────────────────
-  public static async getMejas(venueId?: number | string): Promise<ApiResponse<any[]>> {
-    const qs = venueId ? `?venue_id=${venueId}` : '';
+  public static async getMejas(params?: {
+    venue_id?: number | string;
+    tanggal_main?: string;
+    waktu_mulai?: string;
+    durasi_jam?: number;
+    status?: string;
+  } | number | string): Promise<ApiResponse<any[]>> {
+    if (typeof params === 'number' || typeof params === 'string') {
+      return this.request(`/mejas?venue_id=${params}`);
+    }
+    const query = new URLSearchParams();
+    if (params?.venue_id) query.append('venue_id', String(params.venue_id));
+    if (params?.tanggal_main) query.append('tanggal_main', params.tanggal_main);
+    if (params?.waktu_mulai) query.append('waktu_mulai', params.waktu_mulai);
+    if (params?.durasi_jam) query.append('durasi_jam', String(params.durasi_jam));
+    if (params?.status) query.append('status', params.status);
+    const qs = query.toString() ? `?${query.toString()}` : '';
     return this.request(`/mejas${qs}`);
   }
 
@@ -520,7 +536,7 @@ export class ApiClient {
       totalPoints: number;
     };
     history: Array<{
-      id: number;
+      id: number | string;
       match_name: string;
       tanggal: string;
       peringkat: number;

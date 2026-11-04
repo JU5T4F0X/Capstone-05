@@ -110,6 +110,35 @@ class PemesananController extends Controller
         $hasil = DB::transaction(function () use ($d, $durasi, $player, $mulaiStr, $selesaiStr, $harga) {
             $meja = Meja::lockForUpdate()->findOrFail($d['meja_id']);
 
+            // ── REGULASI PEMILIHAN MEJA MAHJONGYUKS ──
+            // Cek apakah meja yang dipilih saat ini masih kosong di slot waktu ini
+            $currentMejaOccupied = Pemesanan::where('meja_id', $meja->id)
+                ->whereDate('tanggal_main', $d['tanggal_main'])
+                ->menempati()
+                ->bentrok($mulaiStr, $selesaiStr)
+                ->count();
+
+            if ($currentMejaOccupied === 0) {
+                // Meja ini kosong (0 orang). Cek apakah ada meja lain di venue yang sama yang sedang terisi sebagian (1 - 3 orang)
+                $venueTableIds = Meja::where('venue_id', $meja->venue_id)->pluck('id');
+
+                $partiallyFilledMejaExists = Pemesanan::whereIn('meja_id', $venueTableIds)
+                    ->where('meja_id', '!=', $meja->id)
+                    ->whereDate('tanggal_main', $d['tanggal_main'])
+                    ->menempati()
+                    ->bentrok($mulaiStr, $selesaiStr)
+                    ->select('meja_id', DB::raw('count(*) as total'))
+                    ->groupBy('meja_id')
+                    ->havingRaw('total >= 1 AND total < 4')
+                    ->exists();
+
+                if ($partiallyFilledMejaExists) {
+                    return [
+                        'error_regulasi' => 'Sesuai regulasi MahjongYuks, silakan pilih kursi di meja yang sedang terisi sebagian terlebih dahulu sebelum membuka meja baru agar sesi permainan dapat segera dimulai (minimal 4 pemain).'
+                    ];
+                }
+            }
+
             $bentrok = Pemesanan::where('meja_id', $meja->id)
                 ->whereDate('tanggal_main', $d['tanggal_main'])
                 ->menempati()
@@ -156,6 +185,13 @@ class PemesananController extends Controller
 
             return compact('pemesanan', 'pembayaran', 'meja');
         });
+
+        if (isset($hasil['error_regulasi'])) {
+            return response()->json([
+                'success' => false,
+                'message' => $hasil['error_regulasi'],
+            ], 422);
+        }
 
         if (isset($hasil['bentrok'])) {
             $b = $hasil['bentrok'];

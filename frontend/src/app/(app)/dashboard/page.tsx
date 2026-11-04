@@ -34,13 +34,20 @@ export default function DashboardPage() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<string>('Mahjong Lounge Senopati');
 
-  // ── LEADERBOARD: Live data from API ──
+  // ── LEADERBOARD & RECENT ACTIVITIES ──
   const [liveLeaderboard, setLiveLeaderboard] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
   useEffect(() => {
     ApiClient.getLeaderboard({ limit: 5 }).then((res) => {
       if (res.success && res.data && res.data.length > 0) {
         setLiveLeaderboard(res.data);
+      }
+    }).catch(() => {});
+
+    ApiClient.getMyGameHistory().then((res) => {
+      if (res.success && res.data && res.data.history) {
+        setRecentActivities(res.data.history.slice(0, 4));
       }
     }).catch(() => {});
   }, []);
@@ -91,7 +98,7 @@ export default function DashboardPage() {
                   aria-label={`Avatar profil ${userName}`}
                 >
                   <div className="db-hero-avatar">
-                    {user?.avatar_url ? (
+                    {user?.avatar_url && !user.avatar_url.includes('avatar_kevin') ? (
                       <img
                         src={user.avatar_url}
                         alt={userName}
@@ -99,7 +106,7 @@ export default function DashboardPage() {
                       />
                     ) : (
                       <span className="db-hero-avatar-initial" aria-hidden="true">
-                        {(userName || 'P').trim().charAt(0).toUpperCase()}
+                        {(user?.handle || userName || 'P').replace(/^@/, '').trim().charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -210,7 +217,7 @@ export default function DashboardPage() {
                     Rating Turnamen
                   </span>
                   <span style={{ color: '#15803D', fontWeight: 600 }}>
-                    Terdaftar WRC
+                    Resmi MahjongYuks
                   </span>
                 </div>
               </div>
@@ -247,16 +254,75 @@ export default function DashboardPage() {
                 <span className="db-panel-link" onClick={() => router.push('/game-history')}>Riwayat Saya ›</span>
               </div>
 
-              <div className="db-activity-card">
-                <div className="db-empty-state">
-                  <div className="db-empty-icon-wrap">
-                    <History size={26} />
+              <div className="db-activity-card" style={{ padding: recentActivities.length > 0 ? '16px' : undefined }}>
+                {recentActivities.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {recentActivities.map((act) => (
+                      <div
+                        key={act.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px 16px',
+                          borderRadius: '8px',
+                          backgroundColor: '#F8FAF8',
+                          border: '1px solid #E6ECE8',
+                          gap: '12px',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{
+                            width: '38px',
+                            height: '38px',
+                            borderRadius: '50%',
+                            backgroundColor: act.peringkat === 1 ? '#FEF9EC' : '#EBF4F0',
+                            color: act.peringkat === 1 ? '#B45309' : '#183629',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '16px',
+                            fontWeight: 800,
+                            flexShrink: 0,
+                          }}>
+                            {act.peringkat === 1 ? '🥇' : `#${act.peringkat}`}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#141A17' }}>
+                              {act.match_name}
+                            </div>
+                            <div style={{ fontSize: '11.5px', color: '#5A675E', marginTop: '2px' }}>
+                              {act.catatan_wasit || act.event_name || 'Pertandingan Selesai'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                          <div style={{
+                            fontSize: '13.5px',
+                            fontWeight: 800,
+                            color: act.skor > 0 ? '#16A34A' : '#5A675E',
+                          }}>
+                            {act.skor > 0 ? `+${act.skor} PTS` : `${act.skor} PTS`}
+                          </div>
+                          <div style={{ fontSize: '10.5px', color: '#78807B', marginTop: '2px' }}>
+                            {new Date(act.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <h4 className="db-empty-title">Belum Ada Riwayat Aktivitas</h4>
-                  <p className="db-empty-desc">
-                    Anda belum memiliki reservasi meja aktif atau riwayat pertandingan baru. Seluruh aktivitas pemesanan meja dan riwayat sesi bermain Anda akan tercatat secara otomatis di sini.
-                  </p>
-                </div>
+                ) : (
+                  <div className="db-empty-state">
+                    <div className="db-empty-icon-wrap">
+                      <History size={26} />
+                    </div>
+                    <h4 className="db-empty-title">Belum Ada Riwayat Aktivitas</h4>
+                    <p className="db-empty-desc">
+                      Anda belum memiliki reservasi meja aktif atau riwayat pertandingan baru. Seluruh aktivitas pemesanan meja dan riwayat sesi bermain Anda akan tercatat secara otomatis di sini.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 
@@ -285,13 +351,20 @@ export default function DashboardPage() {
                       <div key={player.id || rank} className={`db-rank-row${isCurrentUser ? ' current-user' : ''}`}>
                         <div className="db-rank-left">
                           <div className={`db-rank-num${rank === 1 ? ' gold' : ''}`}>{rank}</div>
-                          <div className="db-rank-avatar" style={isCurrentUser ? { border: '1.5px solid #A3E6C5' } : {}}>
-                            <Image
-                              src={player.avatar_url || '/assets/avatar_kevin.jpg'}
-                              alt={player.nama || 'Player'}
-                              fill
-                              style={{ objectFit: 'cover' }}
-                            />
+                          <div
+                            className="db-rank-avatar"
+                            style={{
+                              backgroundColor: isCurrentUser ? '#0F231B' : '#183629',
+                              border: isCurrentUser ? '1.5px solid #E2BC55' : '1px solid rgba(226, 188, 85, 0.4)',
+                              color: '#E2BC55',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '13px',
+                              fontWeight: 800,
+                            }}
+                          >
+                            {player.initials || (player.name || player.nama || 'P').trim().charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="db-rank-player-name">
@@ -370,8 +443,20 @@ export default function DashboardPage() {
                     <div className="db-rank-row current-user">
                       <div className="db-rank-left">
                         <div className="db-rank-num">4</div>
-                        <div className="db-rank-avatar" style={{ border: '1.5px solid #A3E6C5' }}>
-                          <Image src={user?.avatar_url || '/assets/avatar_kevin.jpg'} alt={userName} fill style={{ objectFit: 'cover' }} />
+                        <div
+                          className="db-rank-avatar"
+                          style={{
+                            backgroundColor: '#0F231B',
+                            border: '1.5px solid #E2BC55',
+                            color: '#E2BC55',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '13px',
+                            fontWeight: 800,
+                          }}
+                        >
+                          {(user?.handle || userName || 'P').replace(/^@/, '').trim().charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="db-rank-player-name">{userName} (Anda) <span style={{ fontSize: '10px', color: '#A3E6C5' }}>{kemahiranDetail.level}</span></div>

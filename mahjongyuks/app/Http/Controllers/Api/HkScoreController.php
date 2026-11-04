@@ -234,8 +234,15 @@ class HkScoreController extends Controller
             $session->update(['status' => 'ongoing']);
         }
 
-        // 3. Validasi Pemain Meja
+        // 3. Validasi Pemain Meja (Minimal 4 pemain untuk memulai/mencatat permainan)
         $tablePlayers = TablePlayer::where('game_table_id', $request->game_table_id)->pluck('player_id')->toArray();
+        if (count($tablePlayers) < 4) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permainan belum dapat dimulai / dicatat karena jumlah pemain di meja kurang dari 4 orang (Sesi Mahjong wajib memiliki minimal 4 pemain lengkap).',
+            ], 422);
+        }
+
         if (!in_array($request->winner_id, $tablePlayers)) {
             return response()->json([
                 'success' => false,

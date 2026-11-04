@@ -5,7 +5,7 @@ type AppRoutes = "/" | "/admin" | "/admin/dashboard" | "/admin/events" | "/admin
 type PageRoutes = never
 type LayoutRoutes = "/"
 type RedirectRoutes = never
-type RewriteRoutes = never
+type RewriteRoutes = "/storage/[[...path]]"
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
 
 
@@ -32,6 +32,7 @@ interface ParamMap {
   "/pemesanan": {}
   "/profil": {}
   "/register": {}
+  "/storage/[[...path]]": { "path"?: string[]; }
   "/venues": {}
   "/venues/[id]": { "id": string; }
 }
