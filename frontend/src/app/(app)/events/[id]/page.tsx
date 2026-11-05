@@ -23,7 +23,9 @@ import {
   RotateCcw,
   X,
   CreditCard,
-  Home
+  Home,
+  Trophy,
+  Ticket,
 } from 'lucide-react';
 import ApiClient, { ApiEvent } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -447,11 +449,9 @@ export default function EventDetailPage() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: '#E2BC55',
-                      fontSize: '48px',
-                      fontWeight: 900,
                     }}
                   >
-                    🀄
+                    <Trophy size={48} color="#E2BC55" strokeWidth={1.5} />
                   </div>
                 )}
 
@@ -501,7 +501,7 @@ export default function EventDetailPage() {
 
                   <div className="ev-spec-item">
                     <span className="ev-spec-label">Standar Regulasi</span>
-                    <span className="ev-spec-value">{event.standar_aturan || 'World Riichi Championship (WRC)'}</span>
+                    <span className="ev-spec-value">{event.standar_aturan || 'Hong Kong Mahjong Old Style (HKOS)'}</span>
                   </div>
 
                   <div className="ev-spec-item">
@@ -535,7 +535,7 @@ export default function EventDetailPage() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                     <CheckCircle size={18} color="#16A34A" style={{ flexShrink: 0, marginTop: '2px' }} />
                     <p style={{ margin: 0, fontSize: '13.5px', color: '#374151', lineHeight: 1.6 }}>
-                      <strong>Meja Otomatis Amos Rexx III:</strong> Pengocokan magnetis 4 kompartemen ubin otomatis tanpa sentuh manual demi integritas pertandingan.
+                      <strong>Meja Otomatis Empat Sisi:</strong> Pengocokan magnetis 4 kompartemen ubin otomatis tanpa sentuh manual demi integritas pertandingan.
                     </p>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -728,6 +728,48 @@ export default function EventDetailPage() {
                       </span>
                       <ChevronRight size={16} />
                     </button>
+
+                    {/* Akses ke Portal Pemesanan Event (Pilih Meja & Kursi dengan Tarif Tetap) */}
+                    {status.type === 'active' && (() => {
+                      const numericPrice = parseInt((event.biaya || '').replace(/[^0-9]/g, ''), 10) || 150000;
+                      const timeStr = `${event.waktu_mulai?.slice(0, 5) || '18:00'} - ${event.waktu_selesai?.slice(0, 5) || '23:00'} WIB`;
+                      const qParams = new URLSearchParams({
+                        portal: 'event',
+                        event_id: String(event.id),
+                        title: event.nama_event || 'Turnamen Mahjong Resmi',
+                        price: String(numericPrice),
+                        date: event.tanggal_event || '2026-11-05',
+                        time: timeStr,
+                        venue: event.venue || 'Game House (Sedayu City Kelapa Gading SCBRC)',
+                        type: 'event',
+                      });
+
+                      return (
+                        <Link
+                          href={`/pemesanan?${qParams.toString()}`}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            width: '100%',
+                            marginTop: '10px',
+                            padding: '11px 16px',
+                            borderRadius: '8px',
+                            backgroundColor: '#E2BC55',
+                            color: '#183629',
+                            fontSize: '0.85rem',
+                            fontWeight: 800,
+                            textDecoration: 'none',
+                            boxShadow: '0 2px 6px rgba(226, 188, 85, 0.35)',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <Ticket size={16} />
+                          <span>Pilih Meja &amp; Kursi Turnamen</span>
+                        </Link>
+                      );
+                    })()}
 
                     {!user && (
                       <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.8rem', color: '#5A675E' }}>

@@ -44,6 +44,7 @@ export interface ApiEvent {
   kuota?: string;
   max_kuota?: number;
   sisa_kuota?: number;
+  jumlah_meja?: number;
   pendaftarans_count?: number;
   is_registered?: boolean;
   registration_status?: string | null;
@@ -70,6 +71,7 @@ export interface ApiMyEventRegistration {
   pendaftaran_id: number;
   status_pendaftaran: string;
   tanggal_daftar: string | null;
+  created_at?: string | null;
   catatan?: string | null;
   event: ApiEvent | null;
 }
@@ -395,6 +397,7 @@ export class ApiClient {
     durasi_jam?: number;
     kursi_pilihan?: 'ton' | 'nan' | 'sha' | 'pei';
     metode_pembayaran?: string;
+    total_biaya?: number;
   }): Promise<ApiResponse<any>> {
     return this.request('/pemesanans', {
       method: 'POST',
@@ -409,6 +412,17 @@ export class ApiClient {
   }
 
   // ── Pembayaran Endpoints (Sprint 4) ────────────────────────────────────────
+  public static async getPembayarans(): Promise<ApiResponse<any>> {
+    return this.request('/pembayarans');
+  }
+
+  public static async verifikasiPembayaran(id: number | string, status: 'paid' | 'failed' | 'pending'): Promise<ApiResponse<any>> {
+    return this.request(`/pembayarans/${id}/verifikasi`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  }
+
   public static async simulatePayment(
     pemesananId: number,
     metode: string = 'QRIS Instant'
@@ -420,8 +434,23 @@ export class ApiClient {
   }
 
   // ── Meja Endpoints ────────────────────────────────────────────────────────
-  public static async getMejas(venueId?: number | string): Promise<ApiResponse<any[]>> {
-    const qs = venueId ? `?venue_id=${venueId}` : '';
+  public static async getMejas(params?: {
+    venue_id?: number | string;
+    tanggal_main?: string;
+    waktu_mulai?: string;
+    durasi_jam?: number;
+    status?: string;
+  } | number | string): Promise<ApiResponse<any[]>> {
+    if (typeof params === 'number' || typeof params === 'string') {
+      return this.request(`/mejas?venue_id=${params}`);
+    }
+    const query = new URLSearchParams();
+    if (params?.venue_id) query.append('venue_id', String(params.venue_id));
+    if (params?.tanggal_main) query.append('tanggal_main', params.tanggal_main);
+    if (params?.waktu_mulai) query.append('waktu_mulai', params.waktu_mulai);
+    if (params?.durasi_jam) query.append('durasi_jam', String(params.durasi_jam));
+    if (params?.status) query.append('status', params.status);
+    const qs = query.toString() ? `?${query.toString()}` : '';
     return this.request(`/mejas${qs}`);
   }
 
@@ -463,6 +492,55 @@ export class ApiClient {
     });
   }
 
+  // -- Hong Kong Mahjong Scoring & Referee Desk ─────────────────────────────
+  public static async getHkConfig(): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/config');
+  }
+
+  public static async getHkSessions(status: string = 'active'): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>(`/hk/sessions?status=${status}`);
+  }
+
+  public static async getHkTables(sessionId: number): Promise<ApiResponse<any>> {
+    return this.request<any>(`/hk/sessions/${sessionId}/tables`);
+  }
+
+  public static async recordHkWin(payload: {
+    sesi_id: number;
+    game_table_id: number;
+    winner_id: number;
+    win_method: 'self_draw' | 'discard';
+    discarder_id?: number | null;
+    hand_codes: string[];
+    idempotency_key: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/record-win', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public static async voidHkWin(
+    recordId: number,
+    reason: string = 'Koreksi wasit'
+  ): Promise<ApiResponse<any>> {
+    return this.request<any>(`/hk/win-records/${recordId}/void`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  public static async getHkSessionHistory(sessionId: number): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>(`/hk/sessions/${sessionId}/history`);
+  }
+
+  public static async resetHkLeaderboard(newSeason?: string): Promise<ApiResponse<any>> {
+    return this.request<any>('/hk/leaderboard/reset', {
+      method: 'POST',
+      body: JSON.stringify({ new_season: newSeason }),
+    });
+  }
+
   public static async getMyGameHistory(): Promise<ApiResponse<{
     stats: {
       totalMatches: number;
@@ -471,7 +549,7 @@ export class ApiClient {
       totalPoints: number;
     };
     history: Array<{
-      id: number;
+      id: number | string;
       match_name: string;
       tanggal: string;
       peringkat: number;

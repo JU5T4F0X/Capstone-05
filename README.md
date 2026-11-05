@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/logo.png" alt="MahjongYuks Logo" width="220" />
+  <img src="docs/assets/mahjongyuks_logo.png" alt="MahjongYuks Logo" width="220" />
 </p>
 
 <h1 align="center">MahjongYuks — Integrated Web Platform</h1>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import ApiClient from '@/lib/api';
+import './login.css';
 import {
   Lock,
   Mail,
@@ -15,19 +16,19 @@ import {
   ShieldCheck,
   Check,
   Phone,
-  Store,
   Layers,
   BarChart3,
   Users,
   AlertCircle,
   HelpCircle,
-  Calendar,
   Sparkles,
   BookOpen,
   Trophy,
   Headphones,
   AlertTriangle,
-  X
+  X,
+  User,
+  UserPlus
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -36,6 +37,7 @@ export default function LoginPage() {
 
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [identifier, setIdentifier] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -53,16 +55,38 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginMethod === 'phone') {
-      setErrorMessage('Metode login via nomor HP belum dikembangkan. Silakan gunakan pilihan masuk dengan Email.');
-      return;
-    }
     setLoading(true);
     setErrorMessage('');
 
+    let targetIdentifier = identifier.trim();
+
+    if (loginMethod === 'phone') {
+      const cleanPhone = phone.trim().replace(/[^0-9]/g, '');
+      if (!cleanPhone || cleanPhone.length < 8) {
+        setLoading(false);
+        setErrorMessage('Harap masukkan nomor WhatsApp / ponsel yang valid (minimal 8-15 digit angka).');
+        return;
+      }
+      targetIdentifier = cleanPhone;
+    } else {
+      if (!targetIdentifier) {
+        setLoading(false);
+        setErrorMessage('Harap masukkan alamat email akun Anda.');
+        return;
+      }
+    }
+
+    if (!password) {
+      setLoading(false);
+      setErrorMessage('Harap masukkan kata sandi / PIN akun Anda.');
+      return;
+    }
+
     // Call real Laravel API authentication
     const result = await login({
-      identifier,
+      identifier: targetIdentifier,
+      email: loginMethod === 'email' ? targetIdentifier : undefined,
+      no_telepon: loginMethod === 'phone' ? targetIdentifier : undefined,
       password,
       role: 'player',
     });
@@ -72,14 +96,21 @@ export default function LoginPage() {
     if (result.success) {
       const currentUser = ApiClient.getUser();
       if (currentUser?.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
-        if (redirectUrl && redirectUrl.startsWith('/')) {
-          router.push(redirectUrl);
-        } else {
-          router.push('/dashboard');
+        // Keamanan ketat: Administrator dilarang masuk melalui Portal Pemain
+        ApiClient.clearToken();
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('mahjongyuks_user');
+          localStorage.removeItem('mahjongyuks_token');
         }
+        setErrorMessage('Akses ditolak: Akun Administrator tidak dapat masuk melalui Portal Pemain. Silakan gunakan Portal Khusus Administrator di /admin/login.');
+        return;
+      }
+
+      const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+      if (redirectUrl && redirectUrl.startsWith('/') && !redirectUrl.startsWith('/admin')) {
+        router.push(redirectUrl);
+      } else {
+        router.push('/dashboard');
       }
     } else {
       setErrorMessage(result.message || 'Kombinasi Email dan kata sandi tidak valid. Silakan periksa kembali.');
@@ -105,12 +136,12 @@ export default function LoginPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Image
-              src="/assets/mahjongyuks_logo.png"
+              src="/assets/logo.png"
               alt="Mahjongyuks"
-              width={48}
-              height={36}
+              width={52}
+              height={40}
               priority
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
             />
             <span style={{ fontSize: '18px', fontWeight: 800, color: '#004F27', letterSpacing: '-0.3px' }}>
               Mahjongyuks
@@ -128,39 +159,33 @@ export default function LoginPage() {
           </span>
         </div>
 
-        {/* Location & Server Status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#EBF6EE',
-            border: '1px solid #D7E6DB',
-            padding: '6px 14px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '11px',
-            fontWeight: 600,
-            color: '#2B3830'
-          }}>
-            <Store size={13} color="#004F27" />
-            <span>Lokasi Utama: <strong>Game House Sedayu City</strong> • Sesi Hari Ini 13:00 - 22:00</span>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#EBF6EE',
-            border: '1px solid #D7E6DB',
-            padding: '6px 12px',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '11px',
-            fontWeight: 700,
-            color: '#004F27'
-          }}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#16A34A' }} />
-            Server Online
-          </div>
+        {/* Right Header: Back to Landing & Register Link */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link
+            href="/"
+            style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#5A675E',
+              textDecoration: 'none',
+              transition: 'color 0.15s ease'
+            }}
+          >
+            ← Kembali ke Beranda
+          </Link>
+          <Link
+            href="/register"
+            className="login-register-btn"
+            style={{
+              width: 'auto',
+              padding: '8px 16px',
+              fontSize: '12.5px',
+              borderRadius: '10px'
+            }}
+          >
+            <UserPlus size={14} />
+            <span>Daftar Akun Baru</span>
+          </Link>
         </div>
       </header>
 
@@ -373,8 +398,9 @@ export default function LoginPage() {
                 Masuk ke Portal
               </h2>
             </div>
-            <span className="badge-pill badge-mint" style={{ fontSize: '11px', padding: '4px 10px' }}>
-              👤 Pemain & Tamu
+            <span className="badge-pill badge-mint" style={{ fontSize: '11.5px', padding: '5px 12px' }}>
+              <User size={13} color="#004F27" />
+              <span>Portal Pemain</span>
             </span>
           </div>
 
@@ -427,7 +453,7 @@ export default function LoginPage() {
               </span>
             </button>
 
-            {/* Tab 2: Nomor HP (Belum Dikembangkan) */}
+            {/* Tab 2: Nomor HP (Aktif dengan Password) */}
             <button
               type="button"
               id="tab_login_phone"
@@ -448,72 +474,57 @@ export default function LoginPage() {
                 fontSize: '13px',
                 fontWeight: loginMethod === 'phone' ? 700 : 600,
                 backgroundColor: loginMethod === 'phone' ? '#FFFFFF' : 'transparent',
-                color: loginMethod === 'phone' ? '#92400E' : '#5A675E',
+                color: loginMethod === 'phone' ? '#004F27' : '#5A675E',
                 boxShadow: loginMethod === 'phone' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                 transition: 'all 0.2s ease'
               }}
             >
-              <Phone size={14} color={loginMethod === 'phone' ? '#D97706' : '#7A897F'} />
+              <Phone size={14} color={loginMethod === 'phone' ? '#004F27' : '#7A897F'} />
               <span>Nomor HP</span>
               <span style={{
                 fontSize: '10px',
-                backgroundColor: '#FEF3C7',
-                color: '#B45309',
+                backgroundColor: loginMethod === 'phone' ? '#DCF1E3' : '#E2EDE5',
+                color: '#004F27',
                 padding: '2px 7px',
                 borderRadius: '6px',
                 fontWeight: 800
               }}>
-                Under Dev
+                Aktif
               </span>
             </button>
           </div>
 
-          {/* OTP Development Warning Notice Banner (Email Mode) */}
-          {loginMethod === 'email' && (
+          {/* Informative Tip Banner */}
+          <div style={{
+            backgroundColor: '#F4FAF6',
+            border: '1.5px solid #D1E7D8',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}>
             <div style={{
-              backgroundColor: '#FFFBEB',
-              border: '1.5px solid #FCD34D',
-              borderRadius: '14px',
-              padding: '12px 14px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '7px',
+              backgroundColor: '#DCF1E3',
+              color: '#004F27',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             }}>
-              <div style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '8px',
-                backgroundColor: '#FEF3C7',
-                color: '#D97706',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: '1px'
-              }}>
-                <AlertTriangle size={16} />
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 800, color: '#92400E', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>Sistem OTP Tahap Pengembangan</span>
-                  <span style={{
-                    fontSize: '9px',
-                    backgroundColor: '#FDE68A',
-                    color: '#78350F',
-                    padding: '1px 5px',
-                    borderRadius: '4px',
-                    fontWeight: 800,
-                    textTransform: 'uppercase'
-                  }}>
-                    Under Dev
-                  </span>
-                </div>
-                <div style={{ fontSize: '11.5px', color: '#B45309', lineHeight: '1.45' }}>
-                  Layanan OTP otomatis (Nodemailer / SMTP / WhatsApp) belum aktif. Masuk langsung menggunakan <strong>Email</strong> dan <strong>Kata Sandi</strong> akun Anda.
-                </div>
-              </div>
+              {loginMethod === 'email' ? <Mail size={15} /> : <Phone size={15} />}
             </div>
-          )}
+            <div style={{ fontSize: '11.5px', color: '#2B3830', lineHeight: '1.45' }}>
+              {loginMethod === 'email' ? (
+                <>Masuk langsung ke akun pemain Anda menggunakan <strong>Alamat Email</strong> dan <strong>Kata Sandi</strong> akun Anda.</>
+              ) : (
+                <>Masuk langsung ke akun pemain Anda menggunakan <strong>Nomor WhatsApp / Ponsel</strong> dan <strong>Kata Sandi</strong> akun Anda.</>
+              )}
+            </div>
+          </div>
 
           {/* Error Alert Banner */}
           {errorMessage && (
@@ -544,20 +555,20 @@ export default function LoginPage() {
             {loginMethod === 'email' ? (
               <>
                 {/* Field 1: Email Akun */}
-                <div className="form-group">
-                  <div className="form-label">
+                <div className="login-form-group">
+                  <label htmlFor="login_player_email" className="login-form-label">
                     <span>Alamat Email Terdaftar</span>
-                    <span style={{ fontSize: '11px', color: '#004F27', fontWeight: 700 }}>Login Aktif</span>
-                  </div>
-                  <div className="form-input-wrapper">
-                    <div className="input-icon-left">
-                      <Mail size={16} />
+                    <span style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700 }}>Login Aktif</span>
+                  </label>
+                  <div className="login-form-input-wrapper">
+                    <div className="login-input-icon-left">
+                      <Mail size={17} color="#5A675E" />
                     </div>
                     <input
                       type="email"
                       id="login_player_email"
                       name="player_email_prevent_autofill"
-                      className="form-input"
+                      className="login-form-input"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       placeholder="nama@email.com"
@@ -571,262 +582,187 @@ export default function LoginPage() {
                 </div>
 
                 {/* Field 2: Password / PIN */}
-                <div className="form-group">
-                  <div className="form-label">
-                    <span>Kata Sandi / PIN Akun</span>
+                <div className="login-form-group">
+                  <div className="login-form-label">
+                    <label htmlFor="login_player_password">Kata Sandi / PIN Akun</label>
                     <a
                       href="#"
                       onClick={(e) => { e.preventDefault(); setShowOtpNoticeModal(true); }}
-                      style={{ fontSize: '11px', color: '#004F27', fontWeight: 700 }}
+                      style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700, textDecoration: 'none' }}
                     >
                       Lupa PIN?
                     </a>
                   </div>
-                  <div className="form-input-wrapper">
-                    <div className="input-icon-left">
-                      <Lock size={16} />
+                  <div className="login-form-input-wrapper">
+                    <div className="login-input-icon-left">
+                      <Lock size={17} color="#5A675E" />
                     </div>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       id="login_player_password"
                       name="player_password_prevent_autofill"
-                      className="form-input"
+                      className="login-form-input"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Masukkan kata sandi akun"
                       autoComplete="new-password"
                       required
                     />
-                    <div className="input-icon-right" onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </div>
+                    <button
+                      type="button"
+                      className="login-input-icon-right"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 14px' }}
+                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                   </div>
                 </div>
 
-                {/* Remember Me & Desktop Session Tag */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
-                  <div
-                    className="checkbox-label"
+                {/* Remember Me & Secure Session Tag */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px' }}>
+                  <label
+                    className="login-checkbox-label"
                     onClick={() => setRememberMe(!rememberMe)}
                   >
-                    <div className={`custom-checkbox ${rememberMe ? 'checked' : ''}`}>
+                    <div className={`login-custom-checkbox ${rememberMe ? 'checked' : ''}`}>
                       {rememberMe && <Check size={12} color="white" />}
                     </div>
-                    <span style={{ color: '#2B3830', fontWeight: 600 }}>Ingat saya di perangkat ini</span>
-                  </div>
-                  <span style={{ color: '#7A897F', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    🖥 Desktop Sesi
+                    <span>Ingat saya di perangkat ini</span>
+                  </label>
+                  <span style={{ color: '#5A675E', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                    <ShieldCheck size={14} color="#16A34A" />
+                    <span>Sesi Terenkripsi</span>
                   </span>
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="btn-primary"
+                  id="btn_login_submit"
+                  className="login-submit-btn"
                   disabled={loading}
-                  style={{
-                    height: '48px',
-                    fontSize: '15px',
-                    backgroundColor: '#004F27'
-                  }}
                 >
                   {loading ? 'Memverifikasi Kredensial...' : (
                     <>
                       <span>Masuk ke Portal Pemain</span>
-                      <ArrowRight size={18} />
+                      <ArrowRight size={17} />
                     </>
                   )}
                 </button>
               </>
             ) : (
               <>
-                {/* Field Nomor HP (Disabled / Under Dev) */}
-                <div className="form-group" style={{ opacity: 0.85 }}>
-                  <div className="form-label">
-                    <span>Nomor WhatsApp / Ponsel</span>
-                    <span style={{
-                      fontSize: '10px',
-                      backgroundColor: '#FEF3C7',
-                      color: '#92400E',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontWeight: 800,
-                      textTransform: 'uppercase'
-                    }}>
-                      Belum Dikembangkan
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '0 12px',
-                      backgroundColor: '#F3F4F6',
-                      borderRadius: 'var(--radius-md)',
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      color: '#9CA3AF'
-                    }}>
-                      <Phone size={14} color="#9CA3AF" />
-                      <span>+62</span>
+                {/* Field 1: Nomor WhatsApp / Ponsel */}
+                <div className="login-form-group">
+                  <label htmlFor="login_player_phone" className="login-form-label">
+                    <span>Nomor WhatsApp / Ponsel Terdaftar</span>
+                    <span style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700 }}>Login Aktif</span>
+                  </label>
+                  <div className="login-form-input-wrapper">
+                    <div className="login-input-icon-left">
+                      <Phone size={17} color="#5A675E" />
                     </div>
-                    <div className="form-input-wrapper" style={{ flex: 1 }}>
-                      <input
-                        type="text"
-                        disabled
-                        className="form-input"
-                        placeholder="812-3456-7890 (Fitur Belum Tersedia)"
-                        style={{
-                          backgroundColor: '#F9FAFB',
-                          borderColor: '#E5E7EB',
-                          color: '#9CA3AF',
-                          cursor: 'not-allowed'
-                        }}
-                      />
-                    </div>
+                    <input
+                      type="tel"
+                      id="login_player_phone"
+                      name="player_phone_prevent_autofill"
+                      className="login-form-input"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Contoh: 081234567890"
+                      autoComplete="tel"
+                      required
+                    />
                   </div>
                 </div>
 
-                {/* Notice Card Khusus Nomor HP Belum Dikembangkan */}
-                <div style={{
-                  backgroundColor: '#FFFBEB',
-                  border: '1.5px solid #FCD34D',
-                  borderRadius: '16px',
-                  padding: '18px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      backgroundColor: '#FEF3C7',
-                      color: '#D97706',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <AlertTriangle size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#92400E', marginBottom: '3px' }}>
-                        Masuk dengan Nomor HP Belum Dikembangkan
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#B45309', lineHeight: '1.45' }}>
-                        Sistem pengiriman kode verifikasi OTP melalui WhatsApp Business API maupun SMS Gateway saat ini masih dalam proses pengembangan. Untuk masuk ke portal, silakan gunakan pilihan <strong>Email Akun</strong>.
-                      </div>
-                    </div>
+                {/* Field 2: Password / PIN */}
+                <div className="login-form-group">
+                  <div className="login-form-label">
+                    <label htmlFor="login_player_phone_password">Kata Sandi / PIN Akun</label>
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setShowOtpNoticeModal(true); }}
+                      style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700, textDecoration: 'none' }}
+                    >
+                      Lupa PIN?
+                    </a>
                   </div>
-
-                  <div style={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #FDE68A',
-                    borderRadius: '10px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '10px',
-                    flexWrap: 'wrap'
-                  }}>
-                    <div style={{ fontSize: '12px', color: '#2B3830', fontWeight: 600 }}>
-                      Ingin login sekarang?
+                  <div className="login-form-input-wrapper">
+                    <div className="login-input-icon-left">
+                      <Lock size={17} color="#5A675E" />
                     </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="login_player_phone_password"
+                      name="player_phone_password_prevent_autofill"
+                      className="login-form-input"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Masukkan kata sandi akun"
+                      autoComplete="current-password"
+                      required
+                    />
                     <button
                       type="button"
-                      onClick={() => {
-                        setLoginMethod('email');
-                        setErrorMessage('');
-                      }}
-                      style={{
-                        backgroundColor: '#004F27',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        borderRadius: 'var(--radius-full)',
-                        padding: '7px 16px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        boxShadow: 'var(--shadow-sm)'
-                      }}
+                      className="login-input-icon-right"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 14px' }}
+                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                     >
-                      <Mail size={13} />
-                      <span>Beralih ke Email Akun →</span>
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
                   </div>
                 </div>
 
-                {/* Action button in phone mode: switches directly to email */}
+                {/* Remember Me & Secure Session Tag */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px' }}>
+                  <label
+                    className="login-checkbox-label"
+                    onClick={() => setRememberMe(!rememberMe)}
+                  >
+                    <div className={`login-custom-checkbox ${rememberMe ? 'checked' : ''}`}>
+                      {rememberMe && <Check size={12} color="white" />}
+                    </div>
+                    <span>Ingat saya di perangkat ini</span>
+                  </label>
+                  <span style={{ color: '#5A675E', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                    <ShieldCheck size={14} color="#16A34A" />
+                    <span>Sesi Terenkripsi</span>
+                  </span>
+                </div>
+
+                {/* Submit Button */}
                 <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMethod('email');
-                    setErrorMessage('');
-                  }}
-                  className="btn-primary"
-                  style={{
-                    height: '48px',
-                    fontSize: '14px',
-                    backgroundColor: '#004F27',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
+                  type="submit"
+                  id="btn_login_phone_submit"
+                  className="login-submit-btn"
+                  disabled={loading}
                 >
-                  <Mail size={16} />
-                  <span>Pilih Masuk Menggunakan Email</span>
-                  <ArrowRight size={16} />
+                  {loading ? 'Memverifikasi Nomor HP...' : (
+                    <>
+                      <span>Masuk ke Portal Pemain</span>
+                      <ArrowRight size={17} />
+                    </>
+                  )}
                 </button>
               </>
             )}
           </form>
 
-            {/* Register Callout */}
-          <div className="divider-text">ATAU BELUM PUNYA AKUN?</div>
+          {/* Register Callout */}
+          <div className="login-divider">ATAU BELUM PUNYA AKUN?</div>
 
           <Link
             href={redirectParam ? `/register?redirect=${encodeURIComponent(redirectParam)}` : '/register'}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '13px',
-              backgroundColor: '#EBF6EE',
-              color: '#004F27',
-              border: '1px solid #D2E7D8',
-              borderRadius: 'var(--radius-md)',
-              fontSize: '14px',
-              fontWeight: 700,
-              transition: 'background 0.2s'
-            }}
+            className="login-register-btn"
+            id="btn_to_register"
           >
-            + Daftar Jadi Pemain Baru
+            <UserPlus size={16} />
+            <span>Daftar Jadi Pemain Baru</span>
           </Link>
-
-          {/* Schedule Footer */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            fontSize: '11px',
-            color: '#7A897F',
-            paddingTop: '6px'
-          }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Calendar size={13} /> Jadwal Sesi: 13:00 - 22:00 WIB
-            </span>
-            <strong style={{ color: '#004F27' }}>Rabu – Minggu</strong>
-          </div>
-
         </div>
 
       </main>
@@ -906,7 +842,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowOtpNoticeModal(false)}
-              className="btn-primary"
+              className="login-submit-btn"
               style={{ width: '100%' }}
             >
               Mengerti & Kembali

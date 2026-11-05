@@ -56,7 +56,7 @@ return new class extends Migration
             'longitude' => null,
             'maps_url' => 'https://maps.google.com/?q=Sedayu+City+Kelapa+Gading+SCBRC+Blok+C+No+18',
             'foto' => '/assets/mahjong_parlor_players.jpg',
-            'fasilitas' => 'Meja Otomatis Amos Rexx III, Ruangan Ber-AC Sistem Filtrasi HEPA, Standar Regulasi Turnamen WRC, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
+            'fasilitas' => 'Meja Otomatis, Ruangan Ber-AC, Standar Regulasi Hong Kong Mahjong, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
             'updated_at' => now(),
         ];
 

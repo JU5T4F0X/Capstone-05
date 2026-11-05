@@ -7,6 +7,8 @@ use App\Http\Requests\EventRequest;
 use App\Models\Event;
 use App\Models\EventPendaftaran;
 use App\Models\Player;
+use App\Models\SesiBermain;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -155,11 +157,8 @@ class EventController extends Controller
             ], 422);
         }
 
-        // 5. Validasi kuota pendaftaran
-        $maxCapacity = 16;
-        if (preg_match('/(\d+)/', (string)($event->kuota ?? ''), $matches)) {
-            $maxCapacity = (int)$matches[1];
-        }
+        // 5. Validasi kuota pendaftaran (1 meja = 4 pemain)
+        $maxCapacity = $this->parseEventCapacity($event->kuota);
 
         $activeRegistrationsCount = $event->pendaftarans()
             ->where('status_pendaftaran', '!=', 'batal')
@@ -358,6 +357,7 @@ class EventController extends Controller
                     'pendaftaran_id' => $p->id,
                     'status_pendaftaran' => $p->status_pendaftaran,
                     'tanggal_daftar' => $p->tanggal_daftar ? $p->tanggal_daftar->format('Y-m-d H:i') : null,
+                    'created_at' => $p->created_at ? $p->created_at->toISOString() : ($p->tanggal_daftar ? $p->tanggal_daftar->toISOString() : null),
                     'catatan' => $p->catatan,
                     'event' => $p->event ? $this->formatEvent($p->event, false, $player) : null,
                 ];
@@ -385,9 +385,13 @@ class EventController extends Controller
             $validated['foto'] = '/assets/event_1.jpg';
         }
 
-        // Default kuota & biaya jika kosong
-        if (empty($validated['kuota'])) {
-            $validated['kuota'] = 'Sisa 4 Kursi (1 Meja)';
+        // Handle input alokasi meja (1 meja = 4 kursi pemain Mahjong)
+        if ($request->filled('jumlah_meja')) {
+            $mejaCount = max(1, (int)$request->input('jumlah_meja'));
+            $seatsCount = $mejaCount * 4;
+            $validated['kuota'] = "{$seatsCount} Kursi ({$mejaCount} Meja)";
+        } elseif (empty($validated['kuota'])) {
+            $validated['kuota'] = '4 Kursi (1 Meja)';
         }
         if (empty($validated['biaya'])) {
             $validated['biaya'] = 'Rp 150.000 /kursi';
@@ -402,6 +406,34 @@ class EventController extends Controller
 
         $event = Event::create($validated);
         $event->load('venue');
+
+        // Sinkronkan ke SesiBermain jika status event aktif
+        if (in_array(strtolower($event->status), ['active', 'aktif', 'open']) && $event->tanggal_event) {
+            $dateStr = $event->tanggal_event instanceof \DateTimeInterface 
+                ? $event->tanggal_event->format('Y-m-d') 
+                : substr((string)$event->tanggal_event, 0, 10);
+            $waktuSelesai = $event->waktu_selesai ? substr((string)$event->waktu_selesai, 0, 8) : '23:59:00';
+            $waktuMulai = $event->waktu_mulai ? substr((string)$event->waktu_mulai, 0, 8) : '00:00:00';
+
+            $status = 'pending';
+            try {
+                $start = Carbon::parse($dateStr . ' ' . $waktuMulai);
+                if (now()->greaterThanOrEqualTo($start)) {
+                    $status = 'ongoing';
+                }
+            } catch (\Throwable $e) {}
+
+            SesiBermain::updateOrCreate(
+                ['event_id' => $event->id],
+                [
+                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => $status,
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -445,8 +477,43 @@ class EventController extends Controller
             $validated['jenis_event'] = strcasecmp($validated['jenis_event'], 'Non-Event') === 0 ? 'Non-Event' : 'Event';
         }
 
+        // Handle update alokasi meja (1 meja = 4 kursi pemain Mahjong)
+        if ($request->filled('jumlah_meja')) {
+            $mejaCount = max(1, (int)$request->input('jumlah_meja'));
+            $seatsCount = $mejaCount * 4;
+            $validated['kuota'] = "{$seatsCount} Kursi ({$mejaCount} Meja)";
+        }
+
         $event->update($validated);
         $event->load('venue');
+
+        // Sinkronkan ke SesiBermain jika status event aktif
+        if (in_array(strtolower($event->status), ['active', 'aktif', 'open']) && $event->tanggal_event) {
+            $dateStr = $event->tanggal_event instanceof \DateTimeInterface 
+                ? $event->tanggal_event->format('Y-m-d') 
+                : substr((string)$event->tanggal_event, 0, 10);
+            $waktuSelesai = $event->waktu_selesai ? substr((string)$event->waktu_selesai, 0, 8) : '23:59:00';
+            $waktuMulai = $event->waktu_mulai ? substr((string)$event->waktu_mulai, 0, 8) : '00:00:00';
+
+            $status = 'pending';
+            try {
+                $start = Carbon::parse($dateStr . ' ' . $waktuMulai);
+                if (now()->greaterThanOrEqualTo($start)) {
+                    $status = 'ongoing';
+                }
+            } catch (\Throwable $e) {}
+
+            SesiBermain::updateOrCreate(
+                ['event_id' => $event->id],
+                [
+                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => $status,
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -482,6 +549,29 @@ class EventController extends Controller
             'success' => true,
             'message' => "Event '{$namaEvent}' berhasil dihapus dari sistem.",
         ]);
+    }
+
+    /**
+     * Parse kapasitas kursi maksimal berdasarkan kuota/meja
+     * 1 meja = 4 kursi pemain Mahjong
+     */
+    private function parseEventCapacity(?string $kuota): int
+    {
+        $kuotaStr = (string)($kuota ?? '');
+        if (preg_match('/(\d+)\s*(?:kursi|seat|orang|player|peserta)/i', $kuotaStr, $seatMatches)) {
+            return max(4, (int)$seatMatches[1]);
+        }
+        if (preg_match('/(\d+)\s*(?:meja|table)/i', $kuotaStr, $mejaMatches)) {
+            return max(4, (int)$mejaMatches[1] * 4);
+        }
+        if (is_numeric(trim($kuotaStr))) {
+            $val = (int)trim($kuotaStr);
+            return ($val <= 10) ? max(4, $val * 4) : max(4, $val);
+        }
+        if (preg_match('/(\d+)/', $kuotaStr, $matches)) {
+            return max(4, (int)$matches[1]);
+        }
+        return 16;
     }
 
     /**
@@ -536,11 +626,9 @@ class EventController extends Controller
                 : 'Rp 150.000 /kursi';
         }
 
-        // Hitung kuota dinamis & sisa kursi
-        $maxCapacity = 16;
-        if (preg_match('/(\d+)/', (string)($event->kuota ?? ''), $matches)) {
-            $maxCapacity = (int)$matches[1];
-        }
+        // Hitung kuota dinamis & sisa kursi (1 meja = 4 kursi pemain Mahjong)
+        $maxCapacity = $this->parseEventCapacity($event->kuota);
+        $totalTables = max(1, (int)ceil($maxCapacity / 4));
 
         $pendaftaransCount = $event->relationLoaded('pendaftarans')
             ? $event->pendaftarans->where('status_pendaftaran', '!=', 'batal')->count()
@@ -548,8 +636,8 @@ class EventController extends Controller
 
         $sisaSeats = max(0, $maxCapacity - $pendaftaransCount);
         $kuotaLabel = $sisaSeats > 0 
-            ? "Sisa {$sisaSeats} Kursi (Kapasitas {$maxCapacity})"
-            : "Kuota Penuh ({$maxCapacity}/{$maxCapacity})";
+            ? "{$totalTables} Meja (Sisa {$sisaSeats} Kursi)"
+            : "Kuota Penuh ({$totalTables} Meja / {$maxCapacity} Kursi)";
 
         // Cek status pendaftaran player login
         $isRegistered = false;
@@ -567,9 +655,9 @@ class EventController extends Controller
 
         return [
             'id' => $event->id,
-            'nama_event' => $event->nama_event,
+            'nama_event' => str_ireplace(['Grand Riichi', 'Riichi Masters', 'Riichi'], ['Hong Kong Open', 'Hong Kong Masters', 'Hong Kong Style'], $event->nama_event),
             'jenis_event' => $event->jenis_event ?? 'Event',
-            'deskripsi' => $event->deskripsi,
+            'deskripsi' => str_ireplace(['Riichi', 'Hanchan', 'Uma/Oka'], ['Hong Kong Mahjong', 'Ronde Putaran', 'Poin Fan'], $event->deskripsi),
             'tanggal_event' => $event->tanggal_event ? $event->tanggal_event->format('Y-m-d') : null,
             'tanggal_formatted' => $event->tanggal_event ? $event->tanggal_event->translatedFormat('l, d F Y') : null,
             'waktu_mulai' => substr($event->waktu_mulai ?? '', 0, 5),
@@ -583,14 +671,15 @@ class EventController extends Controller
             'kuota' => $kuotaLabel,
             'max_kuota' => $maxCapacity,
             'sisa_kuota' => $sisaSeats,
+            'jumlah_meja' => $totalTables,
             'pendaftarans_count' => $pendaftaransCount,
             'is_registered' => $isRegistered,
             'registration_status' => $myRegistrationStatus,
             'kategori' => $category,
             'badge_class' => $badgeClass,
             'foto' => $image,
-            'standar_aturan' => 'World Riichi Championship (WRC)',
-            'kapasitas_meja' => '4 Pemain per Meja (Amos Rexx III)',
+            'standar_aturan' => 'Hong Kong Mahjong Old Style (HKOS)',
+            'kapasitas_meja' => "{$totalTables} Meja (" . ($totalTables * 4) . " Kursi Pemain)",
         ];
     }
 }

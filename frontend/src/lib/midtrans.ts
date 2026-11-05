@@ -102,6 +102,7 @@ export function buatPesanan(payload: {
   durasi_jam: number;
   jenis_pemesanan: 'Casual' | 'Competitive';
   kursi_pilihan: 'ton' | 'nan' | 'sha' | 'pei';
+  total_biaya?: number;
 }): Promise<PesananBaru> {
   return panggil<PesananBaru>('/pemesanans', { method: 'POST', body: JSON.stringify(payload) });
 }

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
-  Search,
   Bell,
   LogOut,
   Shield,
@@ -85,18 +84,17 @@ export default function DashboardNavbar({
     { id: 'jadwal', label: 'Jadwal', href: '/jadwal' },
     { id: 'pemesanan', label: 'Pemesanan', href: '/pemesanan' },
     { id: 'leaderboard', label: 'Leaderboard', href: '/leaderboard' },
-    { id: 'profil', label: 'Profil', href: '/profil' },
   ];
 
   return (
     <header className="landing-header">
       <div className="db-container">
         <div className="db-header-inner">
-          {/* 1. Kiri: Logo Brand & Mode Switcher (HANYA jika user memiliki role admin) */}
+          {/* 1. Kiri: Logo Brand */}
           <div className="db-header-left">
             <Link href="/" className="landing-brand" title="Mahjongyuks Beranda">
               <Image
-                src="/assets/mahjongyuks_logo.png"
+                src="/assets/logo.png"
                 alt="Mahjongyuks Logo"
                 width={60}
                 height={44}
@@ -104,25 +102,6 @@ export default function DashboardNavbar({
                 className="landing-logo-img"
               />
             </Link>
-
-            {user?.role === 'admin' && (
-              <div className="db-header-mode-toggle" title="Pilihan Mode Tampilan">
-                <button
-                  type="button"
-                  className="db-mode-pill-btn active"
-                  disabled
-                >
-                  <span className="db-mode-dot" /> Mode Pemain
-                </button>
-                <Link
-                  href="/admin/dashboard"
-                  className="db-mode-pill-btn"
-                  title="Beralih ke Dashboard Admin"
-                >
-                  Mode Admin
-                </Link>
-              </div>
-            )}
           </div>
 
           {/* 2. Tengah: Navigasi Khusus Player (Dashboard, Event, Jadwal, Pemesanan, Leaderboard, Profil) */}
@@ -144,19 +123,8 @@ export default function DashboardNavbar({
             </ul>
           </nav>
 
-          {/* 3. Kanan: Search, Notifikasi, Identitas Player & Tombol Logout */}
+          {/* 3. Kanan: Notifikasi, Identitas Player & Tombol Logout */}
           <div className="db-header-right">
-            {/* Search Box */}
-            <div className="db-search-box">
-              <Search size={14} color="#8DA79B" />
-              <input
-                type="text"
-                placeholder="Cari sesi, meja..."
-                className="db-search-input"
-                aria-label="Cari"
-              />
-            </div>
-
             {/* Notification Bell */}
             <button
               type="button"
@@ -178,13 +146,22 @@ export default function DashboardNavbar({
                 aria-haspopup="true"
                 title="Menu Profil Akun"
               >
-                <div style={{ position: 'relative', width: '24px', height: '24px', borderRadius: '50%', overflow: 'hidden' }}>
-                  <Image
-                    src={user?.avatar_url || '/assets/avatar_kevin.jpg'}
-                    alt={userName}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: '#0F231B',
+                  border: '1.5px solid #E2BC55',
+                  color: '#E2BC55',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  flexShrink: 0,
+                  textTransform: 'uppercase',
+                }}>
+                  {(userName || 'P').trim().charAt(0).toUpperCase()}
                 </div>
                 <span style={{ fontWeight: 600 }}>
                   {userName.split(' ')[0]}
@@ -297,13 +274,22 @@ export default function DashboardNavbar({
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden' }}>
-              <Image
-                src={user?.avatar_url || '/assets/avatar_kevin.jpg'}
-                alt={userName}
-                fill
-                style={{ objectFit: 'cover' }}
-              />
+            <div style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '50%',
+              backgroundColor: '#0F231B',
+              border: '1.5px solid #E2BC55',
+              color: '#E2BC55',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '14px',
+              fontWeight: 800,
+              flexShrink: 0,
+              textTransform: 'uppercase',
+            }}>
+              {(userName || 'P').trim().charAt(0).toUpperCase()}
             </div>
             <div>
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>{userName}</div>

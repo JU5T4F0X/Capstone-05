@@ -96,7 +96,7 @@ function JadwalContent() {
 
           <h1 className="ev-hero-title">Jadwal Pertandingan &amp; Sesi Bermain</h1>
           <p className="ev-hero-subtitle">
-            Pilih dan ikuti jadwal turnamen resmi sirkuit WRC atau reservasi sesi bermain reguler harian dengan meja otomatis Amos Rexx III di Game House MahjongYuks.
+            Pilih dan ikuti jadwal turnamen resmi sirkuit atau reservasi sesi bermain reguler harian dengan meja otomatis di Game House MahjongYuks.
           </p>
         </div>
       </section>
@@ -261,14 +261,30 @@ function JadwalContent() {
                         </div>
                       </div>
 
-                      <Link
-                        href="/pemesanan"
-                        className="ev-btn-detail"
-                        style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-                      >
-                        <span>Reservasi Sesi</span>
-                        <ArrowRight size={14} />
-                      </Link>
+                      {(() => {
+                        const numericPrice = parseInt((ev.biaya || '').replace(/[^0-9]/g, ''), 10) || 90000;
+                        const queryParams = new URLSearchParams({
+                          portal: 'jadwal',
+                          schedule_id: String(ev.event_id || ev.id),
+                          title: ev.judul || 'Sesi Game House',
+                          price: String(numericPrice),
+                          date: ev.tanggal || '2026-11-05',
+                          time: ev.waktu || '13:00 - 18:00 WIB',
+                          venue: ev.venue || 'Game House (Sedayu City Kelapa Gading SCBRC)',
+                          type: ev.tipe || 'non_event',
+                        });
+
+                        return (
+                          <Link
+                            href={`/pemesanan?${queryParams.toString()}`}
+                            className="ev-btn-detail"
+                            style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+                          >
+                            <span>Reservasi Sesi</span>
+                            <ArrowRight size={14} />
+                          </Link>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))

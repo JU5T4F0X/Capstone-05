@@ -33,6 +33,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# storage symlink
+/public/storage
+
 # AGENTS & rules
 AGENTS.md
 Agents.md

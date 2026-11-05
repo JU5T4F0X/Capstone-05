@@ -23,7 +23,6 @@ const defaultPlayerUser: User = {
   kemahiran: 'Advance',
   dan_rank: 'DAN 5',
   points: 14850,
-  avatar_url: '/assets/avatar_kevin.jpg',
 };
 
 const defaultAdminUser: User = {
@@ -33,7 +32,6 @@ const defaultAdminUser: User = {
   no_telepon: '081987654321',
   role: 'admin',
   handle: 'ADM-JKT-042',
-  avatar_url: '/assets/avatar_kevin.jpg',
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -123,10 +121,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTokenState(null);
   };
 
-  const setDemoUser = (role: 'player' | 'admin') => {
+  const setDemoUser = async (role: 'player' | 'admin') => {
     const target = role === 'admin' ? defaultAdminUser : defaultPlayerUser;
     setUser(target);
     ApiClient.setUser(target);
+
+    // Coba login otomatis ke backend agar mendapatkan token Sanctum riil
+    try {
+      const loginPayload = role === 'admin'
+        ? { email: 'adm-jkt-042@mahjongyuks.id', password: 'password123' }
+        : { email: 'kevin.sanjaya@mahjongyuks.id', password: 'password123' };
+
+      const res = await ApiClient.login(loginPayload);
+      if (res.success && (res.data as any)?.token) {
+        const realToken = (res.data as any).token;
+        ApiClient.setToken(realToken);
+        setTokenState(realToken);
+        return;
+      }
+    } catch {
+      // Fallback ke token offline jika server API offline
+    }
+
     ApiClient.setToken('demo_token');
     setTokenState('demo_token');
   };

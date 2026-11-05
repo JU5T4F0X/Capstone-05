@@ -80,7 +80,7 @@ export default function LandingNavbar({ activeItem }: LandingNavbarProps) {
           <div className="landing-header-left">
             <Link href="/" className="landing-brand" onClick={() => setActiveSection('beranda')}>
               <Image
-                src="/assets/mahjongyuks_logo.png"
+                src="/assets/logo.png"
                 alt="Mahjongyuks Logo"
                 width={60}
                 height={44}

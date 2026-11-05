@@ -30,7 +30,6 @@ export default function ProfilPage() {
     nama: '',
     email: '',
     no_telepon: '',
-    handle: '',
     tingkat_kemahiran: 'intermediate',
   });
 
@@ -43,7 +42,6 @@ export default function ProfilPage() {
         nama: user.nama || '',
         email: user.email || '',
         no_telepon: user.no_telepon || '',
-        handle: user.handle || '',
         tingkat_kemahiran: normalizeKemahiran(user.kemahiran || (user as any).tingkat_kemahiran || user.dan_rank),
       });
     }
@@ -73,7 +71,6 @@ export default function ProfilPage() {
             ...user,
             nama: formData.nama,
             no_telepon: formData.no_telepon,
-            handle: formData.handle,
             kemahiran: formData.tingkat_kemahiran,
             tingkat_kemahiran: formData.tingkat_kemahiran,
           };
@@ -160,29 +157,36 @@ export default function ProfilPage() {
             alignItems: 'center',
             textAlign: 'center'
           }}>
-            <div style={{
-              position: 'relative',
-              width: '96px',
-              height: '96px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              border: '3px solid #183629',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-              marginBottom: '16px'
-            }}>
-              <Image
-                src={user?.avatar_url || '/assets/avatar_kevin.jpg'}
-                alt={user?.nama || 'Pemain'}
-                fill
-                style={{ objectFit: 'cover' }}
-              />
+            {/* Avatar Inisial Huruf Kapital (Bebas Foto AI Slop) */}
+            <div
+              style={{
+                width: '96px',
+                height: '96px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #183629 0%, #0F231B 100%)',
+                border: '3px solid #E2BC55',
+                boxShadow: '0 4px 16px rgba(24, 54, 41, 0.22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px',
+                color: '#E2BC55',
+                fontSize: '40px',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                userSelect: 'none',
+                letterSpacing: '0.02em',
+              }}
+              aria-label={`Avatar Inisial ${(user?.nama || 'P').trim().charAt(0).toUpperCase()}`}
+            >
+              {(user?.nama || user?.email || 'P').trim().charAt(0).toUpperCase()}
             </div>
 
             <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#111E18', margin: '0 0 4px 0' }}>
               {user?.nama || 'Pemain Mahjong'}
             </h2>
             <div style={{ fontSize: '12px', color: '#7A897F', marginBottom: '14px' }}>
-              {user?.handle || '@pemain'} • ID #{user?.id || '841'}
+              ID Pemain #{user?.id || '-'}
             </div>
 
             {/* Kemahiran Badge */}
@@ -259,13 +263,13 @@ export default function ProfilPage() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '6px' }}>
-                    Player Handle / Username
+                    Nomor WhatsApp / Telepon
                   </label>
                   <input
                     type="text"
                     required
-                    value={formData.handle}
-                    onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
+                    value={formData.no_telepon}
+                    onChange={(e) => setFormData({ ...formData, no_telepon: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '10px 14px',
@@ -306,13 +310,11 @@ export default function ProfilPage() {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '6px' }}>
-                    Nomor WhatsApp / Telepon
+                    Tingkat Kemahiran Bermain
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.no_telepon}
-                    onChange={(e) => setFormData({ ...formData, no_telepon: e.target.value })}
+                  <select
+                    value={formData.tingkat_kemahiran}
+                    onChange={(e) => setFormData({ ...formData, tingkat_kemahiran: e.target.value })}
                     style={{
                       width: '100%',
                       padding: '10px 14px',
@@ -320,53 +322,33 @@ export default function ProfilPage() {
                       border: '1px solid #D7E6DB',
                       fontSize: '13px',
                       outline: 'none',
-                      backgroundColor: '#FAF8F5'
+                      backgroundColor: '#FAF8F5',
+                      color: '#111E18',
+                      fontWeight: 600
                     }}
-                  />
+                  >
+                    <option value="beginner">Beginner — Pemula yang baru belajar aturan Mahjong</option>
+                    <option value="intermediate">Intermediate — Memahami sistem poin &amp; strategi dasar</option>
+                    <option value="advance">Advance — Atlet turnamen dengan taktis komprehensif</option>
+                  </select>
                 </div>
               </div>
 
-              {/* Tingkat Kemahiran Selector */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#2B3830', marginBottom: '6px' }}>
-                  Tingkat Kemahiran Bermain
-                </label>
-                <select
-                  value={formData.tingkat_kemahiran}
-                  onChange={(e) => setFormData({ ...formData, tingkat_kemahiran: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #D7E6DB',
-                    fontSize: '13px',
-                    outline: 'none',
-                    backgroundColor: '#FAF8F5',
-                    color: '#111E18',
-                    fontWeight: 600
-                  }}
-                >
-                  <option value="beginner">Beginner — Pemula yang baru belajar aturan Mahjong</option>
-                  <option value="intermediate">Intermediate — Memahami sistem poin &amp; strategi dasar</option>
-                  <option value="advance">Advance — Atlet turnamen dengan taktis komprehensif</option>
-                </select>
-
-                <div style={{
-                  marginTop: '10px',
-                  padding: '12px 16px',
-                  backgroundColor: '#FAF8F5',
-                  border: '1px solid #E4E0D8',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '10px',
-                  fontSize: '12.5px',
-                  color: '#5A675E'
-                }}>
-                  <Info size={16} color="#004F27" style={{ marginTop: '2px', flexShrink: 0 }} />
-                  <div>
-                    <strong style={{ color: '#183629' }}>Tentang Tingkat Kemahiran:</strong> {kemahiranDetail.deskripsi}
-                  </div>
+              {/* Info Note tentang Tingkat Kemahiran */}
+              <div style={{
+                padding: '12px 16px',
+                backgroundColor: '#FAF8F5',
+                border: '1px solid #E4E0D8',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                fontSize: '12.5px',
+                color: '#5A675E'
+              }}>
+                <Info size={16} color="#004F27" style={{ marginTop: '2px', flexShrink: 0 }} />
+                <div>
+                  <strong style={{ color: '#183629' }}>Tentang Tingkat Kemahiran:</strong> {kemahiranDetail.deskripsi}
                 </div>
               </div>
 

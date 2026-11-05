@@ -1,7 +1,24 @@
 'use client';
 
 import React from 'react';
-import { HOW_IT_WORKS_STEPS } from '@/lib/mock-data';
+
+const HOW_IT_WORKS_STEPS = [
+  {
+    stepNumber: 'Langkah 01',
+    title: 'Pilih Jadwal & Sesi Bermain',
+    description: 'Pilih jadwal dan venue yang Anda inginkan, mulai dari sesi santai hingga turnamen resmi berperingkat. Peralatan ubin dan meja telah disediakan.',
+  },
+  {
+    stepNumber: 'Langkah 02',
+    title: 'Reservasi Meja & Kursi',
+    description: 'Pilih kursi mata angin pada meja yang tersedia. Regulasi MahjongYuks memastikan meja terisi lengkap agar permainan dapat segera dimulai.',
+  },
+  {
+    stepNumber: 'Langkah 03',
+    title: 'Tiba & Mulai Pertandingan',
+    description: 'Tunjukkan kode pemesanan saat tiba di venue. Meja otomatis dengan sistem pencatatan skor resmi siap digunakan bersama 4 pemain lengkap.',
+  },
+];
 
 export default function HowItWorks() {
   return (

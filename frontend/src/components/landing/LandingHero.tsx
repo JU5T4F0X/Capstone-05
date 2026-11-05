@@ -158,7 +158,7 @@ export default function LandingHero({
       <div className="landing-hero-bg">
         <Image
           src="/landing/landing-hero.jpg"
-          alt="Suasana Riichi Mahjong Mahjongyuks"
+          alt="Suasana Hong Kong Mahjong Mahjongyuks"
           fill
           priority
           quality={90}
@@ -183,18 +183,18 @@ export default function LandingHero({
             </span>
             <span className="hero-badge hero-badge-glass">
               <Sparkles size={12} strokeWidth={2} />
-              MEJA OTOMATIS AMOS REXX III
+              MEJA OTOMATIS GAME HOUSE
             </span>
           </div>
 
           {/* ── Main Headline (Proportional Typography & Balanced Width) ── */}
           <h1 className="landing-hero-full-title">
-            Temukan Tempat Bermain Riichi Mahjong Favoritmu
+            Temukan Tempat Bermain Hong Kong Mahjong Favoritmu
           </h1>
 
           {/* ── Description (Concise & Professional Copywriting) ── */}
           <p className="landing-hero-full-desc">
-            Jelajahi lokasi bermain, temukan jadwal dan turnamen, serta reservasi meja untuk menikmati Riichi Mahjong bersama komunitas.
+            Jelajahi lokasi bermain, temukan jadwal dan turnamen, serta reservasi meja untuk menikmati Hong Kong Mahjong bersama komunitas.
           </p>
 
           {/* ── Action Buttons ── */}
