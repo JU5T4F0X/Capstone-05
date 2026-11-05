@@ -71,6 +71,7 @@ export interface ApiMyEventRegistration {
   pendaftaran_id: number;
   status_pendaftaran: string;
   tanggal_daftar: string | null;
+  created_at?: string | null;
   catatan?: string | null;
   event: ApiEvent | null;
 }
@@ -396,6 +397,7 @@ export class ApiClient {
     durasi_jam?: number;
     kursi_pilihan?: 'ton' | 'nan' | 'sha' | 'pei';
     metode_pembayaran?: string;
+    total_biaya?: number;
   }): Promise<ApiResponse<any>> {
     return this.request('/pemesanans', {
       method: 'POST',
@@ -410,6 +412,17 @@ export class ApiClient {
   }
 
   // ── Pembayaran Endpoints (Sprint 4) ────────────────────────────────────────
+  public static async getPembayarans(): Promise<ApiResponse<any>> {
+    return this.request('/pembayarans');
+  }
+
+  public static async verifikasiPembayaran(id: number | string, status: 'paid' | 'failed' | 'pending'): Promise<ApiResponse<any>> {
+    return this.request(`/pembayarans/${id}/verifikasi`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  }
+
   public static async simulatePayment(
     pemesananId: number,
     metode: string = 'QRIS Instant'

@@ -37,6 +37,7 @@ export default function LoginPage() {
 
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [identifier, setIdentifier] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -54,16 +55,38 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginMethod === 'phone') {
-      setErrorMessage('Metode login via nomor HP belum dikembangkan. Silakan gunakan pilihan masuk dengan Email.');
-      return;
-    }
     setLoading(true);
     setErrorMessage('');
 
+    let targetIdentifier = identifier.trim();
+
+    if (loginMethod === 'phone') {
+      const cleanPhone = phone.trim().replace(/[^0-9]/g, '');
+      if (!cleanPhone || cleanPhone.length < 8) {
+        setLoading(false);
+        setErrorMessage('Harap masukkan nomor WhatsApp / ponsel yang valid (minimal 8-15 digit angka).');
+        return;
+      }
+      targetIdentifier = cleanPhone;
+    } else {
+      if (!targetIdentifier) {
+        setLoading(false);
+        setErrorMessage('Harap masukkan alamat email akun Anda.');
+        return;
+      }
+    }
+
+    if (!password) {
+      setLoading(false);
+      setErrorMessage('Harap masukkan kata sandi / PIN akun Anda.');
+      return;
+    }
+
     // Call real Laravel API authentication
     const result = await login({
-      identifier,
+      identifier: targetIdentifier,
+      email: loginMethod === 'email' ? targetIdentifier : undefined,
+      no_telepon: loginMethod === 'phone' ? targetIdentifier : undefined,
       password,
       role: 'player',
     });
@@ -73,14 +96,21 @@ export default function LoginPage() {
     if (result.success) {
       const currentUser = ApiClient.getUser();
       if (currentUser?.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
-        if (redirectUrl && redirectUrl.startsWith('/')) {
-          router.push(redirectUrl);
-        } else {
-          router.push('/dashboard');
+        // Keamanan ketat: Administrator dilarang masuk melalui Portal Pemain
+        ApiClient.clearToken();
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('mahjongyuks_user');
+          localStorage.removeItem('mahjongyuks_token');
         }
+        setErrorMessage('Akses ditolak: Akun Administrator tidak dapat masuk melalui Portal Pemain. Silakan gunakan Portal Khusus Administrator di /admin/login.');
+        return;
+      }
+
+      const redirectUrl = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('redirect') : null;
+      if (redirectUrl && redirectUrl.startsWith('/') && !redirectUrl.startsWith('/admin')) {
+        router.push(redirectUrl);
+      } else {
+        router.push('/dashboard');
       }
     } else {
       setErrorMessage(result.message || 'Kombinasi Email dan kata sandi tidak valid. Silakan periksa kembali.');
@@ -423,7 +453,7 @@ export default function LoginPage() {
               </span>
             </button>
 
-            {/* Tab 2: Nomor HP (Belum Dikembangkan) */}
+            {/* Tab 2: Nomor HP (Aktif dengan Password) */}
             <button
               type="button"
               id="tab_login_phone"
@@ -444,72 +474,57 @@ export default function LoginPage() {
                 fontSize: '13px',
                 fontWeight: loginMethod === 'phone' ? 700 : 600,
                 backgroundColor: loginMethod === 'phone' ? '#FFFFFF' : 'transparent',
-                color: loginMethod === 'phone' ? '#92400E' : '#5A675E',
+                color: loginMethod === 'phone' ? '#004F27' : '#5A675E',
                 boxShadow: loginMethod === 'phone' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                 transition: 'all 0.2s ease'
               }}
             >
-              <Phone size={14} color={loginMethod === 'phone' ? '#D97706' : '#7A897F'} />
+              <Phone size={14} color={loginMethod === 'phone' ? '#004F27' : '#7A897F'} />
               <span>Nomor HP</span>
               <span style={{
                 fontSize: '10px',
-                backgroundColor: '#FEF3C7',
-                color: '#B45309',
+                backgroundColor: loginMethod === 'phone' ? '#DCF1E3' : '#E2EDE5',
+                color: '#004F27',
                 padding: '2px 7px',
                 borderRadius: '6px',
                 fontWeight: 800
               }}>
-                Under Dev
+                Aktif
               </span>
             </button>
           </div>
 
-          {/* OTP Development Warning Notice Banner (Email Mode) */}
-          {loginMethod === 'email' && (
+          {/* Informative Tip Banner */}
+          <div style={{
+            backgroundColor: '#F4FAF6',
+            border: '1.5px solid #D1E7D8',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}>
             <div style={{
-              backgroundColor: '#FFFBEB',
-              border: '1.5px solid #FCD34D',
-              borderRadius: '14px',
-              padding: '12px 14px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '7px',
+              backgroundColor: '#DCF1E3',
+              color: '#004F27',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             }}>
-              <div style={{
-                width: '30px',
-                height: '30px',
-                borderRadius: '8px',
-                backgroundColor: '#FEF3C7',
-                color: '#D97706',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: '1px'
-              }}>
-                <AlertTriangle size={16} />
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', fontWeight: 800, color: '#92400E', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>Sistem OTP Tahap Pengembangan</span>
-                  <span style={{
-                    fontSize: '9px',
-                    backgroundColor: '#FDE68A',
-                    color: '#78350F',
-                    padding: '1px 5px',
-                    borderRadius: '4px',
-                    fontWeight: 800,
-                    textTransform: 'uppercase'
-                  }}>
-                    Under Dev
-                  </span>
-                </div>
-                <div style={{ fontSize: '11.5px', color: '#B45309', lineHeight: '1.45' }}>
-                  Layanan OTP otomatis (Nodemailer / SMTP / WhatsApp) belum aktif. Masuk langsung menggunakan <strong>Email</strong> dan <strong>Kata Sandi</strong> akun Anda.
-                </div>
-              </div>
+              {loginMethod === 'email' ? <Mail size={15} /> : <Phone size={15} />}
             </div>
-          )}
+            <div style={{ fontSize: '11.5px', color: '#2B3830', lineHeight: '1.45' }}>
+              {loginMethod === 'email' ? (
+                <>Masuk langsung ke akun pemain Anda menggunakan <strong>Alamat Email</strong> dan <strong>Kata Sandi</strong> akun Anda.</>
+              ) : (
+                <>Masuk langsung ke akun pemain Anda menggunakan <strong>Nomor WhatsApp / Ponsel</strong> dan <strong>Kata Sandi</strong> akun Anda.</>
+              )}
+            </div>
+          </div>
 
           {/* Error Alert Banner */}
           {errorMessage && (
@@ -639,149 +654,99 @@ export default function LoginPage() {
               </>
             ) : (
               <>
-                {/* Field Nomor HP (Disabled / Under Dev) */}
-                <div className="login-form-group" style={{ opacity: 0.85 }}>
-                  <div className="login-form-label">
-                    <span>Nomor WhatsApp / Ponsel</span>
-                    <span style={{
-                      fontSize: '10px',
-                      backgroundColor: '#FEF3C7',
-                      color: '#92400E',
-                      padding: '2px 8px',
-                      borderRadius: '4px',
-                      fontWeight: 800,
-                      textTransform: 'uppercase'
-                    }}>
-                      Belum Dikembangkan
-                    </span>
-                  </div>
+                {/* Field 1: Nomor WhatsApp / Ponsel */}
+                <div className="login-form-group">
+                  <label htmlFor="login_player_phone" className="login-form-label">
+                    <span>Nomor WhatsApp / Ponsel Terdaftar</span>
+                    <span style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700 }}>Login Aktif</span>
+                  </label>
                   <div className="login-form-input-wrapper">
                     <div className="login-input-icon-left">
-                      <Phone size={16} color="#9CA3AF" />
+                      <Phone size={17} color="#5A675E" />
                     </div>
-                    <span style={{
-                      fontSize: '13px',
-                      fontWeight: 700,
-                      color: '#9CA3AF',
-                      paddingRight: '10px',
-                      marginRight: '2px',
-                      borderRight: '1.5px solid #E5E7EB',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      height: '22px',
-                      userSelect: 'none'
-                    }}>
-                      +62
-                    </span>
                     <input
-                      type="text"
-                      disabled
+                      type="tel"
+                      id="login_player_phone"
+                      name="player_phone_prevent_autofill"
                       className="login-form-input"
-                      placeholder="812-3456-7890 (Fitur Belum Tersedia)"
-                      style={{
-                        cursor: 'not-allowed',
-                        color: '#9CA3AF',
-                        paddingLeft: '8px'
-                      }}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Contoh: 081234567890"
+                      autoComplete="tel"
+                      required
                     />
                   </div>
                 </div>
 
-                {/* Notice Card Khusus Nomor HP Belum Dikembangkan */}
-                <div style={{
-                  backgroundColor: '#FFFBEB',
-                  border: '1.5px solid #FCD34D',
-                  borderRadius: '16px',
-                  padding: '18px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '8px',
-                      backgroundColor: '#FEF3C7',
-                      color: '#D97706',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <AlertTriangle size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#92400E', marginBottom: '3px' }}>
-                        Masuk dengan Nomor HP Belum Dikembangkan
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#B45309', lineHeight: '1.45' }}>
-                        Sistem pengiriman kode verifikasi OTP melalui WhatsApp Business API maupun SMS Gateway saat ini masih dalam proses pengembangan. Untuk masuk ke portal, silakan gunakan pilihan <strong>Email Akun</strong>.
-                      </div>
-                    </div>
+                {/* Field 2: Password / PIN */}
+                <div className="login-form-group">
+                  <div className="login-form-label">
+                    <label htmlFor="login_player_phone_password">Kata Sandi / PIN Akun</label>
+                    <a
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setShowOtpNoticeModal(true); }}
+                      style={{ fontSize: '11.5px', color: '#004F27', fontWeight: 700, textDecoration: 'none' }}
+                    >
+                      Lupa PIN?
+                    </a>
                   </div>
-
-                  <div style={{
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #FDE68A',
-                    borderRadius: '10px',
-                    padding: '12px 14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '10px',
-                    flexWrap: 'wrap'
-                  }}>
-                    <div style={{ fontSize: '12px', color: '#2B3830', fontWeight: 600 }}>
-                      Ingin login sekarang?
+                  <div className="login-form-input-wrapper">
+                    <div className="login-input-icon-left">
+                      <Lock size={17} color="#5A675E" />
                     </div>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      id="login_player_phone_password"
+                      name="player_phone_password_prevent_autofill"
+                      className="login-form-input"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Masukkan kata sandi akun"
+                      autoComplete="current-password"
+                      required
+                    />
                     <button
                       type="button"
-                      onClick={() => {
-                        setLoginMethod('email');
-                        setErrorMessage('');
-                      }}
-                      style={{
-                        backgroundColor: '#004F27',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        borderRadius: 'var(--radius-full)',
-                        padding: '7px 16px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        boxShadow: 'var(--shadow-sm)'
-                      }}
+                      className="login-input-icon-right"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 14px' }}
+                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                     >
-                      <Mail size={13} />
-                      <span>Beralih ke Email Akun →</span>
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
                   </div>
                 </div>
 
-                {/* Action button in phone mode: switches directly to email */}
+                {/* Remember Me & Secure Session Tag */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12.5px' }}>
+                  <label
+                    className="login-checkbox-label"
+                    onClick={() => setRememberMe(!rememberMe)}
+                  >
+                    <div className={`login-custom-checkbox ${rememberMe ? 'checked' : ''}`}>
+                      {rememberMe && <Check size={12} color="white" />}
+                    </div>
+                    <span>Ingat saya di perangkat ini</span>
+                  </label>
+                  <span style={{ color: '#5A675E', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
+                    <ShieldCheck size={14} color="#16A34A" />
+                    <span>Sesi Terenkripsi</span>
+                  </span>
+                </div>
+
+                {/* Submit Button */}
                 <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMethod('email');
-                    setErrorMessage('');
-                  }}
+                  type="submit"
+                  id="btn_login_phone_submit"
                   className="login-submit-btn"
-                  style={{
-                    height: '48px',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
+                  disabled={loading}
                 >
-                  <Mail size={16} />
-                  <span>Pilih Masuk Menggunakan Email</span>
-                  <ArrowRight size={16} />
+                  {loading ? 'Memverifikasi Nomor HP...' : (
+                    <>
+                      <span>Masuk ke Portal Pemain</span>
+                      <ArrowRight size={17} />
+                    </>
+                  )}
                 </button>
               </>
             )}

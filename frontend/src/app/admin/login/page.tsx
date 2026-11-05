@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import ApiClient from '@/lib/api';
 import {
   Lock,
   Mail,
@@ -52,6 +53,16 @@ export default function AdminLoginPage() {
     setLoading(false);
 
     if (result.success) {
+      const currentUser = ApiClient.getUser();
+      if (currentUser?.role !== 'admin') {
+        ApiClient.clearToken();
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('mahjongyuks_user');
+          localStorage.removeItem('mahjongyuks_token');
+        }
+        setErrorMessage('Akses ditolak: Akun ini bukan akun staf/administrator. Silakan masuk melalui Portal Pemain di /login.');
+        return;
+      }
       router.push('/admin/dashboard');
     } else {
       setErrorMessage(result.message || 'Alamat Email Admin atau Kata Sandi salah. Silakan periksa kembali kredensial Anda.');

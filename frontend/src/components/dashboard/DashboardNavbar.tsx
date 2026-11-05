@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
-  Search,
   Bell,
   LogOut,
   Shield,
@@ -91,7 +90,7 @@ export default function DashboardNavbar({
     <header className="landing-header">
       <div className="db-container">
         <div className="db-header-inner">
-          {/* 1. Kiri: Logo Brand & Mode Switcher (HANYA jika user memiliki role admin) */}
+          {/* 1. Kiri: Logo Brand */}
           <div className="db-header-left">
             <Link href="/" className="landing-brand" title="Mahjongyuks Beranda">
               <Image
@@ -103,25 +102,6 @@ export default function DashboardNavbar({
                 className="landing-logo-img"
               />
             </Link>
-
-            {user?.role === 'admin' && (
-              <div className="db-header-mode-toggle" title="Pilihan Mode Tampilan">
-                <button
-                  type="button"
-                  className="db-mode-pill-btn active"
-                  disabled
-                >
-                  <span className="db-mode-dot" /> Mode Pemain
-                </button>
-                <Link
-                  href="/admin/dashboard"
-                  className="db-mode-pill-btn"
-                  title="Beralih ke Dashboard Admin"
-                >
-                  Mode Admin
-                </Link>
-              </div>
-            )}
           </div>
 
           {/* 2. Tengah: Navigasi Khusus Player (Dashboard, Event, Jadwal, Pemesanan, Leaderboard, Profil) */}
@@ -143,19 +123,8 @@ export default function DashboardNavbar({
             </ul>
           </nav>
 
-          {/* 3. Kanan: Search, Notifikasi, Identitas Player & Tombol Logout */}
+          {/* 3. Kanan: Notifikasi, Identitas Player & Tombol Logout */}
           <div className="db-header-right">
-            {/* Search Box */}
-            <div className="db-search-box">
-              <Search size={14} color="#8DA79B" />
-              <input
-                type="text"
-                placeholder="Cari sesi, meja..."
-                className="db-search-input"
-                aria-label="Cari"
-              />
-            </div>
-
             {/* Notification Bell */}
             <button
               type="button"

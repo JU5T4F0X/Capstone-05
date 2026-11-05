@@ -17,7 +17,12 @@ import {
   Building2,
   UserCheck,
   Mail,
-  Hash
+  Hash,
+  Sparkles,
+  Trophy,
+  Calendar,
+  Info,
+  Check
 } from 'lucide-react';
 import '@/components/landing/landing.css';
 import './dashboard.css';
@@ -26,6 +31,14 @@ import { normalizeKemahiran, KEMAHIRAN_MAP } from '@/lib/kemahiran';
 export default function DashboardPage() {
   const router = useRouter();
   const { user } = useAuth();
+
+  // Proteksi Route Pemain: Jika role adalah Admin, arahkan langsung ke Admin Dashboard
+  useEffect(() => {
+    const savedUser = ApiClient.getUser();
+    if (savedUser && savedUser.role === 'admin') {
+      router.push('/admin/dashboard');
+    }
+  }, [router]);
 
   const [activeNav, setActiveNav] = useState('dashboard');
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -123,7 +136,9 @@ export default function DashboardPage() {
                     <span className="db-hero-name" title={userName}>
                       Halo, {userName.split(' ')[0]}!
                     </span>
-                    <span className="db-hero-emoji" aria-hidden="true">🀄</span>
+                    <span className="db-hero-emoji" aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                      <Sparkles size={28} color="#E2BC55" strokeWidth={2.2} />
+                    </span>
                   </h1>
 
                   <p className="db-hero-desc">
@@ -275,17 +290,22 @@ export default function DashboardPage() {
                           <div style={{
                             width: '38px',
                             height: '38px',
-                            borderRadius: '50%',
-                            backgroundColor: act.peringkat === 1 ? '#FEF9EC' : '#EBF4F0',
+                            borderRadius: '8px',
+                            backgroundColor: act.peringkat === 1 ? '#FEF3C7' : '#EBF4F0',
+                            border: act.peringkat === 1 ? '1px solid #FDE68A' : '1px solid #D7E6DB',
                             color: act.peringkat === 1 ? '#B45309' : '#183629',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '16px',
+                            fontSize: '13px',
                             fontWeight: 800,
                             flexShrink: 0,
                           }}>
-                            {act.peringkat === 1 ? '🥇' : `#${act.peringkat}`}
+                            {act.peringkat === 1 ? (
+                              <Trophy size={16} color="#B45309" strokeWidth={2.4} />
+                            ) : (
+                              `#${act.peringkat}`
+                            )}
                           </div>
                           <div>
                             <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#141A17' }}>
@@ -369,11 +389,11 @@ export default function DashboardPage() {
                           <div>
                             <div className="db-rank-player-name">
                               {player.name || player.nama || 'Unknown'}{isCurrentUser ? ' (Anda) ' : ' '}
-                              <span style={{ fontSize: '10px', color: isCurrentUser ? '#A3E6C5' : '#78807B' }}>
-                                {player.rankTitle || player.kemahiran || ''}
+                              <span style={{ fontSize: '10.5px', color: isCurrentUser ? '#A3E6C5' : '#78807B', textTransform: 'capitalize', fontWeight: 600 }}>
+                                • {player.tingkat_kemahiran || player.kemahiran || 'Intermediate'}
                               </span>
                             </div>
-                            <div className="db-rank-sub">{player.danRank || ''} • {player.totalMatches || 0} Hanchan</div>
+                            <div className="db-rank-sub">{player.totalMatches || 0} Sesi Bermain</div>
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -521,15 +541,15 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div>
-                <span className="landing-eyebrow" style={{ marginBottom: '8px', fontSize: '10px', padding: '4px 10px' }}>
-                  🀄 RESERVASI MEJA
+                <span className="landing-eyebrow" style={{ marginBottom: '8px', fontSize: '10px', padding: '4px 10px', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <Calendar size={12} strokeWidth={2.2} /> RESERVASI MEJA
                 </span>
 
                 <h3 style={{ fontSize: '19px', fontWeight: 800, color: '#141A17', marginTop: '6px' }}>
                   Pemesanan Sesi Bermain
                 </h3>
                 <p style={{ fontSize: '12.5px', color: '#5A675E', marginTop: '3px', marginBottom: '16px' }}>
-                  Maksimal 4 pemain per meja berstandar World Riichi Championship.
+                  Maksimal 4 pemain per meja berstandar Hong Kong Mahjong.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -589,9 +609,13 @@ export default function DashboardPage() {
                     borderRadius: '6px',
                     fontSize: '11.5px',
                     color: '#785A00',
-                    lineHeight: '1.45'
+                    lineHeight: '1.45',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '8px'
                   }}>
-                    💡 Status tagihan reservasi akan tercatat sebagai <strong>Pending</strong> untuk verifikasi kasir venue saat kedatangan.
+                    <Info size={15} color="#B45309" style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <span>Status tagihan reservasi akan tercatat sebagai <strong>Pending</strong> untuk verifikasi kasir venue saat kedatangan.</span>
                   </div>
 
                   <button
@@ -629,17 +653,23 @@ export default function DashboardPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '12.5px', color: '#5A675E', marginBottom: '14px', lineHeight: 1.5 }}>
-                Seluruh pertandingan resmi Mahjongyuks mengacu pada standar World Riichi Championship.
+                Seluruh pertandingan resmi Mahjongyuks mengacu pada standar resmi Hong Kong Mahjong Style (HKOS).
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '12px', color: '#2B3830' }}>
                 <div style={{ padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8' }}>
-                  <strong>Starting Points:</strong> 30,000 poin dengan Return Target 30,000 poin.
+                  <strong>Syarat Kemenangan (Hu):</strong> Minimal 3 Fan untuk sah menyatakan menang. Tangan di bawah 3 Fan tidak dapat menang.
                 </div>
                 <div style={{ padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8' }}>
-                  <strong>Uma / Oka:</strong> +15 / +5 / -5 / -15 dengan Oka +20 kepada pemenang peringkat 1.
+                  <strong>Batas Maksimum (Cap):</strong> Limit maksimal 10 Fan per kemenangan tangan.
                 </div>
                 <div style={{ padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8' }}>
-                  <strong>Red Fives (Aka Dora):</strong> Tidak digunakan pada pertandingan WRC resmi kompetitif.
+                  <strong>Tarik Sendiri (Zi Mo):</strong> Mengambil ubin kemenangan sendiri memberikan bonus +1 Fan.
+                </div>
+                <div style={{ padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8' }}>
+                  <strong>Struktur Tangan (13 Tiles):</strong> Setiap atlet memegang 13 keping kartu di tangan dan menang (Hu) saat melengkapinya menjadi 14 keping (4 set kombinasi + 1 pasang mata).
+                </div>
+                <div style={{ padding: '8px 12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8' }}>
+                  <strong>Akumulasi Leaderboard:</strong> Poin mengacu pada tabel resmi Hong Kong Style (Half-Spicy / 半辣) yang langsung terakumulasi pada Klasemen Prestasi Atlet.
                 </div>
               </div>
               <button
@@ -675,13 +705,25 @@ export default function DashboardPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '12.5px', color: '#5A675E', marginBottom: '14px', lineHeight: 1.5 }}>
-                Bergabunglah bersama jaringan venue Mahjong resmi terbesar di Indonesia dengan dukungan sistem otomatis Amos Rexx III.
+                Bergabunglah bersama jaringan venue Mahjong resmi terbesar di Indonesia dengan dukungan sistem otomatis modern.
               </p>
-              <div style={{ padding: '12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8', fontSize: '12px', color: '#2B3830', lineHeight: 1.6 }}>
-                <div>✓ Integrasi POS &amp; Reservasi Realtime</div>
-                <div>✓ Pelatihan Wasit Berlisensi WRC</div>
-                <div>✓ Pasokan Meja Otomatis &amp; Sparepart Resmi</div>
-                <div>✓ Exposure Promosi ke Seluruh Atlet Komunitas</div>
+              <div style={{ padding: '12px', backgroundColor: '#FAF8F5', borderRadius: '6px', border: '1px solid #E4E0D8', fontSize: '12px', color: '#2B3830', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Check size={13} color="#183629" strokeWidth={2.5} />
+                  <span>Integrasi POS &amp; Reservasi Realtime</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Check size={13} color="#183629" strokeWidth={2.5} />
+                  <span>Pelatihan Wasit Berlisensi WRC</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Check size={13} color="#183629" strokeWidth={2.5} />
+                  <span>Pasokan Meja Otomatis &amp; Sparepart Resmi</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Check size={13} color="#183629" strokeWidth={2.5} />
+                  <span>Exposure Promosi ke Seluruh Atlet Komunitas</span>
+                </div>
               </div>
               <button
                 type="button"

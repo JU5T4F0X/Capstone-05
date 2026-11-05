@@ -13,7 +13,8 @@ import {
   Loader2,
   CalendarDays,
   Hash,
-  Star
+  Star,
+  Medal
 } from 'lucide-react';
 import '@/components/landing/landing.css';
 import '../dashboard/dashboard.css';
@@ -38,13 +39,6 @@ interface GameStats {
 }
 
 // ── Helper ─────────────────────────────────────────────────────────────────
-function getRankIcon(rank: number) {
-  if (rank === 1) return '🥇';
-  if (rank === 2) return '🥈';
-  if (rank === 3) return '🥉';
-  return `#${rank}`;
-}
-
 function getRankColor(rank: number): string {
   if (rank === 1) return '#B45309';
   if (rank === 2) return '#0369A1';
@@ -252,15 +246,25 @@ export default function GameHistoryPage() {
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '50%',
-                          fontSize: '16px',
+                          gap: '5px',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
                           fontWeight: 800,
-                          backgroundColor: match.peringkat <= 3 ? '#FEF9EC' : '#F3F4F6',
+                          backgroundColor:
+                            match.peringkat === 1 ? '#FEF3C7' :
+                            match.peringkat === 2 ? '#E0F2FE' :
+                            match.peringkat === 3 ? '#F3E8FF' : '#F1F5F9',
+                          border:
+                            match.peringkat === 1 ? '1px solid #FDE68A' :
+                            match.peringkat === 2 ? '1px solid #BAE6FD' :
+                            match.peringkat === 3 ? '1px solid #E9D5FF' : '1px solid #E2E8F0',
                           color: getRankColor(match.peringkat),
                         }}>
-                          {getRankIcon(match.peringkat)}
+                          {match.peringkat === 1 && <Trophy size={13} color="#B45309" strokeWidth={2.4} />}
+                          {match.peringkat === 2 && <Medal size={13} color="#0369A1" strokeWidth={2.4} />}
+                          {match.peringkat === 3 && <Award size={13} color="#7C3AED" strokeWidth={2.4} />}
+                          <span>#{match.peringkat}</span>
                         </span>
                       </td>
                       <td style={{ ...tdStyle, textAlign: 'right' }}>

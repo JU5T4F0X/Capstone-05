@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\DetailPemesanan;
 use App\Models\Event;
+use App\Models\EventPendaftaran;
 use App\Models\GameRound;
 use App\Models\GameTable;
+use App\Models\Pemesanan;
 use App\Models\Player;
 use App\Models\SesiBermain;
 use App\Models\TablePlayer;
@@ -47,6 +50,7 @@ class HkScoreController extends Controller
      */
     public function sessions(Request $request): JsonResponse
     {
+        $this->syncActiveEventSessions();
         $this->autoCloseExpiredSessions();
 
         $statusFilter = $request->query('status', 'active'); // 'active' (pending/ongoing), 'all', 'closed'
@@ -512,7 +516,6 @@ class HkScoreController extends Controller
                 'name' => $user?->nama ?? 'Pemain #' . $player->id,
                 'email' => $user?->email ?? '',
                 'initials' => $initials ?: 'MY',
-                'club' => 'MahjongYuks Sedayu City',
                 'rankTitle' => $rankTitle,
                 'danRank' => $danRank,
                 'tingkat_kemahiran' => $player->tingkat_kemahiran ?? 'intermediate',
@@ -608,6 +611,104 @@ class HkScoreController extends Controller
         ];
     }
 
+    /**
+     * Sinkronisasi otomatis Event aktif dan Pemesanan Kompetitif menjadi Sesi Bermain.
+     */
+    protected function syncActiveEventSessions(): void
+    {
+        // 1. Sinkronisasi Event aktif yang jadwalnya masih berlaku
+        $activeEvents = Event::whereIn('status', ['active', 'aktif', 'open'])->get();
+
+        foreach ($activeEvents as $event) {
+            if (!$event->tanggal_event) {
+                continue;
+            }
+
+            $dateStr = $event->tanggal_event instanceof \DateTimeInterface 
+                ? $event->tanggal_event->format('Y-m-d') 
+                : substr((string)$event->tanggal_event, 0, 10);
+
+            $waktuSelesai = $event->waktu_selesai ? substr((string)$event->waktu_selesai, 0, 8) : '23:59:00';
+            $endDateTimeStr = $dateStr . ' ' . $waktuSelesai;
+
+            try {
+                $endDateTime = Carbon::parse($endDateTimeStr);
+                if (now()->greaterThanOrEqualTo($endDateTime)) {
+                    continue; // Jam selesai sudah lewat
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $waktuMulai = $event->waktu_mulai ? substr((string)$event->waktu_mulai, 0, 8) : '00:00:00';
+            $startDateTimeStr = $dateStr . ' ' . $waktuMulai;
+            $status = 'pending';
+            try {
+                $startDateTime = Carbon::parse($startDateTimeStr);
+                if (now()->greaterThanOrEqualTo($startDateTime)) {
+                    $status = 'ongoing';
+                }
+            } catch (\Throwable $e) {}
+
+            $sesi = SesiBermain::updateOrCreate(
+                ['event_id' => $event->id],
+                [
+                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => $status,
+                ]
+            );
+
+            // Buat meja dan pemain jika belum ada
+            if ($sesi->gameTables()->count() === 0) {
+                $this->createDefaultTablesForSession($sesi);
+            }
+        }
+
+        // 2. Sinkronisasi Pemesanan Meja Kompetitif hari ini yang sudah terkonfirmasi
+        $competitiveBookings = Pemesanan::where('jenis_pemesanan', 'Competitive')
+            ->whereIn('status_pemesanan', ['confirmed', 'paid'])
+            ->whereDate('tanggal_main', now()->toDateString())
+            ->with(['meja.venue'])
+            ->get();
+
+        foreach ($competitiveBookings as $p) {
+            $dateStr = $p->tanggal_main instanceof \DateTimeInterface
+                ? $p->tanggal_main->format('Y-m-d')
+                : substr((string)$p->tanggal_main, 0, 10);
+
+            $waktuSelesai = $p->waktu_selesai ? substr((string)$p->waktu_selesai, 0, 8) : '23:59:00';
+            $endDateTimeStr = $dateStr . ' ' . $waktuSelesai;
+
+            try {
+                $endDateTime = Carbon::parse($endDateTimeStr);
+                if (now()->greaterThanOrEqualTo($endDateTime)) {
+                    continue;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $waktuMulai = $p->waktu_mulai ? substr((string)$p->waktu_mulai, 0, 8) : '00:00:00';
+            $sesi = SesiBermain::updateOrCreate(
+                ['pemesanan_id' => $p->id],
+                [
+                    'nama_sesi' => 'Sesi Meja ' . ($p->meja->nomor_meja ?? '01') . ' (' . ($p->meja->venue->nama_venue ?? 'Sedayu City') . ')',
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => 'ongoing',
+                ]
+            );
+
+            if ($sesi->gameTables()->count() === 0) {
+                $this->createDefaultTablesForSession($sesi);
+            }
+        }
+    }
+
     protected function autoCloseExpiredSessions(): void
     {
         $now = now();
@@ -627,17 +728,172 @@ class HkScoreController extends Controller
         }
     }
 
+    /**
+     * Memulai sesi permainan oleh Admin/Wasit (RF-06).
+     * Validasi: Sesi atau meja tidak bisa dimulai jika jumlah pemain kurang dari 4 orang.
+     */
+    public function startSession(int $sessionId): JsonResponse
+    {
+        $session = SesiBermain::with(['gameTables.tablePlayers'])->findOrFail($sessionId);
+
+        if ($session->status === 'closed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi yang sudah ditutup tidak dapat dimulai kembali.',
+            ], 422);
+        }
+
+        // Periksa apakah meja pada sesi ini memiliki minimal 4 pemain
+        $tables = GameTable::with('tablePlayers')->where('sesi_id', $sessionId)->get();
+
+        if ($tables->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Belum ada meja yang terdaftar untuk sesi ini.',
+            ], 422);
+        }
+
+        foreach ($tables as $t) {
+            $playerCount = $t->tablePlayers->count();
+            if ($playerCount < 4) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Permainan pada {$t->nomor_meja} belum dapat dimulai karena jumlah pemain yang hadir ({$playerCount} orang) kurang dari 4 orang. Mahjong wajib memiliki 4 pemain lengkap per meja.",
+                ], 422);
+            }
+        }
+
+        $session->update(['status' => 'ongoing']);
+        AuditLog::log('start_session', 'SesiBermain', $session->id, ['status' => 'ongoing']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi permainan resmi dimulai.',
+            'data' => $session,
+        ]);
+    }
+
+    /**
+     * Menutup / mengakhiri sesi permainan oleh Admin/Wasit (RF-06).
+     */
+    public function closeSession(int $sessionId): JsonResponse
+    {
+        $session = SesiBermain::findOrFail($sessionId);
+        $session->update(['status' => 'closed']);
+
+        GameRound::whereHas('gameTable', function ($q) use ($session) {
+            $q->where('sesi_id', $session->id);
+        })->where('status', 'berjalan')->update(['status' => 'selesai']);
+
+        AuditLog::log('close_session_manual', 'SesiBermain', $session->id, ['status' => 'closed']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sesi permainan resmi ditutup.',
+            'data' => $session,
+        ]);
+    }
+
+    /**
+     * Tambahkan pemain nyata ke meja permainan.
+     */
+    public function addPlayerToTable(Request $request, int $tableId): JsonResponse
+    {
+        $request->validate([
+            'player_id' => 'required|exists:players,id',
+            'seat_wind' => 'nullable|in:East,South,West,North',
+        ]);
+
+        $table = GameTable::with('tablePlayers')->findOrFail($tableId);
+
+        if ($table->tablePlayers->count() >= 4) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Meja sudah penuh (maksimal 4 pemain per meja Mahjong).',
+            ], 422);
+        }
+
+        if ($table->tablePlayers->contains('player_id', $request->player_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pemain ini sudah terdaftar di meja.',
+            ], 422);
+        }
+
+        $availableWinds = collect(['East', 'South', 'West', 'North'])
+            ->diff($table->tablePlayers->pluck('seat_wind'))
+            ->values();
+
+        $seatWind = $request->seat_wind ?: ($availableWinds->first() ?? 'East');
+
+        TablePlayer::create([
+            'game_table_id' => $table->id,
+            'player_id' => $request->player_id,
+            'seat_wind' => $seatWind,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pemain berhasil ditempatkan di kursi meja.',
+        ]);
+    }
+
+    /**
+     * Hapus pemain dari meja permainan.
+     */
+    public function removePlayerFromTable(int $tableId, int $playerId): JsonResponse
+    {
+        TablePlayer::where('game_table_id', $tableId)
+            ->where('player_id', $playerId)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pemain berhasil dikeluarkan dari meja.',
+        ]);
+    }
+
     protected function createDefaultTablesForSession(SesiBermain $session): \Illuminate\Support\Collection
     {
         $createdTables = collect();
-        $allPlayers = Player::with('user')->limit(8)->get();
+        $realPlayers = collect();
 
-        if ($allPlayers->count() < 4) {
-            // Seed minimal 4 pemain jika belum cukup di database
-            return $createdTables;
+        // 1. Ambil pemain nyata dari pendaftaran event (jika sesi turnamen/event)
+        if ($session->event_id) {
+            $registrations = EventPendaftaran::where('event_id', $session->event_id)
+                ->whereIn('status_pendaftaran', ['terdaftar', 'hadir'])
+                ->with('player.user')
+                ->get();
+
+            foreach ($registrations as $reg) {
+                if ($reg->player) {
+                    $realPlayers->push($reg->player);
+                }
+            }
         }
 
-        $tableNames = ['Meja A1 (Otomatis)', 'Meja A2 (Otomatis)'];
+        // 2. Ambil pemain nyata dari pemesanan reguler (jika sesi pemesanan)
+        if ($session->pemesanan_id) {
+            $pemesanan = Pemesanan::with('detailPemesanans.player.user')->find($session->pemesanan_id);
+            if ($pemesanan) {
+                foreach ($pemesanan->detailPemesanans as $detail) {
+                    if ($detail->player) {
+                        $realPlayers->push($detail->player);
+                    }
+                }
+            }
+        }
+
+        // 3. Pastikan minimal 4 pemain tersedia untuk Meja 01 agar meja langsung siap dimainkan & dicatat wasit
+        if ($realPlayers->count() < 4) {
+            $existingIds = $realPlayers->pluck('id')->filter()->toArray();
+            $fillPlayers = Player::whereNotIn('id', $existingIds)->with('user')->take(4 - count($existingIds))->get();
+            foreach ($fillPlayers as $fp) {
+                $realPlayers->push($fp);
+            }
+        }
+
+        $tableNames = ['Meja 01 (Meja Otomatis)', 'Meja 02 (Meja Otomatis)'];
         $winds = ['East', 'South', 'West', 'North'];
 
         foreach ($tableNames as $idx => $name) {
@@ -647,8 +903,8 @@ class HkScoreController extends Controller
                 'status' => 'aktif',
             ]);
 
-            // Bagi pemain ke meja: 4 pemain per meja
-            $playerSlice = $allPlayers->slice($idx * 4, 4);
+            // Daftarkan pemain ke meja (4 pemain per meja)
+            $playerSlice = $realPlayers->slice($idx * 4, 4);
             foreach ($playerSlice->values() as $pIdx => $p) {
                 TablePlayer::create([
                     'game_table_id' => $gameTable->id,

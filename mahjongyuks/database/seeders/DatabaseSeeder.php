@@ -171,9 +171,9 @@ class DatabaseSeeder extends Seeder
 
         // 5. Events (Sesuai Figma)
         Event::updateOrCreate(
-            ['nama_event' => 'Grand Riichi Jakarta Open 2025'],
+            ['nama_event' => 'Hong Kong Mahjong Open 2026'],
             [
-                'deskripsi' => 'Babak turnamen resmi bergengsi tingkat nasional di Mahjong Lounge Senopati.',
+                'deskripsi' => 'Babak turnamen resmi bergengsi tingkat nasional standar Hong Kong Mahjong di Sedayu City.',
                 'tanggal_event' => now()->toDateString(),
                 'waktu_mulai' => '19:00:00',
                 'waktu_selesai' => '22:30:00',
@@ -182,9 +182,9 @@ class DatabaseSeeder extends Seeder
         );
 
         Event::updateOrCreate(
-            ['nama_event' => 'Jakarta Riichi Masters Autumn 2025'],
+            ['nama_event' => 'Hong Kong Style Autumn Masters 2026'],
             [
-                'deskripsi' => 'Turnamen berbobot 4 Hanchan dengan kalkulasi Uma/Oka resmi. Wasit terlisensi.',
+                'deskripsi' => 'Turnamen resmi 4 putaran mata angin dengan sistem penilaian Hong Kong Style (3–10 Fan). Wasit terlisensi.',
                 'tanggal_event' => now()->addDays(2)->toDateString(),
                 'waktu_mulai' => '14:00:00',
                 'waktu_selesai' => '18:00:00',

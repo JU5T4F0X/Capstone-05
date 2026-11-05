@@ -102,8 +102,10 @@ class MejaController extends Controller
             $isPartial = $occCount > 0 && $occCount < $kapasitas;
             $isEmpty = $occCount === 0;
 
-            // Logika Penguncian Meja Berdasarkan Regulasi:
-            // Jika ada meja terisi sebagian, maka meja kosong lainnya DIKUNCI.
+            // Logika Penguncian Meja Berdasarkan Regulasi MahjongYuks:
+            // 1. Meja penuh (4/4) dikunci karena kuota habis.
+            // 2. Jika ada meja yang terisi sebagian (1-3 pemain), semua meja kosong (0 pemain) DIKUNCI.
+            // 3. Jika belum ada meja terisi sebagian, hanya meja kosong PERTAMA yang dibuka; meja kosong selanjutnya DIKUNCI.
             $isLocked = false;
             $lockReason = null;
 
@@ -112,7 +114,10 @@ class MejaController extends Controller
                 $lockReason = 'Meja telah penuh (4/4 pemain). Silakan pilih meja lain.';
             } elseif ($isEmpty && $hasPartiallyFilled) {
                 $isLocked = true;
-                $lockReason = 'Terkunci: Regulasi MahjongYuks mewajibkan memenuhi meja yang sedang terisi sebagian terlebih dahulu agar sesi permainan dapat segera dimulai (minimal 4 pemain).';
+                $lockReason = 'Terkunci: Regulasi MahjongYuks mewajibkan memenuhi meja yang sedang terisi terlebih dahulu agar sesi permainan dapat segera dimulai (minimal 4 pemain).';
+            } elseif ($isEmpty && $firstEmptyTableId && $m->id !== $firstEmptyTableId) {
+                $isLocked = true;
+                $lockReason = 'Terkunci: Silakan pilih meja nomor awal yang tersedia terlebih dahulu.';
             }
 
             // Tentukan status tampilan
@@ -123,7 +128,7 @@ class MejaController extends Controller
                 $sisa = $kapasitas - $occCount;
                 $statusLabel = "Sisa {$sisa} Kursi (Prioritas Penuhkan)";
             } elseif ($isLocked) {
-                $statusLabel = 'Terkunci (Penuhi Meja Terisi Dahulu)';
+                $statusLabel = 'Terkunci (Regulasi Meja)';
             }
 
             return [

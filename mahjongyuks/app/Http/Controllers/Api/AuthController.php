@@ -121,12 +121,21 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Check role restriction if requested
-        if ($request->has('role') && $request->role === 'admin' && $user->role !== 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akses ditolak: Akun ini bukan akun staf/administrator.',
-            ], 403);
+        // Strict Role Separation: Admin hanya bisa login di Portal Admin; Pemain hanya bisa login di Portal Pemain
+        if ($request->has('role')) {
+            if ($request->role === 'player' && $user->role !== 'player') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak: Akun Administrator tidak dapat masuk melalui Portal Pemain. Silakan gunakan Portal Khusus Administrator di /admin/login.',
+                ], 403);
+            }
+
+            if ($request->role === 'admin' && $user->role !== 'admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak: Akun ini bukan akun staf/administrator. Silakan masuk melalui Portal Pemain di /login.',
+                ], 403);
+            }
         }
 
         // Token creation

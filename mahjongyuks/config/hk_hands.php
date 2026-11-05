@@ -19,20 +19,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Sistem Poin Olahraga / Sport Scoring (1 Fan = 1 Poin)
+    | Tabel Konversi Poin Resmi Hong Kong Mahjong Style (Half-Spicy / 半辣)
     |--------------------------------------------------------------------------
-    | MahjongYuks beroperasi sebagai game house / olahraga otak non-judi.
-    | Poin atlet murni mengikuti total Fan yang dicapai (1 Fan = 1 Poin Atlet).
+    | Mengikuti standar internasional Hong Kong Old Style (HKOS):
+    | - Poin Discard (Buang Lawan): 8, 16, 24, 32, 48, 64, 96, 128 (Cap 10 Fan)
+    | - Poin Zi Mo (Tarik Sendiri): 1.5x total payout (4, 8, 12, 16, 24, 32, 48, 64 per lawan)
     */
     'fan_points_table' => [
-        3 => ['points' => 3, 'discard' => 3, 'self_draw_total' => 3, 'self_draw_each' => 1],
-        4 => ['points' => 4, 'discard' => 4, 'self_draw_total' => 4, 'self_draw_each' => 1],
-        5 => ['points' => 5, 'discard' => 5, 'self_draw_total' => 5, 'self_draw_each' => 1],
-        6 => ['points' => 6, 'discard' => 6, 'self_draw_total' => 6, 'self_draw_each' => 1],
-        7 => ['points' => 7, 'discard' => 7, 'self_draw_total' => 7, 'self_draw_each' => 1],
-        8 => ['points' => 8, 'discard' => 8, 'self_draw_total' => 8, 'self_draw_each' => 1],
-        9 => ['points' => 9, 'discard' => 9, 'self_draw_total' => 9, 'self_draw_each' => 1],
-        10 => ['points' => 10, 'discard' => 10, 'self_draw_total' => 10, 'self_draw_each' => 1],
+        3 => ['points' => 8, 'discard' => 8, 'self_draw_total' => 12, 'self_draw_each' => 4],
+        4 => ['points' => 16, 'discard' => 16, 'self_draw_total' => 24, 'self_draw_each' => 8],
+        5 => ['points' => 24, 'discard' => 24, 'self_draw_total' => 36, 'self_draw_each' => 12],
+        6 => ['points' => 32, 'discard' => 32, 'self_draw_total' => 48, 'self_draw_each' => 16],
+        7 => ['points' => 48, 'discard' => 48, 'self_draw_total' => 72, 'self_draw_each' => 24],
+        8 => ['points' => 64, 'discard' => 64, 'self_draw_total' => 96, 'self_draw_each' => 32],
+        9 => ['points' => 96, 'discard' => 96, 'self_draw_total' => 144, 'self_draw_each' => 48],
+        10 => ['points' => 128, 'discard' => 128, 'self_draw_total' => 192, 'self_draw_each' => 64],
+        11 => ['points' => 192, 'discard' => 192, 'self_draw_total' => 288, 'self_draw_each' => 96],
+        12 => ['points' => 256, 'discard' => 256, 'self_draw_total' => 384, 'self_draw_each' => 128],
+        13 => ['points' => 384, 'discard' => 384, 'self_draw_total' => 576, 'self_draw_each' => 192],
     ],
 
     /*
@@ -183,10 +187,19 @@ return [
             'code' => 'big_four_winds',
             'name' => '4 Blessings / Big 4 Winds',
             'name_id' => 'Empat Berkah (Big 4 Winds)',
-            'fan' => 10, // Di referensi 14 Fan, dibatasi oleh limit turnamen menjadi 10 Fan
+            'fan' => 10,
             'is_limit' => true,
             'category' => 'special',
             'description' => 'Keempat triplet angin lengkap (Timur, Selatan, Barat, Utara).',
+        ],
+        'four_winds' => [
+            'code' => 'four_winds',
+            'name' => 'Great Four Winds',
+            'name_id' => 'Empat Angin Besar (Big 4 Winds)',
+            'fan' => 10,
+            'is_limit' => true,
+            'category' => 'special',
+            'description' => 'Seluruh 4 triplet angin lengkap (Timur, Selatan, Barat, Utara).',
         ],
         'thirteen_orphans' => [
             'code' => 'thirteen_orphans',
@@ -205,6 +218,42 @@ return [
             'is_limit' => true,
             'category' => 'special',
             'description' => 'Semua 4 set berupa quadruplet (Kong).',
+        ],
+        'four_kongs' => [
+            'code' => 'four_kongs',
+            'name' => 'Four Kongs (18 Luohan)',
+            'name_id' => 'Empat Kong (Four Kongs)',
+            'fan' => 10,
+            'is_limit' => true,
+            'category' => 'special',
+            'description' => 'Membuat 4 set quadruplet (Kong) dalam satu tangan.',
+        ],
+        'all_green' => [
+            'code' => 'all_green',
+            'name' => 'All Green (Ryuuiisou)',
+            'name_id' => 'Serba Hijau (All Green)',
+            'fan' => 10,
+            'is_limit' => true,
+            'category' => 'special',
+            'description' => 'Hanya menggunakan tile bambu 2, 3, 4, 6, 8 dan naga hijau.',
+        ],
+        'heavenly_hand' => [
+            'code' => 'heavenly_hand',
+            'name' => 'Heavenly Hand (Tian Hu)',
+            'name_id' => 'Kemenangan Surgawi (Tian Hu)',
+            'fan' => 10,
+            'is_limit' => true,
+            'category' => 'special',
+            'description' => 'Dealer menang seketika pada 14 tile awal pembagian tanpa draw tambahan.',
+        ],
+        'earthly_hand' => [
+            'code' => 'earthly_hand',
+            'name' => 'Earthly Hand (Di Hu)',
+            'name_id' => 'Kemenangan Bumi (Di Hu)',
+            'fan' => 10,
+            'is_limit' => true,
+            'category' => 'special',
+            'description' => 'Non-dealer menang seketika pada buangan pertama dealer.',
         ],
         'nine_gates' => [
             'code' => 'nine_gates',

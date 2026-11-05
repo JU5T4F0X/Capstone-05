@@ -145,18 +145,56 @@ function EventsListContent() {
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // Sync state to URL Query Params
+  // Sync from URL searchParams
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (debouncedSearch) params.set('q', debouncedSearch);
-    if (categoryFilter !== 'all') params.set('category', categoryFilter);
-    if (statusFilter !== 'all') params.set('status', statusFilter);
-    if (sortOption !== 'nearest') params.set('sort', sortOption);
+    const q = searchParams?.get('q') || '';
+    const cat = searchParams?.get('category') || 'all';
+    const st = searchParams?.get('status') || 'all';
+    const srt = searchParams?.get('sort') || 'nearest';
 
-    const queryString = params.toString();
-    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-    window.history.replaceState(null, '', newUrl);
-  }, [debouncedSearch, categoryFilter, statusFilter, sortOption, pathname]);
+    setSearchQuery(q);
+    setDebouncedSearch(q);
+    setCategoryFilter(cat);
+    setStatusFilter(st);
+    setSortOption(srt);
+  }, [searchParams]);
+
+  const updateUrlParams = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(window.location.search);
+    Object.entries(updates).forEach(([key, val]) => {
+      if (!val || val === 'all' || (key === 'sort' && val === 'nearest')) {
+        params.delete(key);
+      } else {
+        params.set(key, val);
+      }
+    });
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
+  const handleCategoryChange = (newCat: string) => {
+    setCategoryFilter(newCat);
+    updateUrlParams({ category: newCat });
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    setStatusFilter(newStatus);
+    updateUrlParams({ status: newStatus });
+  };
+
+  const handleSortChange = (newSort: string) => {
+    setSortOption(newSort);
+    updateUrlParams({ sort: newSort });
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setDebouncedSearch('');
+    setCategoryFilter('all');
+    setStatusFilter('all');
+    setSortOption('nearest');
+    router.replace(pathname, { scroll: false });
+  };
 
   // Load Events from Laravel backend
   const loadEvents = async () => {
@@ -306,14 +344,6 @@ function EventsListContent() {
     });
   }, [events, debouncedSearch, categoryFilter, statusFilter, sortOption]);
 
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setDebouncedSearch('');
-    setCategoryFilter('all');
-    setStatusFilter('all');
-    setSortOption('nearest');
-  };
-
   const isDatabaseEmpty = !loading && !error && events.length === 0;
 
   return (
@@ -328,8 +358,8 @@ function EventsListContent() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(226, 188, 85, 0.35)',
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
                 borderRadius: '9999px',
                 padding: '6px 14px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
@@ -342,7 +372,7 @@ function EventsListContent() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  color: '#E2BC55',
+                  color: '#E2E8F0',
                   fontSize: '12px',
                   fontWeight: 700,
                   textDecoration: 'none',
@@ -350,7 +380,7 @@ function EventsListContent() {
                 }}
                 title="Kembali ke Dashboard Utama"
               >
-                <Home size={13} color="#E2BC55" />
+                <Home size={13} color="#86EFAC" />
                 <span>Dashboard</span>
               </Link>
               <ChevronRight size={13} color="rgba(255, 255, 255, 0.4)" />
@@ -375,7 +405,7 @@ function EventsListContent() {
                 textTransform: 'uppercase',
               }}
             >
-              <Sparkles size={11} color="#E2BC55" />
+              <Sparkles size={11} color="#86EFAC" />
               <span>Sirkuit WRC 2026</span>
             </span>
           </div>
@@ -401,7 +431,7 @@ function EventsListContent() {
                   lineHeight: 1.25,
                 }}
               >
-                Turnamen &amp; Event Riichi Mahjong
+                Turnamen &amp; Event Hong Kong Mahjong
               </h1>
               <p
                 style={{
@@ -411,11 +441,11 @@ function EventsListContent() {
                   lineHeight: 1.6,
                 }}
               >
-                Jelajahi turnamen resmi berstandar World Riichi Championship (WRC), sesi santai komunitas, dan workshop taktis bersama atlet nasional.
+                Jelajahi turnamen resmi berstandar Hong Kong Mahjong Style (HKOS), sesi santai komunitas, dan pertandingan persahabatan bersama komunitas.
               </p>
             </div>
 
-            {/* Sisi Kanan Hero: 3 Kartu Metrik Eksklusif */}
+            {/* Sisi Kanan Hero: 3 Kartu Metrik Eksklusif (Clean Architectural Styling) */}
             {heroSummary && !isDatabaseEmpty && (
               <div
                 style={{
@@ -428,8 +458,8 @@ function EventsListContent() {
                 {/* Kartu 1: Pendaftaran Dibuka */}
                 <div
                   style={{
-                    backgroundColor: 'rgba(10, 26, 17, 0.75)',
-                    border: '1px solid rgba(226, 188, 85, 0.35)',
+                    backgroundColor: 'rgba(13, 31, 23, 0.85)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '12px',
                     padding: '14px 18px',
                     minWidth: '130px',
@@ -441,7 +471,7 @@ function EventsListContent() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#E2BC55', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#86EFAC', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Pendaftaran Dibuka
                     </span>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block', boxShadow: '0 0 8px #10B981' }} />
@@ -449,7 +479,7 @@ function EventsListContent() {
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#FAF8F5', lineHeight: 1.1 }}>
                     {heroSummary.activeCount} <span style={{ fontSize: '12px', fontWeight: 600, color: '#8DA79B' }}>Sesi</span>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#A3C2B3', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px' }}>
                     Registrasi Aktif
                   </div>
                 </div>
@@ -457,8 +487,8 @@ function EventsListContent() {
                 {/* Kartu 2: Turnamen Resmi */}
                 <div
                   style={{
-                    backgroundColor: 'rgba(10, 26, 17, 0.75)',
-                    border: '1px solid rgba(226, 188, 85, 0.35)',
+                    backgroundColor: 'rgba(13, 31, 23, 0.85)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '12px',
                     padding: '14px 18px',
                     minWidth: '130px',
@@ -470,15 +500,15 @@ function EventsListContent() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#E2BC55', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#86EFAC', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Turnamen Resmi
                     </span>
-                    <Trophy size={14} color="#E2BC55" />
+                    <Trophy size={14} color="#86EFAC" />
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#FAF8F5', lineHeight: 1.1 }}>
                     {heroSummary.tournamentCount} <span style={{ fontSize: '12px', fontWeight: 600, color: '#8DA79B' }}>Event</span>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#A3C2B3', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px' }}>
                     Standar WRC
                   </div>
                 </div>
@@ -486,8 +516,8 @@ function EventsListContent() {
                 {/* Kartu 3: Event Terdekat */}
                 <div
                   style={{
-                    backgroundColor: 'rgba(10, 26, 17, 0.75)',
-                    border: '1px solid rgba(226, 188, 85, 0.35)',
+                    backgroundColor: 'rgba(13, 31, 23, 0.85)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
                     borderRadius: '12px',
                     padding: '14px 18px',
                     minWidth: '150px',
@@ -500,15 +530,15 @@ function EventsListContent() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#E2BC55', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#86EFAC', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Event Terdekat
                     </span>
-                    <Calendar size={14} color="#E2BC55" />
+                    <Calendar size={14} color="#86EFAC" />
                   </div>
                   <div style={{ fontSize: '14px', fontWeight: 800, color: '#FAF8F5', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {heroSummary.nearestDate}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#A3C2B3', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={heroSummary.nearestName}>
+                  <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={heroSummary.nearestName}>
                     {heroSummary.nearestName || 'Sesi Komunitas'}
                   </div>
                 </div>
@@ -644,10 +674,10 @@ function EventsListContent() {
               </div>
 
               <div className="ev-filter-group">
-                {/* Filter Kategori (Dari Data Riil) */}
+                {/* Filter Kategori */}
                 <select
                   value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
                   className="ev-filter-select"
                   aria-label="Filter Kategori"
                 >
@@ -662,7 +692,7 @@ function EventsListContent() {
                 {/* Filter Status */}
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => handleStatusChange(e.target.value)}
                   className="ev-filter-select"
                   aria-label="Filter Status"
                 >
@@ -675,7 +705,7 @@ function EventsListContent() {
                 {/* Dropdown Opsi Urutkan */}
                 <select
                   value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
+                  onChange={(e) => handleSortChange(e.target.value)}
                   className="ev-filter-select"
                   aria-label="Urutkan Event"
                 >
@@ -781,11 +811,9 @@ function EventsListContent() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               color: '#E2BC55',
-                              fontSize: '32px',
-                              fontWeight: 900,
                             }}
                           >
-                            🀄
+                            <Trophy size={36} color="#E2BC55" strokeWidth={1.6} />
                           </div>
                         )}
 

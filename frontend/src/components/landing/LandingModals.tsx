@@ -49,25 +49,25 @@ export default function LandingModals({
             </div>
 
             <p style={{ fontSize: '13px', color: '#4A524D', lineHeight: 1.6, marginBottom: '20px' }}>
-              Mahjongyuks mengadopsi standar internasional <strong>World Riichi Championship (WRC)</strong> dengan fokus pada ketangkasan intelektual, strategi, dan etika permainan tanpa perjudian.
+              MahjongYuks mengadopsi standar resmi <strong>Hong Kong Mahjong Style (HKOS)</strong> dengan fokus pada ketangkasan intelektual, strategi kombinasi Fan, dan etika permainan tanpa perjudian.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               <div style={{ backgroundColor: '#FAF8F5', border: '1px solid #E4E0D8', padding: '14px', borderRadius: '8px' }}>
                 <div style={{ fontWeight: 700, color: '#183629', fontSize: '13px', marginBottom: '4px' }}>
-                  1. Meja Otomatis Amos Rexx III
+                  1. Meja Otomatis Game House
                 </div>
                 <div style={{ fontSize: '13px', color: '#4A524D', lineHeight: 1.5 }}>
-                  Seluruh ubin dikocok secara magnetik dalam 5 detik. Pemain tidak perlu membalik atau menyusun dinding ubin secara manual.
+                  Seluruh ubin dikocok secara magnetik dalam hitungan detik di toko utama Alicia Bakery Sedayu City. Pemain tidak perlu membalik atau menyusun dinding ubin secara manual.
                 </div>
               </div>
 
               <div style={{ backgroundColor: '#FAF8F5', border: '1px solid #E4E0D8', padding: '14px', borderRadius: '8px' }}>
                 <div style={{ fontWeight: 700, color: '#183629', fontSize: '13px', marginBottom: '4px' }}>
-                  2. Syarat Kemenangan Yaku
+                  2. Syarat Kemenangan Minimal 3 Fan (Hu)
                 </div>
                 <div style={{ fontSize: '13px', color: '#4A524D', lineHeight: 1.5 }}>
-                  Untuk menyatakan kemenangan (Ron atau Tsumo), tangan wajib memiliki setidaknya 1 Yaku yang valid (seperti Riichi, Tanyao, Yakuhai, atau Pinfu).
+                  Untuk menyatakan kemenangan (Hu), susunan ubin wajib memiliki minimal 3 Fan (misalnya Runtutan Penuh, Kembar Tiga Penuh, Satu Corak, dll.) dengan batas maksimal 10 Fan.
                 </div>
               </div>
 
@@ -123,7 +123,7 @@ export default function LandingModals({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#141A17' }}>
                 <ShieldCheck size={16} color="#B8860B" />
-                <span>Pengadaan resmi Meja Otomatis Amos Rexx III & Amos JP-EX</span>
+                <span>Pengadaan resmi Meja Otomatis Standar Turnamen</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', color: '#141A17' }}>
                 <ShieldCheck size={16} color="#B8860B" />

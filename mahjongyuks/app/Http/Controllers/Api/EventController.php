@@ -7,6 +7,8 @@ use App\Http\Requests\EventRequest;
 use App\Models\Event;
 use App\Models\EventPendaftaran;
 use App\Models\Player;
+use App\Models\SesiBermain;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -355,6 +357,7 @@ class EventController extends Controller
                     'pendaftaran_id' => $p->id,
                     'status_pendaftaran' => $p->status_pendaftaran,
                     'tanggal_daftar' => $p->tanggal_daftar ? $p->tanggal_daftar->format('Y-m-d H:i') : null,
+                    'created_at' => $p->created_at ? $p->created_at->toISOString() : ($p->tanggal_daftar ? $p->tanggal_daftar->toISOString() : null),
                     'catatan' => $p->catatan,
                     'event' => $p->event ? $this->formatEvent($p->event, false, $player) : null,
                 ];
@@ -403,6 +406,34 @@ class EventController extends Controller
 
         $event = Event::create($validated);
         $event->load('venue');
+
+        // Sinkronkan ke SesiBermain jika status event aktif
+        if (in_array(strtolower($event->status), ['active', 'aktif', 'open']) && $event->tanggal_event) {
+            $dateStr = $event->tanggal_event instanceof \DateTimeInterface 
+                ? $event->tanggal_event->format('Y-m-d') 
+                : substr((string)$event->tanggal_event, 0, 10);
+            $waktuSelesai = $event->waktu_selesai ? substr((string)$event->waktu_selesai, 0, 8) : '23:59:00';
+            $waktuMulai = $event->waktu_mulai ? substr((string)$event->waktu_mulai, 0, 8) : '00:00:00';
+
+            $status = 'pending';
+            try {
+                $start = Carbon::parse($dateStr . ' ' . $waktuMulai);
+                if (now()->greaterThanOrEqualTo($start)) {
+                    $status = 'ongoing';
+                }
+            } catch (\Throwable $e) {}
+
+            SesiBermain::updateOrCreate(
+                ['event_id' => $event->id],
+                [
+                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => $status,
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -455,6 +486,34 @@ class EventController extends Controller
 
         $event->update($validated);
         $event->load('venue');
+
+        // Sinkronkan ke SesiBermain jika status event aktif
+        if (in_array(strtolower($event->status), ['active', 'aktif', 'open']) && $event->tanggal_event) {
+            $dateStr = $event->tanggal_event instanceof \DateTimeInterface 
+                ? $event->tanggal_event->format('Y-m-d') 
+                : substr((string)$event->tanggal_event, 0, 10);
+            $waktuSelesai = $event->waktu_selesai ? substr((string)$event->waktu_selesai, 0, 8) : '23:59:00';
+            $waktuMulai = $event->waktu_mulai ? substr((string)$event->waktu_mulai, 0, 8) : '00:00:00';
+
+            $status = 'pending';
+            try {
+                $start = Carbon::parse($dateStr . ' ' . $waktuMulai);
+                if (now()->greaterThanOrEqualTo($start)) {
+                    $status = 'ongoing';
+                }
+            } catch (\Throwable $e) {}
+
+            SesiBermain::updateOrCreate(
+                ['event_id' => $event->id],
+                [
+                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                    'status' => $status,
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -596,9 +655,9 @@ class EventController extends Controller
 
         return [
             'id' => $event->id,
-            'nama_event' => $event->nama_event,
+            'nama_event' => str_ireplace(['Grand Riichi', 'Riichi Masters', 'Riichi'], ['Hong Kong Open', 'Hong Kong Masters', 'Hong Kong Style'], $event->nama_event),
             'jenis_event' => $event->jenis_event ?? 'Event',
-            'deskripsi' => $event->deskripsi,
+            'deskripsi' => str_ireplace(['Riichi', 'Hanchan', 'Uma/Oka'], ['Hong Kong Mahjong', 'Ronde Putaran', 'Poin Fan'], $event->deskripsi),
             'tanggal_event' => $event->tanggal_event ? $event->tanggal_event->format('Y-m-d') : null,
             'tanggal_formatted' => $event->tanggal_event ? $event->tanggal_event->translatedFormat('l, d F Y') : null,
             'waktu_mulai' => substr($event->waktu_mulai ?? '', 0, 5),
@@ -619,7 +678,7 @@ class EventController extends Controller
             'kategori' => $category,
             'badge_class' => $badgeClass,
             'foto' => $image,
-            'standar_aturan' => 'World Riichi Championship (WRC)',
+            'standar_aturan' => 'Hong Kong Mahjong Old Style (HKOS)',
             'kapasitas_meja' => "{$totalTables} Meja (" . ($totalTables * 4) . " Kursi Pemain)",
         ];
     }

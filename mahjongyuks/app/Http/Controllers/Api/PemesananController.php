@@ -40,7 +40,7 @@ class PemesananController extends Controller
             'pembayaran',
             'detailPemesanans.player.user',
             'player.user',
-        ])->latest('tanggal_pemesanan');
+        ])->latest('id');
 
         if ($user->role === 'player') {
             $player = Player::where('user_id', $user->id)->first();
@@ -71,7 +71,7 @@ class PemesananController extends Controller
             'meja_id' => 'required|exists:mejas,id',
             'tanggal_main' => 'required|date|after_or_equal:today',
             'waktu_mulai' => 'required|date_format:H:i',
-            'durasi_jam' => 'required|integer|in:1,2,3,4,6',
+            'durasi_jam' => 'required|integer|min:1|max:12',
             'jenis_pemesanan' => 'required|in:Casual,Competitive',
             'kursi_pilihan' => 'required|in:ton,nan,sha,pei',
         ]);
@@ -99,12 +99,54 @@ class PemesananController extends Controller
         $selesaiStr = $selesai->format('H:i:s');
 
         $harga = $this->hitungHarga($d['jenis_pemesanan'], $durasi);
+        // Jika pemesanan berasal dari Jadwal / Event Sesi dengan tarif tetap khusus:
+        if ($request->filled('total_biaya') && (int) $request->total_biaya > 0) {
+            $totalKhusus = (int) $request->total_biaya;
+            $harga = [
+                'durasi_jam' => $durasi,
+                'tarif_per_jam' => (int) round($totalKhusus / max(1, $durasi)),
+                'biaya_sewa' => $totalKhusus,
+                'biaya_layanan' => 0,
+                'total' => $totalKhusus,
+            ];
+        }
 
         $user = $request->user();
         $player = Player::firstOrCreate(
             ['user_id' => $user->id],
             ['tanggal_daftar' => now(), 'status' => 'active']
         );
+
+        // ── CEK 1 PEMAIN HANYA BOLEH 1 KURSI PER SESI WAKTU (CEGAH DOUBLE-BOOKING) ──
+        $existingBooking = Pemesanan::where('player_id', $player->id)
+            ->whereDate('tanggal_main', $d['tanggal_main'])
+            ->menempati()
+            ->bentrok($mulaiStr, $selesaiStr)
+            ->with(['meja', 'detailPemesanans', 'pembayaran'])
+            ->first();
+
+        if ($existingBooking) {
+            $existingSeat = $existingBooking->detailPemesanans->first()?->posisi_kursi;
+            $isSameTableAndSeat = (int) $existingBooking->meja_id === (int) $d['meja_id'] && $existingSeat === $d['kursi_pilihan'];
+            $isPendingWithToken = $existingBooking->status_pemesanan === 'pending' && $existingBooking->pembayaran?->snap_token;
+
+            // Jika sama persis dan masih pending, izinkan melanjutkan transaksi
+            if ($isSameTableAndSeat && $isPendingWithToken) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Anda sudah memiliki pemesanan menunggu pembayaran untuk kursi ini.',
+                    'data' => $this->payloadBayar($existingBooking, $existingBooking->pembayaran),
+                ]);
+            }
+
+            // Jika mencoba memesan kursi lain pada sesi yang sama, tolak duplikasi
+            $namaMeja = $existingBooking->meja?->nomor_meja ?? 'Meja Terkait';
+            $seatLabel = $existingSeat ? strtoupper($existingSeat) : 'aktif';
+            return response()->json([
+                'success' => false,
+                'message' => "Anda sudah terdaftar di {$namaMeja} (Kursi {$seatLabel}) pada jadwal ini. Setiap pemain hanya diperbolehkan memesan 1 kursi per sesi bermain.",
+            ], 422);
+        }
 
         // Tahap 1: cek bentrok kursi + simpan, dalam satu transaksi
         $hasil = DB::transaction(function () use ($d, $durasi, $player, $mulaiStr, $selesaiStr, $harga) {
@@ -120,7 +162,7 @@ class PemesananController extends Controller
 
             if ($currentMejaOccupied === 0) {
                 // Meja ini kosong (0 orang). Cek apakah ada meja lain di venue yang sama yang sedang terisi sebagian (1 - 3 orang)
-                $venueTableIds = Meja::where('venue_id', $meja->venue_id)->pluck('id');
+                $venueTableIds = Meja::where('venue_id', $meja->venue_id)->orderBy('id')->pluck('id');
 
                 $partiallyFilledMejaExists = Pemesanan::whereIn('meja_id', $venueTableIds)
                     ->where('meja_id', '!=', $meja->id)
@@ -135,6 +177,26 @@ class PemesananController extends Controller
                 if ($partiallyFilledMejaExists) {
                     return [
                         'error_regulasi' => 'Sesuai regulasi MahjongYuks, silakan pilih kursi di meja yang sedang terisi sebagian terlebih dahulu sebelum membuka meja baru agar sesi permainan dapat segera dimulai (minimal 4 pemain).'
+                    ];
+                }
+
+                // Jika tidak ada meja yang terisi sebagian, wajib mulai dari meja kosong nomor terendah
+                $firstAvailableTableId = null;
+                foreach ($venueTableIds as $vId) {
+                    $cnt = Pemesanan::where('meja_id', $vId)
+                        ->whereDate('tanggal_main', $d['tanggal_main'])
+                        ->menempati()
+                        ->bentrok($mulaiStr, $selesaiStr)
+                        ->count();
+                    if ($cnt < 4) {
+                        $firstAvailableTableId = $vId;
+                        break;
+                    }
+                }
+
+                if ($firstAvailableTableId && $meja->id !== $firstAvailableTableId) {
+                    return [
+                        'error_regulasi' => 'Sesuai regulasi MahjongYuks, silakan pilih meja nomor awal yang tersedia terlebih dahulu sebelum membuka meja lainnya.'
                     ];
                 }
             }

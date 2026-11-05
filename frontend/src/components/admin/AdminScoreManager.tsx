@@ -20,6 +20,7 @@ import {
   Trophy,
   Users,
   ShieldAlert,
+  Info,
 } from 'lucide-react';
 import {
   HK_HANDS_LIST,
@@ -145,10 +146,14 @@ export default function AdminScoreManager() {
       const res = await ApiClient.getHkSessions('active');
       if (res.success && Array.isArray(res.data)) {
         setSessions(res.data);
-        if (res.data.length > 0 && selectedSessionId === null) {
-          // Pilih sesi playable pertama secara otomatis
-          const playable = res.data.find((s: SessionData) => s.is_playable) || res.data[0];
-          setSelectedSessionId(playable.id);
+        if (res.data.length > 0) {
+          const currentValid = res.data.find((s: SessionData) => s.id === selectedSessionId && s.is_playable);
+          if (!currentValid) {
+            const playable = res.data.find((s: SessionData) => s.is_playable) || res.data[0];
+            setSelectedSessionId(playable.id);
+          }
+        } else {
+          setSelectedSessionId(null);
         }
       }
     } catch (e) {
@@ -222,13 +227,22 @@ export default function AdminScoreManager() {
     return tables.find((t) => t.id === selectedTableId) || tables[0] || null;
   }, [tables, selectedTableId]);
 
-  // Reset winner & discarder jika meja berganti
+  // Auto-set winner & discarder jika meja atau daftar pemain berganti
   useEffect(() => {
-    if (currentTable && currentTable.players.length > 0) {
-      setSelectedWinnerId(currentTable.players[0].player_id);
-      setSelectedDiscarderId(currentTable.players[1]?.player_id || null);
+    if (currentTable && currentTable.players && currentTable.players.length > 0) {
+      if (!selectedWinnerId || !currentTable.players.some((p) => p.player_id === selectedWinnerId)) {
+        setSelectedWinnerId(currentTable.players[0].player_id);
+      }
+      if (
+        !selectedDiscarderId ||
+        selectedDiscarderId === selectedWinnerId ||
+        !currentTable.players.some((p) => p.player_id === selectedDiscarderId)
+      ) {
+        const other = currentTable.players.find((p) => p.player_id !== (selectedWinnerId || currentTable.players[0].player_id));
+        setSelectedDiscarderId(other?.player_id || null);
+      }
     }
-  }, [currentTable?.id]);
+  }, [currentTable, selectedWinnerId, selectedDiscarderId]);
 
   // ── LIVE CALCULATION PREVIEW ───────────────────────────────────────────
   const liveCalculation = useMemo(() => {
@@ -271,18 +285,22 @@ export default function AdminScoreManager() {
   // ── SUBMIT WIN RECORD (DESK WASIT) ────────────────────────────────────
   const handleRecordWin = async () => {
     if (!selectedSessionId || !currentTable || !selectedWinnerId) {
-      setFeedbackMsg({ text: 'Lengkapi pilihan sesi, meja, dan pemain pemenang.', type: 'error' });
+      setFeedbackMsg({ text: 'Lengkapi pilihan sesi, meja, dan pemain pemenang di Langkah 3.', type: 'error' });
       return;
     }
 
-    if (winMethod === 'discard' && !selectedDiscarderId) {
-      setFeedbackMsg({ text: 'Pilih pemain yang membuang tile (Discarder).', type: 'error' });
-      return;
-    }
-
-    if (winMethod === 'discard' && selectedWinnerId === selectedDiscarderId) {
-      setFeedbackMsg({ text: 'Pemenang tidak boleh sama dengan pemain pembuang tile.', type: 'error' });
-      return;
+    let finalDiscarderId = selectedDiscarderId;
+    if (winMethod === 'discard') {
+      if (!finalDiscarderId || finalDiscarderId === selectedWinnerId) {
+        const fallback = currentTable.players?.find((p) => p.player_id !== selectedWinnerId);
+        if (fallback) {
+          finalDiscarderId = fallback.player_id;
+          setSelectedDiscarderId(fallback.player_id);
+        } else {
+          setFeedbackMsg({ text: 'Pilih pemain yang membuang tile (Discarder).', type: 'error' });
+          return;
+        }
+      }
     }
 
     if (!liveCalculation.isValid) {
@@ -305,7 +323,7 @@ export default function AdminScoreManager() {
         game_table_id: currentTable.id,
         winner_id: selectedWinnerId,
         win_method: winMethod,
-        discarder_id: winMethod === 'discard' ? selectedDiscarderId : null,
+        discarder_id: winMethod === 'discard' ? finalDiscarderId : null,
         hand_codes: selectedHandCodes,
         idempotency_key: idempotencyKey,
       });
@@ -420,10 +438,10 @@ export default function AdminScoreManager() {
         }
         fetchLeaderboard(true);
       } else {
-        alert(res.message || 'Gagal membatalkan kemenangan.');
+        setFeedbackMsg({ text: res.message || 'Gagal membatalkan kemenangan.', type: 'error' });
       }
     } catch (e: any) {
-      alert(e?.message || 'Error saat membatalkan kemenangan.');
+      setFeedbackMsg({ text: e?.message || 'Error saat membatalkan kemenangan.', type: 'error' });
     } finally {
       setVoidingRecordId(null);
     }
@@ -440,10 +458,10 @@ export default function AdminScoreManager() {
         setShowResetModal(false);
         fetchLeaderboard(true);
       } else {
-        alert(res.message || 'Gagal membuka musim baru.');
+        setFeedbackMsg({ text: res.message || 'Gagal membuka musim baru.', type: 'error' });
       }
     } catch (e: any) {
-      alert(e?.message || 'Error saat me-reset musim.');
+      setFeedbackMsg({ text: e?.message || 'Error saat me-reset musim.', type: 'error' });
     } finally {
       setIsResettingSeason(false);
     }
@@ -713,13 +731,11 @@ export default function AdminScoreManager() {
                           fontWeight: 700,
                           color: '#004F27',
                           backgroundColor: '#EBF6EE',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          textTransform: 'capitalize'
                         }}>
-                          {player.danRank}
-                        </span>
-                        <span style={{ fontSize: '11px', color: '#7A897F', marginLeft: '4px' }}>
-                          {player.rankTitle}
+                          {player.tingkat_kemahiran || player.kemahiran || 'Intermediate'}
                         </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
@@ -972,7 +988,7 @@ export default function AdminScoreManager() {
                     }}
                   >
                     <span>Tarik Sendiri (Zi Mo)</span>
-                    <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#16A34A' }}>+1 Fan Bonus • 3 Lawan Bayar</span>
+                    <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#16A34A' }}>+1 Fan Bonus • Poin dari 3 Lawan</span>
                   </button>
 
                   <button
@@ -994,7 +1010,7 @@ export default function AdminScoreManager() {
                     }}
                   >
                     <span>Buang Lawan (Rong / Discard)</span>
-                    <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#5A675E' }}>1 Pembuang Bayar Penuh</span>
+                    <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#5A675E' }}>Poin dari 1 Pembuang</span>
                   </button>
                 </div>
               </div>
@@ -1154,8 +1170,9 @@ export default function AdminScoreManager() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ fontSize: '11.5px', color: '#92400E', backgroundColor: '#FEF3C7', padding: '6px 10px', borderRadius: '6px' }}>
-                  ℹ️ <strong>Limit Hands</strong> adalah kartu langka/tertinggi dalam Hong Kong Mahjong. Setiap kartu di tab ini bernilai <strong>maksimal 10 Fan</strong> (128 PTS jika Discard, atau 192 PTS jika Tarik Sendiri).
+                <div style={{ fontSize: '11.5px', color: '#92400E', backgroundColor: '#FEF3C7', padding: '6px 10px', borderRadius: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                  <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span><strong>Limit Hands</strong> adalah kartu langka/tertinggi dalam Hong Kong Mahjong. Setiap kartu di tab ini bernilai <strong>maksimal 10 Fan</strong> (128 PTS jika Discard, atau 192 PTS jika Tarik Sendiri).</span>
                 </div>
                 <div style={{
                   display: 'grid',
@@ -1255,8 +1272,8 @@ export default function AdminScoreManager() {
                   </span>
                 )
               ) : (
-                <span style={{ color: '#991B1B', fontWeight: 600 }}>
-                  ⚠️ {liveCalculation.errorMessage}
+                <span style={{ color: '#991B1B', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <AlertTriangle size={14} /> {liveCalculation.errorMessage}
                 </span>
               )}
             </div>
@@ -1279,7 +1296,7 @@ export default function AdminScoreManager() {
                   gap: '4px'
                 }}
               >
-                <span>{showPointsTable ? '▼ Sembunyikan' : '▶ Buka'} Tabel Referensi Poin Olahraga HK (3–10 Fan)</span>
+                <span>{showPointsTable ? '▼ Sembunyikan' : '▶ Buka'} Tabel Resmi Poin Hong Kong Style (Half-Spicy / 半辣)</span>
               </button>
 
               {showPointsTable && (
@@ -1287,9 +1304,10 @@ export default function AdminScoreManager() {
                   <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse', textAlign: 'center' }}>
                     <thead>
                       <tr style={{ backgroundColor: '#F3F4F6', color: '#2B3830', fontWeight: 800 }}>
-                        <th style={{ padding: '6px 10px' }}>Jumlah Fan</th>
-                        <th style={{ padding: '6px 10px' }}>Poin Atlet (Langsung)</th>
-                        <th style={{ padding: '6px 10px' }}>Keterangan</th>
+                        <th style={{ padding: '6px 8px' }}>Jumlah Fan</th>
+                        <th style={{ padding: '6px 8px' }}>Buang Lawan (Discard)</th>
+                        <th style={{ padding: '6px 8px' }}>Zi Mo (Tiap Lawan)</th>
+                        <th style={{ padding: '6px 8px' }}>Total Pemenang (Zi Mo)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1305,14 +1323,22 @@ export default function AdminScoreManager() {
                               borderBottom: '1px solid #F3F4F6'
                             }}
                           >
-                            <td style={{ padding: '5px 10px' }}>
-                              {row.fan} Fan {row.fan === 10 ? '👑 (LIMIT)' : ''}
+                            <td style={{ padding: '5px 8px' }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                                <span>{row.fan} Fan</span>
+                                {row.fan === 10 && (
+                                  <span style={{ backgroundColor: '#FEF3C7', color: '#B45309', fontSize: '9.5px', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>LIMIT</span>
+                                )}
+                              </span>
                             </td>
-                            <td style={{ padding: '5px 10px' }}>
-                              <strong>+{row.points} PTS</strong>
+                            <td style={{ padding: '5px 8px' }}>
+                              <strong>+{row.discard} PTS</strong>
                             </td>
-                            <td style={{ padding: '5px 10px', fontSize: '10.5px', color: '#5A675E' }}>
-                              {row.fan === 3 ? 'Batas Minimum Sah (Hu)' : row.fan === 10 ? 'Batas Maksimal Turnamen' : 'Skor Olahraga Mahjong'}
+                            <td style={{ padding: '5px 8px', color: '#5A675E' }}>
+                              +{row.selfDrawEach} PTS / orang
+                            </td>
+                            <td style={{ padding: '5px 8px', color: '#004F27' }}>
+                              <strong>+{row.selfDrawTotal} PTS</strong> (1.5x)
                             </td>
                           </tr>
                         );
@@ -1320,26 +1346,74 @@ export default function AdminScoreManager() {
                     </tbody>
                   </table>
                   <div style={{ fontSize: '10.5px', color: '#5A675E', marginTop: '6px', textAlign: 'left' }}>
-                    * Sistem Resmi MahjongYuks: 1 Fan = 1 Poin Atlet murni. Sistem kompetisi olahraga asah otak (non-judi).
+                    * Standar Resmi Turnamen Hong Kong Old Style (Half-Spicy / 半辣). Tarik Sendiri (Zi Mo) mengakumulasi poin dari ketiga posisi lawan sehingga total skor ronde pemenang 1.5x lebih tinggi. Sistem penilaian murni olahraga prestasi asah otak (Mind Sport / Non-Judi).
                   </div>
                 </div>
               )}
             </div>
           </div>
 
+          {/* ── INLINE FEEDBACK NOTIFICATION (LANGSUNG DI ATAS TOMBOL SUBMIT) ── */}
+          {feedbackMsg && (
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: feedbackMsg.type === 'success' ? '#F0FDF4' : '#FEF2F2',
+              color: feedbackMsg.type === 'success' ? '#166534' : '#991B1B',
+              border: `1.5px solid ${feedbackMsg.type === 'success' ? '#BBF7D0' : '#FECACA'}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {feedbackMsg.type === 'success' ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
+                <span>{feedbackMsg.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFeedbackMsg(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '2px', fontSize: '13px', fontWeight: 800 }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* ── SUBMIT BUTTON ── */}
           <button
             type="button"
             onClick={handleRecordWin}
-            disabled={isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4}
+            disabled={
+              isSubmitting ||
+              !liveCalculation.isValid ||
+              (currentTable?.players?.length ?? 0) < 4 ||
+              !selectedWinnerId ||
+              (winMethod === 'discard' && !selectedDiscarderId)
+            }
             className="adm-btn-primary"
             style={{
               justifyContent: 'center',
               padding: '12px 20px',
               fontSize: '14px',
               fontWeight: 800,
-              opacity: isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4 ? 0.6 : 1,
-              cursor: isSubmitting || !liveCalculation.isValid || (currentTable?.players?.length ?? 0) < 4 ? 'not-allowed' : 'pointer'
+              opacity:
+                isSubmitting ||
+                !liveCalculation.isValid ||
+                (currentTable?.players?.length ?? 0) < 4 ||
+                !selectedWinnerId ||
+                (winMethod === 'discard' && !selectedDiscarderId)
+                  ? 0.6
+                  : 1,
+              cursor:
+                isSubmitting ||
+                !liveCalculation.isValid ||
+                (currentTable?.players?.length ?? 0) < 4 ||
+                !selectedWinnerId ||
+                (winMethod === 'discard' && !selectedDiscarderId)
+                  ? 'not-allowed'
+                  : 'pointer'
             }}
           >
             <Award size={18} color="#E2BC55" />
@@ -1348,6 +1422,12 @@ export default function AdminScoreManager() {
                 ? 'Menyimpan & Menyinkronkan...'
                 : (currentTable?.players?.length ?? 0) < 4
                 ? `Menunggu 4 Pemain Lengkap (${currentTable?.players?.length ?? 0}/4)`
+                : !selectedWinnerId
+                ? 'Pilih Pemain Pemenang di Langkah #3'
+                : winMethod === 'discard' && !selectedDiscarderId
+                ? 'Pilih Pemain Pembuang Tile (Discarder) di Langkah #3'
+                : !liveCalculation.isValid
+                ? (liveCalculation.errorMessage || 'Kombinasi Kartu Belum Sah (Min 3 Fan)')
                 : `Catat Kemenangan Ronde #${currentTable?.current_round?.round_number ?? 1} (+${liveCalculation.pointsAwarded} PTS)`}
             </span>
           </button>

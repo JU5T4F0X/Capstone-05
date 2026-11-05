@@ -12,9 +12,9 @@ import {
   Users,
   Trophy,
   Flame,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
-import { LEADERBOARD_PLAYERS } from '@/lib/mock-data';
 import { normalizeKemahiran, KEMAHIRAN_MAP } from '@/lib/kemahiran';
 import '@/app/events-venues/events-venues.css';
 
@@ -29,7 +29,7 @@ export default function LeaderboardPage() {
     async function fetchLeaderboard() {
       try {
         const res = await ApiClient.getLeaderboard();
-        if (isMounted && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        if (isMounted && res.success && Array.isArray(res.data)) {
           setLivePlayers(res.data);
         }
       } catch (e) {
@@ -42,25 +42,25 @@ export default function LeaderboardPage() {
     return () => { isMounted = false; };
   }, []);
 
-  const playerList = !loading && livePlayers.length > 0 ? livePlayers : LEADERBOARD_PLAYERS;
-  const topPlayer = loading ? null : playerList[0];
+  const playerList = livePlayers;
+  const topPlayer = loading ? null : (playerList[0] || null);
 
   const filteredPlayers = useMemo(() => {
     return playerList.filter((player) => {
       const matchSearch =
         searchQuery === '' ||
-        player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        player.club.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        player.rankTitle.toLowerCase().includes(searchQuery.toLowerCase());
+        (player.name && player.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (player.club && player.club.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (player.rankTitle && player.rankTitle.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      const playerKemahiran = normalizeKemahiran(player.danRank);
+      const playerKemahiran = normalizeKemahiran(player.danRank || player.tingkat_kemahiran);
       const matchTier =
         activeTier === 'all' ||
         playerKemahiran.toLowerCase() === activeTier.toLowerCase();
 
       return matchSearch && matchTier;
     });
-  }, [loading, playerList, searchQuery, activeTier]);
+  }, [playerList, searchQuery, activeTier]);
 
   return (
     <div className="ev-page-wrapper">
@@ -114,123 +114,105 @@ export default function LeaderboardPage() {
         ) : (
           <>
             {/* Spotlight Card: Peringkat #1 Nasional */}
-        {topPlayer && (
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E2BC55',
-            borderRadius: '16px',
-            padding: '28px',
-            marginBottom: '32px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '24px',
-            boxShadow: '0 4px 20px rgba(226, 188, 85, 0.12)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              position: 'absolute',
-              right: '-10px',
-              top: '-10px',
-              fontSize: '120px',
-              fontWeight: 900,
-              color: 'rgba(226, 188, 85, 0.06)',
-              userSelect: 'none',
-              pointerEvents: 'none'
-            }}>
-              #1
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: '1 1 360px', zIndex: 1 }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{
-                  width: '72px',
-                  height: '72px',
-                  borderRadius: '50%',
-                  backgroundColor: topPlayer.avatarBg || '#183629',
-                  color: '#FAF8F5',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: '24px',
-                  border: '3px solid #E2BC55',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}>
-                  {topPlayer.initials}
-                </div>
+            {topPlayer && (
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E2BC55',
+                borderRadius: '16px',
+                padding: '28px',
+                marginBottom: '32px',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '24px',
+                boxShadow: '0 4px 20px rgba(226, 188, 85, 0.12)',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
                 <div style={{
                   position: 'absolute',
-                  bottom: '-4px',
-                  right: '-4px',
-                  backgroundColor: '#E2BC55',
-                  color: '#183629',
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  right: '-10px',
+                  top: '-10px',
+                  fontSize: '120px',
                   fontWeight: 900,
-                  fontSize: '11px',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  color: 'rgba(226, 188, 85, 0.06)',
+                  userSelect: 'none',
+                  pointerEvents: 'none'
                 }}>
-                  ðŸ‘‘
+                  #1
                 </div>
-              </div>
 
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span style={{
-                    backgroundColor: '#FEF9EE',
-                    color: '#B8860B',
-                    border: '1px solid #E2BC55',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '4px'
-                  }}>
-                    PERINGKAT #1 NASIONAL
-                  </span>
-                  <span style={{ fontSize: '12px', color: '#7A897F' }}>
-                    {topPlayer.danRank}
-                  </span>
-                </div>
-                <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#111E18' }}>
-                  {topPlayer.name}
-                </h2>
-                <div style={{ fontSize: '12.5px', color: '#5A675E', marginTop: '4px' }}>
-                  Club: <strong style={{ color: '#183629' }}>{topPlayer.club}</strong> â€¢ Gelar: <strong>{topPlayer.rankTitle}</strong>
-                </div>
-              </div>
-            </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: '1 1 360px', zIndex: 1 }}>
+                  <div>
+                    <div style={{
+                      width: '72px',
+                      height: '72px',
+                      borderRadius: '50%',
+                      backgroundColor: topPlayer.avatarBg || '#183629',
+                      color: '#FAF8F5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: '24px',
+                      border: '3px solid #E2BC55',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}>
+                      {topPlayer.initials}
+                    </div>
+                  </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '28px', zIndex: 1 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Rating Sirkuit</div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#004F27', lineHeight: 1.2 }}>
-                  {topPlayer.eloRating.toLocaleString()} <span style={{ fontSize: '13px' }}>PTS</span>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <span style={{
+                        backgroundColor: '#FEF9EE',
+                        color: '#B8860B',
+                        border: '1px solid #E2BC55',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        PERINGKAT #1 NASIONAL
+                      </span>
+                      <span style={{ fontSize: '12px', color: '#7A897F' }}>
+                        {topPlayer.danRank}
+                      </span>
+                    </div>
+                    <h2 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#111E18' }}>
+                      {topPlayer.name}
+                    </h2>
+                    <div style={{ fontSize: '12.5px', color: '#5A675E', marginTop: '4px' }}>
+                      Club: <strong style={{ color: '#183629' }}>{topPlayer.club || 'MahjongYuks Sedayu City'}</strong> • Gelar: <strong>{topPlayer.rankTitle || 'Novice'}</strong>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Win Rate</div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#183629', lineHeight: 1.2 }}>
-                  {topPlayer.winRate}
-                </div>
-              </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '28px', zIndex: 1 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Rating Sirkuit</div>
+                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#004F27', lineHeight: 1.2 }}>
+                      {(topPlayer.eloRating || topPlayer.points || 0).toLocaleString()} <span style={{ fontSize: '13px' }}>PTS</span>
+                    </div>
+                  </div>
 
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Total Hanchan</div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#B8860B', lineHeight: 1.2 }}>
-                  {topPlayer.totalMatches}
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Win Rate</div>
+                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#183629', lineHeight: 1.2 }}>
+                      {topPlayer.winRate || '0%'}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', color: '#7A897F', textTransform: 'uppercase' }}>Total Hanchan</div>
+                    <div style={{ fontSize: '28px', fontWeight: 800, color: '#B8860B', lineHeight: 1.2 }}>
+                      {topPlayer.totalMatches || 0}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
         {/* Filter Bar */}
         <div style={{
@@ -359,7 +341,7 @@ export default function LeaderboardPage() {
               </thead>
               <tbody>
                 {filteredPlayers.map((player) => {
-                  const kemahiran = normalizeKemahiran(player.danRank);
+                  const kemahiran = normalizeKemahiran(player.tingkat_kemahiran || player.kemahiran);
                   const detail = KEMAHIRAN_MAP[kemahiran];
                   const isTop3 = player.rank <= 3;
 
@@ -411,7 +393,7 @@ export default function LeaderboardPage() {
                               {player.name}
                             </div>
                             <div style={{ fontSize: '11.5px', color: '#7A897F' }}>
-                              {player.club} â€¢ {player.rankTitle}
+                              {player.club || 'MahjongYuks Sedayu City'} • {player.rankTitle || 'Novice'}
                             </div>
                           </div>
                         </div>

@@ -28,6 +28,7 @@ import {
   ChevronDown,
   Layers,
   Sparkles,
+  Check,
   Ticket,
   Award,
   FileText,
@@ -600,7 +601,7 @@ export default function AdminEventManager() {
             {finishedEventsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Kejuaraan</span>
           </div>
           <div className="adm-stat-meta">
-            <span style={{ color: '#5A675E' }}>Arsip Riichi &amp; Skor Valid</span>
+            <span style={{ color: '#5A675E' }}>Arsip Hong Kong &amp; Skor Valid</span>
           </div>
         </div>
       </div>
@@ -787,7 +788,7 @@ export default function AdminEventManager() {
                             <span>{ev.venue || 'Game House'}</span>
                           </div>
                           <div style={{ fontSize: '11px', color: '#7A897F', marginTop: '2px' }}>
-                            {ev.standar_aturan || 'World Riichi Championship (WRC)'}
+                            {ev.standar_aturan || 'Hong Kong Mahjong Old Style (HKOS)'}
                           </div>
                         </td>
 
@@ -857,10 +858,6 @@ export default function AdminEventManager() {
               <div className="adm-table-counter">
                 Menampilkan <strong>{filteredEvents.length}</strong> dari <strong>{events.length}</strong> turnamen terdaftar
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#7A897F' }}>
-                <span className="adm-badge-dot" style={{ backgroundColor: '#10B981' }} />
-                <span>Tersinkronisasi dengan Database Laravel MySQL</span>
-              </div>
             </div>
           </>
         )}
@@ -898,7 +895,7 @@ export default function AdminEventManager() {
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: Grand Riichi Jakarta Winter Open 2026"
+                    placeholder="Contoh: Hong Kong Style Jakarta Open 2026"
                     value={formData.nama_event}
                     onChange={(e) => setFormData({ ...formData, nama_event: e.target.value })}
                     style={{
@@ -1192,7 +1189,9 @@ export default function AdminEventManager() {
                         gap: '6px'
                       }}>
                         {photoFile ? (
-                          <span style={{ color: '#E2BC55' }}>✓ Foto Kustom Diunggah: {photoFile.name}</span>
+                          <span style={{ color: '#E2BC55', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Check size={13} strokeWidth={2.5} /> Foto Kustom Diunggah: {photoFile.name}
+                          </span>
                         ) : (
                           <span>Banner Terpilih</span>
                         )}
@@ -1321,7 +1320,7 @@ export default function AdminEventManager() {
                     PERBARUI EVENT #{selectedEvent.id}
                   </span>
                   <span style={{ fontSize: '11px', color: '#7A897F', fontWeight: 600 }}>
-                    {selectedEvent.kategori || 'Turnamen Riichi'}
+                    {selectedEvent.kategori || 'Turnamen Hong Kong Style'}
                   </span>
                 </div>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#111E18', lineHeight: 1.3 }}>
@@ -1591,7 +1590,9 @@ export default function AdminEventManager() {
                           gap: '6px'
                         }}>
                           {photoFile ? (
-                            <span style={{ color: '#E2BC55' }}>✓ Foto Kustom Baru: {photoFile.name}</span>
+                            <span style={{ color: '#E2BC55', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                              <Check size={13} strokeWidth={2.5} /> Foto Kustom Baru: {photoFile.name}
+                            </span>
                           ) : (
                             <span>Banner Aktif Event</span>
                           )}
@@ -1847,7 +1848,7 @@ export default function AdminEventManager() {
                     <div className="adm-detail-card">
                       <span className="adm-detail-card-label">Aturan &amp; Regulasi Meja</span>
                       <span className="adm-detail-card-val">
-                        {selectedEvent.standar_aturan || 'WRC (World Riichi Rules)'}
+                        {selectedEvent.standar_aturan || 'Hong Kong Mahjong Old Style (HKOS)'}
                       </span>
                       <span className="adm-detail-card-sub">Standar Wasit &amp; Meja Otomatis</span>
                     </div>

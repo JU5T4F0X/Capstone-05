@@ -73,8 +73,22 @@ class HkMahjongCalculator
             $error = "Total {$finalFan} Fan belum memenuhi syarat minimum {$minFan} Fan untuk menang (Hu).";
         }
 
-        // Poin atlet murni mengikuti nilai Fan yang diraih (1 Fan = 1 Poin Atlet)
-        $pointsAwarded = $isValid ? (int) $finalFan : 0;
+        $pointsRow = $pointsTable[$finalFan] ?? ($pointsTable[$maxFanLimit] ?? [
+            'discard' => 8,
+            'self_draw_total' => 12,
+            'self_draw_each' => 4,
+        ]);
+
+        // Poin yang diperoleh pemenang berdasarkan aturan resmi Hong Kong Mahjong Style (Half-Spicy):
+        // - Jika Tarik Sendiri (Zi Mo): Total bayaran dari ketiga pemain lawan (self_draw_total)
+        // - Jika Buang Lawan (Discard): Poin penuh yang dibayarkan oleh pemain pembuang (discard)
+        if ($isValid) {
+            $pointsAwarded = ($winMethod === 'self_draw')
+                ? (int) ($pointsRow['self_draw_total'] ?? 12)
+                : (int) ($pointsRow['discard'] ?? 8);
+        } else {
+            $pointsAwarded = 0;
+        }
 
         return [
             'is_valid' => $isValid,
@@ -88,6 +102,9 @@ class HkMahjongCalculator
             'points_breakdown' => [
                 'fan' => (int) $finalFan,
                 'points' => (int) $pointsAwarded,
+                'discard' => (int) ($pointsRow['discard'] ?? 8),
+                'self_draw_each' => (int) ($pointsRow['self_draw_each'] ?? 4),
+                'self_draw_total' => (int) ($pointsRow['self_draw_total'] ?? 12),
                 'bonus_fan' => $bonusFan,
             ],
         ];

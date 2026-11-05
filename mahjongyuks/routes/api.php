@@ -86,6 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['put', 'post'], '/pemesanans/{id}/cancel', [PemesananController::class, 'cancel']);
 
     Route::get('/pembayarans', [PembayaranController::class, 'index']);
+    Route::post('/pembayarans/{id}/simulasi', [PembayaranController::class, 'simulasiBayar']);
     Route::post('/pembayarans/{id}/verifikasi', [PembayaranController::class, 'verifikasi']);
 });
 
@@ -99,7 +100,11 @@ Route::get('/sesi-bermain', [HkScoreController::class, 'sessions']);
 Route::prefix('hk')->group(function () {
     Route::get('/config', [HkScoreController::class, 'config']);
     Route::get('/sessions', [HkScoreController::class, 'sessions']);
+    Route::post('/sessions/{id}/start', [HkScoreController::class, 'startSession']);
+    Route::post('/sessions/{id}/close', [HkScoreController::class, 'closeSession']);
     Route::get('/sessions/{id}/tables', [HkScoreController::class, 'getTables']);
+    Route::post('/tables/{id}/players', [HkScoreController::class, 'addPlayerToTable']);
+    Route::delete('/tables/{id}/players/{playerId}', [HkScoreController::class, 'removePlayerFromTable']);
     Route::post('/record-win', [HkScoreController::class, 'recordWin']);
     Route::post('/win-records/{id}/void', [HkScoreController::class, 'voidWin']);
     Route::get('/sessions/{id}/history', [HkScoreController::class, 'sessionHistory']);

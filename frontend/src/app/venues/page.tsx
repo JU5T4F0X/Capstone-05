@@ -23,7 +23,8 @@ import {
   Car,
   Coffee,
   Wifi,
-  RotateCcw
+  RotateCcw,
+  Star
 } from 'lucide-react';
 import LandingNavbar from '@/components/landing/LandingNavbar';
 import ApiClient, { ApiVenue } from '@/lib/api';
@@ -111,7 +112,7 @@ function computeOperatingStatus(jamBukaStr = '07:30', jamTutupStr = '21:30'): Op
 // Helper untuk memilih ikon fasilitas berdasarkan teks
 function getFacilityIcon(text: string) {
   const lower = text.toLowerCase();
-  if (lower.includes('meja') || lower.includes('amos') || lower.includes('otomatis')) {
+  if (lower.includes('meja') || lower.includes('otomatis')) {
     return <Layers size={18} color="#B8860B" />;
   }
   if (lower.includes('ac') || lower.includes('hepa') || lower.includes('udara')) {
@@ -317,7 +318,7 @@ export default function SingleVenuePage() {
                 lineHeight: 1.6,
               }}
             >
-              Pusat seluruh aktivitas permainan, pelatihan, turnamen berstandar World Riichi Championship (WRC), dan pelayanan resmi bagi seluruh pengunjung dan komunitas MahjongYuks di Sedayu City Kelapa Gading.
+              Pusat seluruh aktivitas permainan, pelatihan, turnamen berstandar Hong Kong Mahjong Style (HKOS), dan pelayanan resmi bagi seluruh pengunjung dan komunitas MahjongYuks di Sedayu City Kelapa Gading.
             </p>
           </div>
         </div>
@@ -525,9 +526,13 @@ export default function SingleVenuePage() {
                           backgroundColor: '#F3EFE6',
                           padding: '4px 10px',
                           borderRadius: '6px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
                         }}
                       >
-                        ⭐ 4.9 (Official Rated)
+                        <Star size={13} fill="#E2BC55" color="#E2BC55" strokeWidth={1.5} />
+                        <span>4.9 (Official Rated)</span>
                       </span>
                     </div>
 
@@ -583,7 +588,7 @@ export default function SingleVenuePage() {
                             Inventaris Meja Otomatis
                           </div>
                           <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#183629', marginTop: '2px' }}>
-                            {venue.jumlah_meja || 34} Meja Otomatis Amos Rexx III ({venue.kapasitas || `${(venue.jumlah_meja || 34) * 4} Pemain Maksimal`})
+                            {venue.jumlah_meja || 34} Meja Otomatis ({venue.kapasitas || `${(venue.jumlah_meja || 34) * 4} Pemain Maksimal`})
                           </div>
                         </div>
                       </div>

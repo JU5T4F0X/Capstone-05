@@ -16,46 +16,12 @@ import {
   RotateCcw,
   Sparkles,
   Layers,
-  Building2
+  Building2,
+  Check
 } from 'lucide-react';
 import LandingNavbar from '@/components/landing/LandingNavbar';
 import ApiClient, { ApiEvent, ApiVenue } from '@/lib/api';
-import { FEATURED_EVENTS, VENUE_BRANCHES } from '@/lib/mock-data';
 import './events-venues.css';
-
-// Fallback mappings when backend is offline or loading
-const fallbackEvents: ApiEvent[] = FEATURED_EVENTS.map((fe, idx) => ({
-  id: idx + 1,
-  nama_event: fe.title,
-  deskripsi: fe.description,
-  tanggal_event: '2025-10-25',
-  tanggal_formatted: fe.dateTime.split('•')[0]?.trim() || 'Sabtu, 25 Okt 2025',
-  waktu_mulai: fe.dateTime.split('•')[1]?.trim() || '13:00 WIB',
-  waktu_selesai: '18:30',
-  waktu_formatted: fe.dateTime.split('•')[1]?.trim() || '13:00 - 18:30 WIB',
-  status: 'active',
-  status_label: 'Pendaftaran Dibuka',
-  venue: fe.venue,
-  kategori: fe.categoryLabel,
-  badge_class: fe.category === 'kompetitif' ? 'ev-badge-competitive' : fe.category === 'santai' ? 'ev-badge-casual' : 'ev-badge-workshop',
-  foto: fe.image,
-  standar_aturan: 'World Riichi Championship (WRC)',
-  kapasitas_meja: 'Amos Rexx III (Maks. 4 Pemain)',
-}));
-
-const fallbackVenues: ApiVenue[] = VENUE_BRANCHES.map((vb, idx) => ({
-  id: idx + 1,
-  nama_venue: vb.name,
-  alamat: vb.address,
-  deskripsi: vb.description,
-  status: 'active',
-  foto: vb.image,
-  jumlah_meja: vb.tableCount,
-  rating: 4.9,
-  jam_buka: vb.hours,
-  fasilitas: vb.features,
-  tipe_meja: vb.tableType,
-}));
 
 function EventsVenuesContent() {
   const searchParams = useSearchParams();
@@ -102,22 +68,21 @@ function EventsVenuesContent() {
         ApiClient.getVenues(),
       ]);
 
-      if (eventsRes.success && eventsRes.data && eventsRes.data.length > 0) {
+      if (eventsRes.success && Array.isArray(eventsRes.data)) {
         setEvents(eventsRes.data);
       } else {
-        setEvents(fallbackEvents);
+        setEvents([]);
       }
 
-      if (venuesRes.success && venuesRes.data && venuesRes.data.length > 0) {
+      if (venuesRes.success && Array.isArray(venuesRes.data)) {
         setVenues(venuesRes.data);
       } else {
-        setVenues(fallbackVenues);
+        setVenues([]);
       }
     } catch (err: any) {
-      // In case of error, fall back gracefully to local data
-      setEvents(fallbackEvents);
-      setVenues(fallbackVenues);
-      setError(null);
+      setEvents([]);
+      setVenues([]);
+      setError('Gagal memuat data event dan venue dari server.');
     } finally {
       setLoading(false);
     }
@@ -198,7 +163,7 @@ function EventsVenuesContent() {
           <p className="ev-hero-subtitle">
             {activeTab === 'events'
               ? 'Ikuti turnamen resmi bersertifikasi WRC, gathering komunitas akhir pekan, dan workshop taktis bersama atlet profesional.'
-              : 'Kunjungi Game House MahjongYuks berstandar internasional dengan fasilitas meja otomatis Amos Rexx III.'}
+              : 'Kunjungi Game House MahjongYuks berstandar resmi dengan fasilitas meja otomatis.'}
           </p>
         </div>
       </section>
@@ -476,8 +441,8 @@ function EventsVenuesContent() {
 
                       <div className="ev-venue-tags">
                         {(venue.fasilitas || ['Meja Otomatis', 'Full AC', 'WiFi']).slice(0, 3).map((f, i) => (
-                          <span key={i} className="ev-venue-tag">
-                            ✓ {f}
+                          <span key={i} className="ev-venue-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <Check size={11} strokeWidth={2.5} /> {f}
                           </span>
                         ))}
                       </div>
@@ -493,7 +458,7 @@ function EventsVenuesContent() {
                         </div>
                         <div className="ev-meta-item">
                           <Layers size={15} />
-                          <span>{venue.jumlah_meja ? `${venue.jumlah_meja} Meja Aktif (${venue.tipe_meja || 'Amos Rexx III'})` : 'Meja Otomatis Amos Rexx III'}</span>
+                          <span>{venue.jumlah_meja ? `${venue.jumlah_meja} Meja Aktif (${venue.tipe_meja || 'Meja Otomatis'})` : 'Meja Otomatis Game House'}</span>
                         </div>
                       </div>
 

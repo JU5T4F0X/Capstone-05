@@ -30,7 +30,9 @@ import {
   ChevronDown,
   ChevronUp,
   Minus,
-  Loader2
+  Loader2,
+  Check,
+  Users
 } from 'lucide-react';
 import ApiClient, { ApiVenue } from '@/lib/api';
 
@@ -48,7 +50,7 @@ export default function AdminVenueManager() {
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [facilityFilter, setFacilityFilter] = useState<'all' | 'amos' | 'vip' | 'jabodetabek' | 'active'>('all');
+  const [facilityFilter, setFacilityFilter] = useState<'all' | 'active' | 'maintenance'>('all');
 
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -74,7 +76,7 @@ export default function AdminVenueManager() {
     deskripsi: '',
     jumlah_meja: 34,
     status: 'active',
-    fasilitas: 'Meja Otomatis Amos Rexx III, Ruangan Ber-AC Sistem Filtrasi HEPA, Standar Regulasi Turnamen WRC, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
+    fasilitas: 'Meja Otomatis, Ruangan Ber-AC, Standar Regulasi Hong Kong Mahjong, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
     foto_preset: '/assets/mahjong_parlor_players.jpg',
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -149,29 +151,10 @@ export default function AdminVenueManager() {
       const matchStatus = statusFilter === 'all' || vn.status === statusFilter;
 
       let matchFacility = true;
-      if (facilityFilter === 'amos') {
-        const txt = `${vn.tipe_meja || ''} ${vn.fasilitas_text || ''} ${
-          Array.isArray(vn.fasilitas) ? vn.fasilitas.join(' ') : ''
-        }`.toLowerCase();
-        matchFacility = txt.includes('amos') || txt.includes('otomatis');
-      } else if (facilityFilter === 'vip') {
-        const txt = `${vn.deskripsi || ''} ${vn.fasilitas_text || ''} ${
-          Array.isArray(vn.fasilitas) ? vn.fasilitas.join(' ') : ''
-        }`.toLowerCase();
-        matchFacility = txt.includes('vip') || txt.includes('soundproof') || txt.includes('private');
-      } else if (facilityFilter === 'jabodetabek') {
-        const txt = `${vn.alamat || ''} ${vn.nama_venue || ''}`.toLowerCase();
-        matchFacility =
-          txt.includes('jakarta') ||
-          txt.includes('bogor') ||
-          txt.includes('depok') ||
-          txt.includes('tangerang') ||
-          txt.includes('bekasi') ||
-          txt.includes('pik') ||
-          txt.includes('senopati') ||
-          txt.includes('sedayu');
-      } else if (facilityFilter === 'active') {
+      if (facilityFilter === 'active') {
         matchFacility = vn.status === 'active';
+      } else if (facilityFilter === 'maintenance') {
+        matchFacility = vn.status === 'maintenance';
       }
 
       return matchSearch && matchStatus && matchFacility;
@@ -249,7 +232,7 @@ export default function AdminVenueManager() {
       deskripsi: 'Game House MahjongYuks Sedayu City Kelapa Gading.',
       jumlah_meja: 34,
       status: 'active',
-      fasilitas: 'Meja Otomatis Amos Rexx III, Ruangan Ber-AC Sistem Filtrasi HEPA, Standar Regulasi Turnamen WRC, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
+      fasilitas: 'Meja Otomatis, Ruangan Ber-AC, Standar Regulasi Hong Kong Mahjong, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi',
       foto_preset: '/assets/mahjong_parlor_players.jpg',
     });
     setPhotoFile(null);
@@ -279,7 +262,7 @@ export default function AdminVenueManager() {
       status: vn.status || 'active',
       fasilitas:
         vn.fasilitas_text ||
-        (Array.isArray(vn.fasilitas) ? vn.fasilitas.join(', ') : 'Meja Otomatis Amos Rexx III, Ruangan Ber-AC Sistem Filtrasi HEPA, Standar Regulasi Turnamen WRC, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi'),
+        (Array.isArray(vn.fasilitas) ? vn.fasilitas.join(', ') : 'Meja Otomatis, Ruangan Ber-AC, Standar Regulasi Hong Kong Mahjong, Area Parkir Luas & Keamanan 24 Jam, Kafe & Refreshment Bar, Wi-Fi Berkecepatan Tinggi'),
       foto_preset: vn.foto || '/assets/mahjong_parlor_players.jpg',
     });
     setPhotoFile(null);
@@ -594,19 +577,19 @@ export default function AdminVenueManager() {
           </div>
         </div>
 
-        {/* Card 4: Standar Fasilitas */}
+        {/* Card 4: Total Kapasitas Kursi */}
         <div className="adm-stat-card">
           <div className="adm-stat-card-header">
-            <span className="adm-stat-label">Standar Fasilitas</span>
-            <div className="adm-stat-icon-wrap" style={{ backgroundColor: '#F3E8FF', color: '#6B21A8' }}>
-              <Award size={18} />
+            <span className="adm-stat-label">Total Kapasitas Kursi</span>
+            <div className="adm-stat-icon-wrap" style={{ backgroundColor: '#E0F2FE', color: '#0369A1' }}>
+              <Users size={18} />
             </div>
           </div>
-          <div className="adm-stat-number" style={{ fontSize: '20px', paddingTop: '2px' }}>
-            Amos Rexx III
+          <div className="adm-stat-number" style={{ color: '#0369A1' }}>
+            {stats.totalMeja * 4} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Kursi</span>
           </div>
           <div className="adm-stat-meta">
-            <span style={{ color: '#5A675E' }}>Full AC HEPA &amp; Meja Otomatis</span>
+            <span style={{ color: '#5A675E' }}>Maks 4 Pemain per Meja</span>
           </div>
         </div>
       </div>
@@ -624,31 +607,17 @@ export default function AdminVenueManager() {
           </button>
           <button
             type="button"
-            onClick={() => setFacilityFilter('amos')}
-            className={`adm-pill-btn ${facilityFilter === 'amos' ? 'active' : ''}`}
-          >
-            Meja Otomatis Amos Rexx
-          </button>
-          <button
-            type="button"
-            onClick={() => setFacilityFilter('vip')}
-            className={`adm-pill-btn ${facilityFilter === 'vip' ? 'active' : ''}`}
-          >
-            Ruang VIP / Soundproof
-          </button>
-          <button
-            type="button"
-            onClick={() => setFacilityFilter('jabodetabek')}
-            className={`adm-pill-btn ${facilityFilter === 'jabodetabek' ? 'active' : ''}`}
-          >
-            Jabodetabek Area
-          </button>
-          <button
-            type="button"
             onClick={() => setFacilityFilter('active')}
             className={`adm-pill-btn ${facilityFilter === 'active' ? 'active' : ''}`}
           >
             Sedang Buka ({stats.active})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFacilityFilter('maintenance')}
+            className={`adm-pill-btn ${facilityFilter === 'maintenance' ? 'active' : ''}`}
+          >
+            Maintenance ({stats.maintenance})
           </button>
         </div>
 
@@ -806,7 +775,7 @@ export default function AdminVenueManager() {
                                 #{vn.id}
                               </span>
                               <span>•</span>
-                              <span>{vn.tipe_meja || 'Amos Rexx III Otomatis'}</span>
+                              <span>{vn.tipe_meja || 'Meja Otomatis'}</span>
                             </div>
                           </div>
                         </div>
@@ -1298,7 +1267,7 @@ export default function AdminVenueManager() {
                   </label>
                   <input
                     type="text"
-                    placeholder="Contoh: Meja Otomatis Amos Rexx III, Full AC HEPA, Ruang VIP, Free Valet, Kopi Artisan"
+                    placeholder="Contoh: Meja Otomatis, Ruangan Ber-AC, Area Parkir, Kafe & Minuman, Wi-Fi"
                     value={formData.fasilitas}
                     onChange={(e) => setFormData({ ...formData, fasilitas: e.target.value })}
                     style={{
@@ -2075,7 +2044,7 @@ export default function AdminVenueManager() {
                     <span className="adm-detail-card-val" style={{ color: '#004F27' }}>
                       {selectedVenue.jumlah_meja || 0} Meja Resmi
                     </span>
-                    <span className="adm-detail-card-sub">Tipe: {selectedVenue.tipe_meja || 'Amos Rexx III Otomatis'}</span>
+                    <span className="adm-detail-card-sub">Tipe: {selectedVenue.tipe_meja || 'Meja Otomatis'}</span>
                   </div>
 
                   <div className="adm-detail-card">
@@ -2097,14 +2066,14 @@ export default function AdminVenueManager() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {(Array.isArray(selectedVenue.fasilitas)
                     ? selectedVenue.fasilitas
-                    : selectedVenue.fasilitas_text?.split(',') || ['Meja Otomatis Amos Rexx III', 'Full AC HEPA', 'Free Wi-Fi']
+                    : selectedVenue.fasilitas_text?.split(',') || ['Meja Otomatis', 'Ruangan Ber-AC', 'Free Wi-Fi']
                   ).map((f, i) => (
                     <span
                       key={i}
                       className="adm-facility-tag"
-                      style={{ padding: '5px 10px', fontSize: '11.5px', color: '#183629', fontWeight: 600 }}
+                      style={{ padding: '5px 10px', fontSize: '11.5px', color: '#183629', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                     >
-                      ✓ {String(f).trim()}
+                      <Check size={12} strokeWidth={2.5} /> {String(f).trim()}
                     </span>
                   ))}
                 </div>

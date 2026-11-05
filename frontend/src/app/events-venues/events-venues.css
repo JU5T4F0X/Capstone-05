@@ -38,25 +38,14 @@
   }
 }
 
-/* ── Page Hero Header ── */
+/* ── Page Hero Header (Authentic Architectural Deep Forest Green, Zero Muddy Glow) ── */
 .ev-hero-section {
-  background: linear-gradient(180deg, #183629 0%, #122a1f 100%);
+  background: #183629;
   color: #FFFFFF;
   padding: 48px 0 36px 0;
-  border-bottom: 1px solid rgba(226, 188, 85, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
   overflow: hidden;
-}
-
-.ev-hero-section::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 40%;
-  background: radial-gradient(circle at 80% 30%, rgba(226, 188, 85, 0.08) 0%, transparent 70%);
-  pointer-events: none;
 }
 
 .ev-breadcrumbs {

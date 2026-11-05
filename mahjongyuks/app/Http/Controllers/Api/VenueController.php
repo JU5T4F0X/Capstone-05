@@ -299,9 +299,9 @@ class VenueController extends Controller
 
         if (empty($fasilitas)) {
             $fasilitas = [
-                'Meja Otomatis Amos Rexx III',
-                'Ruangan Ber-AC Sistem Filtrasi HEPA',
-                'Standar Regulasi Turnamen WRC',
+                'Meja Otomatis Empat Sisi',
+                'Ruangan Ber-AC',
+                'Standar Regulasi Hong Kong Mahjong',
                 'Area Parkir Luas & Keamanan 24 Jam',
                 'Kafe & Refreshment Bar',
                 'Wi-Fi Berkecepatan Tinggi',
@@ -341,7 +341,7 @@ class VenueController extends Controller
             'rating' => 4.9,
             'fasilitas' => $fasilitas,
             'fasilitas_text' => is_array($fasilitas) ? implode(', ', $fasilitas) : $venue->fasilitas,
-            'tipe_meja' => 'Amos Rexx III Pro',
+            'tipe_meja' => 'Meja Otomatis',
         ];
 
         if ($includeMejas) {

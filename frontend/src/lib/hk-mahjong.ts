@@ -26,14 +26,17 @@ export interface FanPointRow {
 }
 
 export const HK_POINTS_TABLE: Record<number, FanPointRow> = {
-  3: { fan: 3, points: 3, discard: 3, selfDrawEach: 1, selfDrawTotal: 3 },
-  4: { fan: 4, points: 4, discard: 4, selfDrawEach: 1, selfDrawTotal: 4 },
-  5: { fan: 5, points: 5, discard: 5, selfDrawEach: 1, selfDrawTotal: 5 },
-  6: { fan: 6, points: 6, discard: 6, selfDrawEach: 1, selfDrawTotal: 6 },
-  7: { fan: 7, points: 7, discard: 7, selfDrawEach: 1, selfDrawTotal: 7 },
-  8: { fan: 8, points: 8, discard: 8, selfDrawEach: 1, selfDrawTotal: 8 },
-  9: { fan: 9, points: 9, discard: 9, selfDrawEach: 1, selfDrawTotal: 9 },
-  10: { fan: 10, points: 10, discard: 10, selfDrawEach: 1, selfDrawTotal: 10 },
+  3: { fan: 3, points: 8, discard: 8, selfDrawEach: 4, selfDrawTotal: 12 },
+  4: { fan: 4, points: 16, discard: 16, selfDrawEach: 8, selfDrawTotal: 24 },
+  5: { fan: 5, points: 24, discard: 24, selfDrawEach: 12, selfDrawTotal: 36 },
+  6: { fan: 6, points: 32, discard: 32, selfDrawEach: 16, selfDrawTotal: 48 },
+  7: { fan: 7, points: 48, discard: 48, selfDrawEach: 24, selfDrawTotal: 72 },
+  8: { fan: 8, points: 64, discard: 64, selfDrawEach: 32, selfDrawTotal: 96 },
+  9: { fan: 9, points: 96, discard: 96, selfDrawEach: 48, selfDrawTotal: 144 },
+  10: { fan: 10, points: 128, discard: 128, selfDrawEach: 64, selfDrawTotal: 192 },
+  11: { fan: 11, points: 192, discard: 192, selfDrawEach: 96, selfDrawTotal: 288 },
+  12: { fan: 12, points: 256, discard: 256, selfDrawEach: 128, selfDrawTotal: 384 },
+  13: { fan: 13, points: 384, discard: 384, selfDrawEach: 192, selfDrawTotal: 576 },
 };
 
 export const HK_HANDS_LIST: HkHandDefinition[] = [
@@ -328,10 +331,12 @@ export function calculateHkScore(
     errorMessage = `Total ${finalFan} Fan belum memenuhi syarat minimum ${minFan} Fan untuk menang (Hu).`;
   }
 
-  const lookupFan = Math.max(minFan, Math.min(finalFan, maxFanLimit));
-  const row = HK_POINTS_TABLE[lookupFan] || HK_POINTS_TABLE[maxFanLimit];
-  // Poin olahraga murni = nilai Fan yang diraih atlet (1 Fan = 1 Poin)
-  const pointsAwarded = isValid ? finalFan : 0;
+  const lookupFan = Math.max(minFan, Math.min(finalFan, 13));
+  const row = HK_POINTS_TABLE[lookupFan] || HK_POINTS_TABLE[10];
+  // Poin Hong Kong Style (Half-Spicy / Pun Laat):
+  // - Tarik Sendiri (Zi Mo): Pemenang menerima akumulasi poin dari 3 posisi lawan (row.selfDrawTotal)
+  // - Buang Lawan (Discard): Pemenang menerima alokasi poin dari keping si pembuang (row.discard)
+  const pointsAwarded = isValid ? (winMethod === 'self_draw' ? row.selfDrawTotal : row.discard) : 0;
 
   return {
     rawFan,
@@ -341,9 +346,9 @@ export function calculateHkScore(
     isLimit: hasLimitHand || finalFan >= maxFanLimit,
     pointsAwarded,
     breakdown: {
-      discard: finalFan,
-      selfDrawEach: 1,
-      selfDrawTotal: finalFan,
+      discard: row.discard,
+      selfDrawEach: row.selfDrawEach,
+      selfDrawTotal: row.selfDrawTotal,
     },
     errorMessage,
     selectedHands,
