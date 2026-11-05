@@ -36,3 +36,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary & Diagram Artifacts
+sequence-diagram.*
+frontend/public/sequence-diagram.*
