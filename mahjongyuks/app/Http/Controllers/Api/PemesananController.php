@@ -112,6 +112,13 @@ class PemesananController extends Controller
         }
 
         $user = $request->user();
+        if ($user->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Administrator tidak dapat melakukan pemesanan meja permainan.',
+            ], 403);
+        }
+
         $player = Player::firstOrCreate(
             ['user_id' => $user->id],
             ['tanggal_daftar' => now(), 'status' => 'active']

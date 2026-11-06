@@ -45,6 +45,7 @@ interface SeatInfo {
   status: 'available' | 'taken' | 'selected' | 'processing';
   occupant?: string;
   playerId?: number;
+  userId?: number;
 }
 
 interface TableArena {
@@ -92,7 +93,7 @@ function PemesananContent() {
     eventIdParam
   );
 
-  const scheduleTitle = titleParam || (portalParam === 'event' ? 'Turnamen Resmi MahjongYuks' : 'Sesi Game House Terjadwal');
+  const scheduleTitle = titleParam || (portalParam === 'event' ? 'Event Resmi MahjongYuks' : 'Sesi Game House Terjadwal');
   const packagePrice = Number(priceParam) || (portalParam === 'event' ? 150000 : 90000);
   const sessionTimeString = timeParam || '13:00 - 18:00 WIB';
 
@@ -147,7 +148,8 @@ function PemesananContent() {
   const [tingkatKemahiran, setTingkatKemahiran] = useState<KemahiranLevel>('Intermediate');
   const [agreed, setAgreed] = useState(true);
 
-  // Simulasi Pembayaran
+  // Simulasi & Konfirmasi Pembayaran
+  const [isConfirmSeatOpen, setIsConfirmSeatOpen] = useState(false);
   const [isPayModalOpen, setIsPayModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'bca_va' | 'cash'>('qris');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -260,6 +262,7 @@ function PemesananContent() {
               status: occupiedList.includes('pei') ? 'taken' : 'available',
               occupant: seatDetails['pei']?.occupant,
               playerId: seatDetails['pei']?.player_id,
+              userId: seatDetails['pei']?.user_id,
             },
             ton: {
               position: 'ton',
@@ -269,6 +272,7 @@ function PemesananContent() {
               status: occupiedList.includes('ton') ? 'taken' : 'available',
               occupant: seatDetails['ton']?.occupant,
               playerId: seatDetails['ton']?.player_id,
+              userId: seatDetails['ton']?.user_id,
             },
             nan: {
               position: 'nan',
@@ -278,6 +282,7 @@ function PemesananContent() {
               status: occupiedList.includes('nan') ? 'taken' : 'available',
               occupant: seatDetails['nan']?.occupant,
               playerId: seatDetails['nan']?.player_id,
+              userId: seatDetails['nan']?.user_id,
             },
             sha: {
               position: 'sha',
@@ -287,6 +292,7 @@ function PemesananContent() {
               status: occupiedList.includes('sha') ? 'taken' : 'available',
               occupant: seatDetails['sha']?.occupant,
               playerId: seatDetails['sha']?.player_id,
+              userId: seatDetails['sha']?.user_id,
             },
           };
 
@@ -330,8 +336,9 @@ function PemesananContent() {
         if (seat.status === 'taken') {
           const occLower = (seat.occupant || '').toLowerCase().trim();
           const isMatch =
-            (userNameLower && occLower && (occLower.includes(userNameLower) || userNameLower.includes(occLower))) ||
-            (seat.playerId && (seat.playerId === user.id || seat.playerId === (user as any).player_id || seat.playerId === (user as any).player?.id));
+            (seat.userId && seat.userId === user.id) ||
+            (seat.playerId && (seat.playerId === (user as any).player_id || seat.playerId === (user as any).player?.id)) ||
+            (userNameLower && occLower && userNameLower === occLower);
 
           if (isMatch) {
             return {
@@ -517,8 +524,43 @@ function PemesananContent() {
     setSelectedSeat(pos);
   };
 
-  // Submit: buat pesanan di backend, lalu buka popup pembayaran Midtrans
+  // Tahap 1: Validasi awal dan buka modal konfirmasi kunci kursi
+  const handleInitiatePayment = () => {
+    if (user?.role === 'admin') {
+      showAlertModal(
+        'Akun Administrator tidak dapat melakukan pemesanan meja permainan. Silakan gunakan akun Pemain untuk reservasi kursi.',
+        'Akses Khusus Pemain'
+      );
+      return;
+    }
+    if (userActiveBooking) {
+      showAlertModal(
+        `Anda sudah terdaftar di ${userActiveBooking.tableName} (${userActiveBooking.seatName}) pada jadwal ini. Anda tidak dapat memesan kursi ganda.`,
+        'Reservasi Sudah Aktif'
+      );
+      return;
+    }
+    if (!selectedTableId || !selectedSeat) {
+      showAlertModal('Silakan pilih salah satu meja dan kursi mata angin yang tersedia terlebih dahulu.', 'Pilihan Kursi Diperlukan');
+      return;
+    }
+    if (!agreed) {
+      showAlertModal('Harap centang persetujuan regulasi dan etika permainan sebelum melanjutkan.', 'Persetujuan Diperlukan');
+      return;
+    }
+    setIsConfirmSeatOpen(true);
+  };
+
+  // Tahap 2: Eksekusi kunci pesanan di backend, lalu buka popup pembayaran Midtrans
   const handleProceedPayment = async () => {
+    setIsConfirmSeatOpen(false);
+    if (user?.role === 'admin') {
+      showAlertModal(
+        'Akun Administrator tidak dapat melakukan pemesanan meja permainan. Silakan gunakan akun Pemain untuk reservasi kursi.',
+        'Akses Khusus Pemain'
+      );
+      return;
+    }
     if (userActiveBooking) {
       showAlertModal(
         `Anda sudah terdaftar di ${userActiveBooking.tableName} (${userActiveBooking.seatName}) pada jadwal ini. Anda tidak dapat memesan kursi ganda.`,
@@ -1277,15 +1319,15 @@ function PemesananContent() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#183629' }} />
-                    <span style={{ fontWeight: 600, color: '#183629' }}>Kursi Dipilih (Anda)</span>
+                    <span style={{ fontWeight: 600, color: '#183629' }}>Pilihan Anda (Dipilih)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#DCF1E3', border: '1.5px solid #004F27' }} />
+                    <span>Kursi Anda (Lunas)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#DCFCE7', border: '1px dashed #16A34A' }} />
                     <span>Tersedia (Kosong)</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#DCF1E3', border: '1.5px solid #004F27' }} />
-                    <span>Kursi Anda</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '12px', height: '12px', borderRadius: '3px', backgroundColor: '#FEE2E2', border: '1px solid #FCA5A5' }} />
@@ -1366,12 +1408,11 @@ function PemesananContent() {
                         if (!user) return false;
                         const s = table.seats[pos];
                         if (s.status !== 'taken') return false;
+                        if (s.userId && s.userId === user.id) return true;
+                        if (s.playerId && (s.playerId === (user as any).player_id || s.playerId === (user as any).player?.id)) return true;
                         const userNameLower = (user.nama || (user as any).name || '').toLowerCase().trim();
                         const occLower = (s.occupant || '').toLowerCase().trim();
-                        return Boolean(
-                          (userNameLower && occLower && (occLower.includes(userNameLower) || userNameLower.includes(occLower))) ||
-                          (s.playerId && (s.playerId === user.id || s.playerId === (user as any).player_id || s.playerId === (user as any).player?.id))
-                        );
+                        return Boolean(userNameLower && occLower && userNameLower === occLower);
                       };
 
                       return (
@@ -2003,7 +2044,7 @@ function PemesananContent() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: '#5A675E' }}>Standar Tarif:</span>
-                      <span style={{ fontWeight: 700, color: '#059669', fontSize: '12px' }}>Tarif Khusus {portalParam === 'event' ? 'Turnamen' : 'Terjadwal'}</span>
+                      <span style={{ fontWeight: 700, color: '#059669', fontSize: '12px' }}>Tarif Khusus {portalParam === 'event' ? 'Event' : 'Terjadwal'}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: '#5A675E' }}>Biaya Layanan &amp; Pemeliharaan</span>
@@ -2082,7 +2123,7 @@ function PemesananContent() {
                 ) : (
                   <button
                     type="button"
-                    onClick={handleProceedPayment}
+                    onClick={handleInitiatePayment}
                     disabled={isProcessing}
                     style={{
                       width: '100%',
@@ -2102,7 +2143,7 @@ function PemesananContent() {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <span>{isProcessing ? 'Memproses Transaksi...' : 'Lanjut ke Pembayaran'}</span>
+                    <span>{isProcessing ? 'Memproses Transaksi...' : 'Kunci Kursi & Lanjut Bayar'}</span>
                     <ArrowRight size={16} />
                   </button>
                 )}
@@ -3016,6 +3057,195 @@ function PemesananContent() {
       )}
 
       {/* =========================================================================
+          MODAL KONFIRMASI & KUNCI KURSI SEBELUM PEMBAYARAN
+         ========================================================================= */}
+      {isConfirmSeatOpen && selectedTableId && selectedSeat && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.7)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100000,
+          padding: '20px'
+        }}>
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            maxWidth: '480px',
+            width: '100%',
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: '2px solid #183629',
+            animation: 'fadeIn 0.2s ease-out'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              backgroundColor: '#183629',
+              color: '#FAF8F5',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '34px',
+                  height: '34px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Lock size={18} color="#86EFAC" />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#FAF8F5' }}>
+                    Konfirmasi &amp; Kunci Kursi Anda
+                  </h3>
+                  <div style={{ fontSize: '11px', color: '#A3E6B4' }}>
+                    Pastikan pilihan kursi sudah sesuai sebelum pembayaran
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfirmSeatOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#C5D2CB',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+                aria-label="Tutup"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '22px 24px' }}>
+              {/* Highlight Pilihan Kursi */}
+              <div style={{
+                backgroundColor: '#F8FAF9',
+                borderRadius: '12px',
+                padding: '16px',
+                border: '1.5px solid #EBF1ED',
+                marginBottom: '16px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '12px', color: '#64748B', fontWeight: 600 }}>Posisi Kursi Dipilih:</span>
+                  <span style={{
+                    backgroundColor: '#183629',
+                    color: '#FFFFFF',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span style={{ fontSize: '15px' }}>{WIND_DETAILS[selectedSeat]?.kanji}</span>
+                    <span>{WIND_DETAILS[selectedSeat]?.name}</span>
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontSize: '13px' }}>
+                  <span style={{ color: '#64748B' }}>Meja Permainan:</span>
+                  <span style={{ fontWeight: 700, color: '#183629' }}>
+                    {tables.find((t) => t.id === selectedTableId)?.nomor || 'Meja Terpilih'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', fontSize: '13px' }}>
+                  <span style={{ color: '#64748B' }}>Sesi / Jadwal:</span>
+                  <span style={{ fontWeight: 600, color: '#0F172A' }}>
+                    {selectedDate} • {isScheduledPortal ? sessionTimeString : `${selectedTime} WIB`}
+                  </span>
+                </div>
+
+                <div style={{ borderTop: '1px dashed #CBD5E1', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#004F27', fontWeight: 700, fontSize: '13px' }}>Total Biaya Kursi:</span>
+                  <span style={{ fontWeight: 900, color: '#004F27', fontSize: '18px' }}>
+                    Rp {totalPrice.toLocaleString('id-ID')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Notice text */}
+              <div style={{
+                backgroundColor: '#EFF6FF',
+                border: '1px solid #BFDBFE',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '12px',
+                color: '#1E40AF',
+                lineHeight: 1.5,
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'flex-start',
+                marginBottom: '20px'
+              }}>
+                <ShieldCheck size={16} color="#2563EB" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span>
+                  Setelah menekan <strong>Kunci Kursi &amp; Bayar</strong>, kursi ini akan dikunci dan transaksi siap diselesaikan.
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmSeatOpen(false)}
+                  style={{
+                    backgroundColor: '#F1F5F9',
+                    color: '#475569',
+                    padding: '11px 18px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    border: '1px solid #CBD5E1',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Ganti Kursi
+                </button>
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={handleProceedPayment}
+                  style={{
+                    backgroundColor: isProcessing ? '#94A3B8' : '#183629',
+                    color: '#FAF8F5',
+                    padding: '11px 22px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: 800,
+                    border: 'none',
+                    cursor: isProcessing ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(24, 54, 41, 0.25)'
+                  }}
+                >
+                  <Lock size={14} />
+                  <span>{isProcessing ? 'Memproses...' : 'Kunci Kursi & Lanjut Bayar'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
           IN-APP REGULATION & ALERT MODAL (Replaces ugly browser window.alert)
          ========================================================================= */}
       {noticeDialog.isOpen && (
@@ -3212,7 +3442,7 @@ function SeatButton({
         whiteSpace: 'nowrap',
         maxWidth: '50px'
       }}>
-        {isSelected ? 'Anda' : isUserSeat ? 'Anda' : isTaken ? seat.occupant : isTableLocked ? 'Kunci' : 'Pilih'}
+        {isSelected ? 'Dipilih' : isUserSeat ? 'Anda' : isTaken ? seat.occupant : isTableLocked ? 'Kunci' : 'Pilih'}
       </div>
     </button>
   );

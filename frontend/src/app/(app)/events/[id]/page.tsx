@@ -766,7 +766,7 @@ export default function EventDetailPage() {
                           }}
                         >
                           <Ticket size={16} />
-                          <span>Pilih Meja &amp; Kursi Turnamen</span>
+                          <span>Pilih Meja &amp; Kursi Event</span>
                         </Link>
                       );
                     })()}

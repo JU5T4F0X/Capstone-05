@@ -919,7 +919,7 @@ function AdminDashboardContent() {
                     </div>
                     <div className="adm-stat-number">
                       {loadingStats ? '...' : realEvents.length}{' '}
-                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Turnamen</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Event</span>
                     </div>
                     <div className="adm-stat-meta">
                       <span className="adm-stat-pill adm-stat-pill-green">
@@ -2388,7 +2388,7 @@ function AdminDashboardContent() {
                   padding: '12px 14px'
                 }}>
                   <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#5A675E', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                    Turnamen / Event
+                    Event Terkait
                   </div>
                   <div style={{ fontSize: '13px', fontWeight: 700, color: '#111E18', marginTop: '3px', lineHeight: 1.35 }}>
                     {showReceiptModal.eventName}
@@ -2411,7 +2411,7 @@ function AdminDashboardContent() {
                     {showReceiptModal.amount}
                   </div>
                   <div style={{ fontSize: '11px', color: '#5A675E', marginTop: '2px' }}>
-                    Biaya Pendaftaran Turnamen
+                    Biaya Registrasi / Tiket Sesi
                   </div>
                 </div>
 
