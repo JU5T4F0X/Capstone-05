@@ -162,7 +162,7 @@ function EventsVenuesContent() {
           </h1>
           <p className="ev-hero-subtitle">
             {activeTab === 'events'
-              ? 'Ikuti turnamen resmi bersertifikasi WRC, gathering komunitas akhir pekan, dan workshop taktis bersama atlet profesional.'
+              ? 'Ikuti event komunitas MahjongYuks, gathering santai akhir pekan, dan workshop taktis bersama pemain berpengalaman.'
               : 'Kunjungi Game House MahjongYuks berstandar resmi dengan fasilitas meja otomatis.'}
           </p>
         </div>
@@ -228,7 +228,7 @@ function EventsVenuesContent() {
                   aria-label="Filter Kategori"
                 >
                   <option value="all">Semua Kategori</option>
-                  <option value="kompetitif">Turnamen Resmi (WRC)</option>
+                  <option value="kompetitif">Event Kompetisi</option>
                   <option value="santai">Sesi Santai &amp; Gathering</option>
                   <option value="workshop">Workshop &amp; Kelas Pemula</option>
                 </select>
@@ -328,11 +328,11 @@ function EventsVenuesContent() {
               <div className="ev-grid">
                 {filteredEvents.map((event) => {
                   const badgeClass =
-                    event.kategori?.toLowerCase().includes('resmi') || event.kategori?.toLowerCase().includes('kompetitif')
-                      ? 'ev-badge-competitive'
-                      : event.kategori?.toLowerCase().includes('santai')
+                    event.kategori?.toLowerCase().includes('santai')
                       ? 'ev-badge-casual'
-                      : 'ev-badge-workshop';
+                      : event.kategori?.toLowerCase().includes('workshop')
+                      ? 'ev-badge-workshop'
+                      : 'ev-badge-competitive';
 
                   return (
                     <article key={event.id} className="ev-card">
@@ -345,7 +345,9 @@ function EventsVenuesContent() {
                           className="ev-card-image"
                         />
                         <span className={`ev-badge-category ${badgeClass}`}>
-                          {event.kategori || 'Turnamen Resmi'}
+                          {event.kategori && !event.kategori.toLowerCase().includes('turnamen resmi')
+                            ? event.kategori
+                            : 'Event'}
                         </span>
                         <span className={`ev-badge-status ${event.status === 'active' ? 'active' : ''}`}>
                           {event.status === 'active' ? 'Dibuka' : 'Selesai'}

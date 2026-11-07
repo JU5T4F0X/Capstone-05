@@ -5,14 +5,14 @@ export const FEATURED_EVENTS: EventSession[] = [
   {
     id: 'ev-1',
     category: 'kompetitif',
-    categoryLabel: 'Turnamen Resmi',
+    categoryLabel: 'Event',
     title: 'Hong Kong Style Autumn Masters 2026',
     venue: 'Game House',
     dateTime: 'Sab, 28 Okt • 13:00 WIB',
     price: 'Rp 150.000',
     priceUnit: '/kursi',
     description: 'Turnamen 4 ronde Hong Kong Style resmi. Akumulasi poin terhitung langsung ke leaderboard nasional.',
-    tags: ['Turnamen Resmi', 'Hadiah Rp 5 Juta'],
+    tags: ['Event Komunitas', 'Hadiah Rp 5 Juta'],
     image: '/landing/event-clash.jpg',
     seatsRemaining: 4,
   },
@@ -47,7 +47,7 @@ export const FEATURED_EVENTS: EventSession[] = [
   {
     id: 'ev-4',
     category: 'kompetitif',
-    categoryLabel: 'Turnamen Resmi',
+    categoryLabel: 'Event',
     title: 'Bandung Dan-Ranked Invitational',
     venue: 'BANDUNG TILE SOCIETY',
     dateTime: 'Sab, 04 Nov • 14:00 WIB',
@@ -103,7 +103,7 @@ export const VENUE_BRANCHES: VenueBranch[] = [
     features: [
       'Meja Otomatis dengan sensor ubin terintegrasi',
       'Ruang ber-AC dengan ventilasi yang nyaman',
-      'Standar regulasi turnamen resmi Hong Kong Mahjong',
+      'Standar regulasi resmi Hong Kong Mahjong',
       'Area parkir luas, keamanan 24 jam, dan kafe refreshment',
     ],
     description: 'Homebase MahjongYuks di Game House Sedayu City Kelapa Gading. Pusat seluruh kegiatan bermain, pelatihan, turnamen, dan pelayanan bagi pengunjung.',
@@ -179,7 +179,7 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   {
     stepNumber: 'Langkah 01',
     title: 'Pilih Jadwal & Sesi Bermain',
-    description: 'Tentukan sesi yang sesuai dengan level keahlian Anda, mulai dari kelas pengenalan pemula hingga turnamen resmi berperingkat. Anda tidak perlu membawa peralatan sendiri.',
+    description: 'Tentukan sesi yang sesuai dengan level keahlian Anda, mulai dari kelas pengenalan pemula hingga event komunitas. Anda tidak perlu membawa peralatan sendiri.',
   },
   {
     stepNumber: 'Langkah 02',
@@ -197,5 +197,5 @@ export const QUICK_FILTER_TABS = [
   { id: 'all', label: 'Semua Sesi' },
   { id: 'pemula', label: 'Ramah Pemula' },
   { id: 'santai', label: 'Sesi Santai' },
-  { id: 'kompetitif', label: 'Turnamen Resmi' },
+  { id: 'kompetitif', label: 'Event Kompetisi' },
 ];

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import ApiClient from '@/lib/api';
 import DashboardNavbar from '@/components/dashboard/DashboardNavbar';
 import LandingNavbar from '@/components/landing/LandingNavbar';
 import '@/components/landing/landing.css';
@@ -14,12 +15,17 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const { user } = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    const savedUser = ApiClient.getUser();
+    if (savedUser && savedUser.role === 'admin') {
+      router.replace('/admin/dashboard');
+    }
+  }, [router]);
 
   // Determine whether this route is publicly viewable without authentication
   const isPublicRoute =

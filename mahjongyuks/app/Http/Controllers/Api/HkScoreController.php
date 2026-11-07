@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\HkRecordWinRequest;
 use App\Models\AuditLog;
 use App\Models\DetailPemesanan;
 use App\Models\Event;
@@ -67,7 +68,7 @@ class HkScoreController extends Controller
             $isPlayable = $s->isCurrentlyPlayable();
             $namaSesi = $s->nama_sesi;
             if (!$namaSesi && $s->event) {
-                $namaSesi = 'Turnamen: ' . $s->event->nama_event;
+                $namaSesi = 'Event: ' . $s->event->nama_event;
             } elseif (!$namaSesi) {
                 $namaSesi = 'Sesi Meja #' . $s->id;
             }
@@ -194,19 +195,8 @@ class HkScoreController extends Controller
      * Input & Simpan Kemenangan Ronde (Alur Inti Wasit).
      * Menerapkan transaksi database, idempotency key, row lock, dan validasi waktu sesi.
      */
-    public function recordWin(Request $request): JsonResponse
+    public function recordWin(HkRecordWinRequest $request): JsonResponse
     {
-        $request->validate([
-            'sesi_id' => 'required|exists:sesi_bermains,id',
-            'game_table_id' => 'required|exists:game_tables,id',
-            'winner_id' => 'required|exists:players,id',
-            'win_method' => 'required|in:self_draw,discard',
-            'discarder_id' => 'nullable|exists:players,id',
-            'hand_codes' => 'required|array|min:1',
-            'hand_codes.*' => 'required|string',
-            'idempotency_key' => 'required|string|max:64',
-        ]);
-
         $idempotencyKey = $request->idempotency_key;
 
         // 1. Cek Idempotency: Jika key sudah ada, kembalikan record yang sama tanpa menduplikasi poin
@@ -653,7 +643,7 @@ class HkScoreController extends Controller
             $sesi = SesiBermain::updateOrCreate(
                 ['event_id' => $event->id],
                 [
-                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'nama_sesi' => 'Event: ' . $event->nama_event,
                     'tanggal_permainan' => $dateStr,
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,

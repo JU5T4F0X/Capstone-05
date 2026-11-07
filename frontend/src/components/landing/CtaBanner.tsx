@@ -19,7 +19,7 @@ export default function CtaBanner({ onSecureBooking }: CtaBannerProps) {
             </h2>
 
             <p className="landing-cta-desc">
-              Pesan kursi Anda di Game House, ikuti turnamen resmi berstandar WRC, atau mulai belajar dari nol bersama pelatih kami.
+              Pesan kursi Anda di Game House, ikuti event komunitas berstandar profesional, atau mulai belajar dari nol bersama pelatih kami.
             </p>
 
             <div className="landing-cta-actions">

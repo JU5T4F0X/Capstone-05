@@ -238,15 +238,13 @@ export default function EventDetailPage() {
   const sisaQuota = event?.sisa_kuota !== undefined ? event.sisa_kuota : Math.max(0, maxQuota - filledQuota);
   const percentFilled = Math.min(100, Math.round((filledQuota / maxQuota) * 100));
 
-  const isCompetitive =
-    event?.kategori?.toLowerCase().includes('resmi') ||
-    event?.kategori?.toLowerCase().includes('kompetitif');
   const isCasual = event?.kategori?.toLowerCase().includes('santai');
-  const badgeCategoryClass = isCompetitive
-    ? 'ev-badge-competitive'
-    : isCasual
+  const isWorkshop = event?.kategori?.toLowerCase().includes('workshop') || event?.kategori?.toLowerCase().includes('taktik');
+  const badgeCategoryClass = isCasual
     ? 'ev-badge-casual'
-    : 'ev-badge-workshop';
+    : isWorkshop
+    ? 'ev-badge-workshop'
+    : 'ev-badge-competitive';
 
   return (
     <div className="ev-page-wrapper">
@@ -457,7 +455,9 @@ export default function EventDetailPage() {
 
                 {/* Badge Kategori & Status di Atas Banner */}
                 <span className={`ev-badge-category ${badgeCategoryClass}`} style={{ top: '20px', left: '20px' }}>
-                  {event.kategori || 'Turnamen Resmi'}
+                  {event.kategori && !event.kategori.toLowerCase().includes('turnamen resmi')
+                    ? event.kategori
+                    : 'Event'}
                 </span>
                 <span className={status.badgeClass} style={{ top: '20px', right: '20px' }}>
                   {status.label}
@@ -736,7 +736,7 @@ export default function EventDetailPage() {
                       const qParams = new URLSearchParams({
                         portal: 'event',
                         event_id: String(event.id),
-                        title: event.nama_event || 'Turnamen Mahjong Resmi',
+                        title: event.nama_event || 'Event Mahjong',
                         price: String(numericPrice),
                         date: event.tanggal_event || '2026-11-05',
                         time: timeStr,

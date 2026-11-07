@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
           <span style={{ color: '#D7E6DB', fontSize: '16px' }}>|</span>
 
           <span style={{ fontSize: '12px', color: '#5A675E', fontWeight: 500 }}>
-            Game House & Turnamen System
+            Game House & Event Management System
           </span>
         </div>
 

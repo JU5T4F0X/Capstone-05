@@ -3,45 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\Player;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
      * Registrasi Akun Pemain Baru
      */
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'nama' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:6'],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
-            'tingkat_kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
-            'kemahiran' => ['nullable', 'string', 'in:beginner,intermediate,advance,Beginner,Intermediate,Advance'],
-        ], [
-            'tingkat_kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
-            'kemahiran.in' => 'Tingkat kemahiran hanya boleh: beginner, intermediate, atau advance.',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal: Periksa kembali data pendaftaran.',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        $validated = $request->validated();
 
         $user = User::create([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_telepon' => $request->no_telepon,
+            'nama' => $validated['nama'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'no_telepon' => $validated['no_telepon'] ?? null,
             'role' => 'player',
         ]);
 
@@ -83,15 +66,15 @@ class AuthController extends Controller
     /**
      * Login User (Admin / Pemain)
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         $input = $request->input('email') ?? $request->input('identifier') ?? $request->input('no_telepon');
         $password = $request->input('password');
 
-        if (empty($input) || empty($password)) {
+        if (empty($input)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email/ID dan kata sandi wajib diisi.',
+                'message' => 'Email, ID Anggota, atau Nomor HP wajib diisi.',
             ], 422);
         }
 

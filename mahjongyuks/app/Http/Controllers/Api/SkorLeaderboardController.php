@@ -191,7 +191,7 @@ class SkorLeaderboardController extends Controller
         if (!$sesiId) {
             $event = $request->event_id ? Event::find($request->event_id) : null;
             $namaSesi = $event 
-                ? 'Turnamen: ' . $event->nama_event 
+                ? 'Event: ' . $event->nama_event 
                 : 'Sesi Pertandingan (' . now()->translatedFormat('d M Y H:i') . ')';
 
             $sesi = SesiBermain::create([

@@ -87,8 +87,8 @@ class HkScoringFeatureTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.min_fan', 3)
             ->assertJsonPath('data.max_fan_limit', 10)
-            ->assertJsonPath('data.points_table.3.discard', 3)
-            ->assertJsonPath('data.points_table.3.self_draw_total', 3);
+            ->assertJsonPath('data.points_table.3.discard', 8)
+            ->assertJsonPath('data.points_table.3.self_draw_total', 12);
     }
 
     public function test_referee_can_fetch_sessions_and_tables(): void
@@ -127,14 +127,14 @@ class HkScoringFeatureTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.fan', 3)
-            ->assertJsonPath('data.points_awarded', 3)
+            ->assertJsonPath('data.points_awarded', 8)
             ->assertJsonPath('data.round_number', 1);
 
         // Check DB
         $this->assertDatabaseHas('win_records', [
             'game_table_id' => $this->table->id,
             'winner_id' => $winner->id,
-            'points_awarded' => 3,
+            'points_awarded' => 8,
             'active_flag' => 1,
         ]);
 
@@ -259,10 +259,10 @@ class HkScoringFeatureTest extends TestCase
         $resWin->assertStatus(201);
         $recordId = $resWin->json('data.id');
 
-        // Leaderboard should have 8 points
+        // Leaderboard should have 96 points (8 Fan self draw)
         $resLead = $this->getJson('/api/leaderboard');
         $playerRow = collect($resLead->json('data'))->firstWhere('player_id', $winner->id);
-        $this->assertEquals(8, $playerRow['points']);
+        $this->assertEquals(96, $playerRow['points']);
 
         // 2. Void the win
         $resVoid = $this->actingAs($this->adminUser)->postJson("/api/hk/win-records/{$recordId}/void", [
@@ -298,9 +298,9 @@ class HkScoringFeatureTest extends TestCase
         $resLead->assertStatus(200);
 
         $playerRow = collect($resLead->json('data'))->firstWhere('player_id', $winner->id);
-        $this->assertEquals(10, $playerRow['points']);
-        $this->assertEquals('Adept', $playerRow['rankTitle']);
-        $this->assertEquals('2-Dan', $playerRow['danRank']);
+        $this->assertEquals(192, $playerRow['points']);
+        $this->assertEquals('Grandmaster', $playerRow['rankTitle']);
+        $this->assertEquals('9-Dan', $playerRow['danRank']);
         $this->assertEquals(1, $playerRow['rank']);
     }
 }

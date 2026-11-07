@@ -426,7 +426,7 @@ class EventController extends Controller
             SesiBermain::updateOrCreate(
                 ['event_id' => $event->id],
                 [
-                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'nama_sesi' => 'Event: ' . $event->nama_event,
                     'tanggal_permainan' => $dateStr,
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,
@@ -506,7 +506,7 @@ class EventController extends Controller
             SesiBermain::updateOrCreate(
                 ['event_id' => $event->id],
                 [
-                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'nama_sesi' => 'Event: ' . $event->nama_event,
                     'tanggal_permainan' => $dateStr,
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,
@@ -609,7 +609,7 @@ class EventController extends Controller
         }
 
         // Kategori & Badge
-        $category = 'Turnamen Resmi';
+        $category = 'Event';
         $badgeClass = 'db-event-badge-dark';
         if (stripos($event->nama_event, 'Casual') !== false || stripos($event->nama_event, 'Dimsum') !== false) {
             $category = 'Sesi Santai';
