@@ -147,8 +147,12 @@ export default function AdminScoreManager() {
       if (res.success && Array.isArray(res.data)) {
         setSessions(res.data);
         if (res.data.length > 0) {
-          const currentValid = res.data.find((s: SessionData) => s.id === selectedSessionId && s.is_playable);
-          if (!currentValid) {
+          const urlParamSession = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('session_id') : null;
+          const targetSessionId = urlParamSession ? Number(urlParamSession) : selectedSessionId;
+          const currentValid = res.data.find((s: SessionData) => s.id === targetSessionId && s.is_playable);
+          if (currentValid) {
+            setSelectedSessionId(currentValid.id);
+          } else {
             const playable = res.data.find((s: SessionData) => s.is_playable) || res.data[0];
             setSelectedSessionId(playable.id);
           }
@@ -829,7 +833,7 @@ export default function AdminScoreManager() {
               >
                 {sessions.map((s) => (
                   <option key={s.id} value={s.id} disabled={!s.is_playable}>
-                    {s.nama_sesi} • {s.tanggal_formatted || 'Hari ini'} ({s.waktu_mulai ?? '09:00'} - {s.waktu_selesai ?? '23:59'}) {!s.is_playable ? '— [WAKTU HABIS]' : '— [AKTIF]'}
+                    {s.nama_sesi} • {s.tanggal_formatted || 'Hari ini'} ({s.waktu_mulai ?? '09:00'} - {s.waktu_selesai ?? '23:59'}){!s.is_playable ? ' — [WAKTU HABIS]' : ''}
                   </option>
                 ))}
               </select>
@@ -903,34 +907,22 @@ export default function AdminScoreManager() {
                   <span>PEMAIN PEMENANG DI MEJA INI</span>
                 </label>
 
-                {(currentTable.players?.length || 0) < 4 ? (
-                  <div style={{
-                    fontSize: '12.5px',
-                    color: '#991B1B',
-                    backgroundColor: '#FEE2E2',
-                    padding: '12px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #FCA5A5',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginBottom: '8px',
-                  }}>
-                    <AlertTriangle size={16} color="#DC2626" style={{ flexShrink: 0 }} />
-                    <span>
-                      <strong>Permainan Belum Dapat Dimulai:</strong> Meja ini baru memiliki {currentTable.players?.length || 0}/4 pemain. Sesuai regulasi MahjongYuks, permainan tidak dapat dimulai jika pemain yang hadir kurang dari 4 orang.
-                    </span>
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
-                    {currentTable.players.map((tp) => {
+                {/* Grid 4 Kursi Meja Mahjong (East, South, West, North) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                  {(['East', 'South', 'West', 'North'] as const).map((wind, windIdx) => {
+                    const tp = currentTable.players?.find(
+                      (p) => (p.seat_wind || '').toLowerCase() === wind.toLowerCase()
+                    ) || (currentTable.players && currentTable.players.length > windIdx && !currentTable.players.some(p => (p.seat_wind || '').toLowerCase() === wind.toLowerCase()) ? currentTable.players[windIdx] : null);
+
+                    if (tp) {
                       const isWinner = selectedWinnerId === tp.player_id;
+                      const isTablePlayable = (currentTable.players?.length || 0) >= 2;
                       return (
                         <div
                           key={tp.player_id}
                           onClick={() => {
+                            if (!isTablePlayable) return;
                             setSelectedWinnerId(tp.player_id);
-                            // Jika discarder sama dengan pemenang baru, reset discarder
                             if (selectedDiscarderId === tp.player_id) {
                               const other = currentTable.players.find((p) => p.player_id !== tp.player_id);
                               setSelectedDiscarderId(other?.player_id || null);
@@ -942,13 +934,13 @@ export default function AdminScoreManager() {
                             border: `2px solid ${isWinner ? '#004F27' : '#D7E6DB'}`,
                             backgroundColor: isWinner ? '#004F27' : '#FFFFFF',
                             color: isWinner ? '#FFFFFF' : '#111E18',
-                            cursor: 'pointer',
+                            cursor: isTablePlayable ? 'pointer' : 'default',
                             textAlign: 'center',
                             transition: 'all 0.15s ease'
                           }}
                         >
                           <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 800, opacity: isWinner ? 0.8 : 0.6, letterSpacing: '0.4px' }}>
-                            {tp.seat_wind}
+                            {wind}
                           </div>
                           <div style={{ fontWeight: 800, fontSize: '12.5px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {tp.nama}
@@ -958,9 +950,77 @@ export default function AdminScoreManager() {
                           </div>
                         </div>
                       );
-                    })}
+                    }
+
+                    // Kursi Kosong (Belum ada pendaftar)
+                    return (
+                      <div
+                        key={wind}
+                        style={{
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px dashed #D1D5DB',
+                          backgroundColor: '#F9FAFB',
+                          color: '#9CA3AF',
+                          textAlign: 'center',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          minHeight: '74px'
+                        }}
+                      >
+                        <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 800, opacity: 0.7, letterSpacing: '0.4px' }}>
+                          {wind}
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: '12px', marginTop: '2px', color: '#6B7280' }}>
+                          Kursi Kosong
+                        </div>
+                        <div style={{ fontSize: '10px', marginTop: '2px', color: '#9CA3AF' }}>
+                          (Belum Terdaftar)
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Banner Status Kesiapan Meja */}
+                {(currentTable.players?.length || 0) < 2 ? (
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#991B1B',
+                    backgroundColor: '#FEF2F2',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #FECACA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '10px',
+                  }}>
+                    <AlertTriangle size={16} color="#DC2626" style={{ flexShrink: 0 }} />
+                    <span>
+                      <strong>Permainan Belum Dapat Dimulai:</strong> Meja ini baru memiliki {currentTable.players?.length || 0} pemain terdaftar{currentTable.players?.[0] ? ` (${currentTable.players[0].nama})` : ''}. Pertandingan Mahjong minimal memerlukan 2 pemain di meja untuk dapat memulai ronde dan mencatat skor (tidak bisa hanya 1 pemain).
+                    </span>
                   </div>
-                )}
+                ) : (currentTable.players?.length || 0) < 4 ? (
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#065F46',
+                    backgroundColor: '#ECFDF5',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #A7F3D0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '10px',
+                  }}>
+                    <CheckCircle size={15} color="#059669" style={{ flexShrink: 0 }} />
+                    <span>
+                      <strong>Meja Siap Dimainkan:</strong> Meja ini memiliki {currentTable.players?.length} pemain terdaftar ({currentTable.players?.map(p => p.nama).join(', ')}). Skor ronde sudah dapat dicatat oleh wasit.
+                    </span>
+                  </div>
+                ) : null}
               </div>
 
               {/* CARA MENANG: TARIK SENDIRI VS BUANG LAWAN */}
@@ -1021,33 +1081,39 @@ export default function AdminScoreManager() {
                   <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#2B3830', marginBottom: '6px' }}>
                     Pemain yang Membuang Tile Kemenangan (Discarder):
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
-                    {currentTable.players
-                      .filter((p) => p.player_id !== selectedWinnerId)
-                      .map((dp) => {
-                        const isDiscarder = selectedDiscarderId === dp.player_id;
-                        return (
-                          <div
-                            key={dp.player_id}
-                            onClick={() => setSelectedDiscarderId(dp.player_id)}
-                            style={{
-                              padding: '8px 10px',
-                              borderRadius: '8px',
-                              border: `1.5px solid ${isDiscarder ? '#DC2626' : '#D7E6DB'}`,
-                              backgroundColor: isDiscarder ? '#FEF2F2' : '#FFFFFF',
-                              color: isDiscarder ? '#991B1B' : '#111E18',
-                              cursor: 'pointer',
-                              textAlign: 'center',
-                              fontWeight: 700,
-                              fontSize: '12px'
-                            }}
-                          >
-                            <span style={{ fontSize: '10px', opacity: 0.7 }}>{dp.seat_wind}</span>
-                            <div style={{ marginTop: '2px' }}>{dp.nama}</div>
-                          </div>
-                        );
-                      })}
-                  </div>
+                  {currentTable.players.filter((p) => p.player_id !== selectedWinnerId).length === 0 ? (
+                    <div style={{ fontSize: '11px', color: '#7A897F', fontStyle: 'italic', padding: '6px 0' }}>
+                      Belum ada pemain lawan di meja ini untuk dipilih sebagai pembuang tile.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
+                      {currentTable.players
+                        .filter((p) => p.player_id !== selectedWinnerId)
+                        .map((dp) => {
+                          const isDiscarder = selectedDiscarderId === dp.player_id;
+                          return (
+                            <div
+                              key={dp.player_id}
+                              onClick={() => setSelectedDiscarderId(dp.player_id)}
+                              style={{
+                                padding: '8px 10px',
+                                borderRadius: '8px',
+                                border: `1.5px solid ${isDiscarder ? '#DC2626' : '#D7E6DB'}`,
+                                backgroundColor: isDiscarder ? '#FEF2F2' : '#FFFFFF',
+                                color: isDiscarder ? '#991B1B' : '#111E18',
+                                cursor: 'pointer',
+                                textAlign: 'center',
+                                fontWeight: 700,
+                                fontSize: '12px'
+                              }}
+                            >
+                              <span style={{ fontSize: '10px', opacity: 0.7 }}>{dp.seat_wind}</span>
+                              <div style={{ marginTop: '2px' }}>{dp.nama}</div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1388,7 +1454,7 @@ export default function AdminScoreManager() {
             disabled={
               isSubmitting ||
               !liveCalculation.isValid ||
-              (currentTable?.players?.length ?? 0) < 4 ||
+              (currentTable?.players?.length ?? 0) < 2 ||
               !selectedWinnerId ||
               (winMethod === 'discard' && !selectedDiscarderId)
             }
@@ -1401,7 +1467,7 @@ export default function AdminScoreManager() {
               opacity:
                 isSubmitting ||
                 !liveCalculation.isValid ||
-                (currentTable?.players?.length ?? 0) < 4 ||
+                (currentTable?.players?.length ?? 0) < 2 ||
                 !selectedWinnerId ||
                 (winMethod === 'discard' && !selectedDiscarderId)
                   ? 0.6
@@ -1409,7 +1475,7 @@ export default function AdminScoreManager() {
               cursor:
                 isSubmitting ||
                 !liveCalculation.isValid ||
-                (currentTable?.players?.length ?? 0) < 4 ||
+                (currentTable?.players?.length ?? 0) < 2 ||
                 !selectedWinnerId ||
                 (winMethod === 'discard' && !selectedDiscarderId)
                   ? 'not-allowed'
@@ -1420,8 +1486,8 @@ export default function AdminScoreManager() {
             <span>
               {isSubmitting
                 ? 'Menyimpan & Menyinkronkan...'
-                : (currentTable?.players?.length ?? 0) < 4
-                ? `Menunggu 4 Pemain Lengkap (${currentTable?.players?.length ?? 0}/4)`
+                : (currentTable?.players?.length ?? 0) < 2
+                ? `Minimal 2 Pemain Diperlukan (${currentTable?.players?.length ?? 0}/2)`
                 : !selectedWinnerId
                 ? 'Pilih Pemain Pemenang di Langkah #3'
                 : winMethod === 'discard' && !selectedDiscarderId

@@ -695,28 +695,7 @@ function AdminDashboardContent() {
     }
   };
 
-  const [isResettingScore, setIsResettingScore] = useState(false);
 
-  const handleResetLeaderboard = async () => {
-    if (!confirm('Apakah Anda yakin ingin me-reset seluruh poin atlet menjadi 0? Tindakan ini akan mengosongkan riwayat skor.')) {
-      return;
-    }
-    setIsResettingScore(true);
-    try {
-      const res = await ApiClient.resetLeaderboardScores();
-      if (res.success) {
-        showToast('Seluruh poin atlet berhasil di-reset menjadi 0.');
-        const lb = await ApiClient.getLeaderboard({ limit: 10 });
-        if (lb.success && lb.data) setLiveLeaderboard(lb.data);
-      } else {
-        showToast(res.message || 'Gagal me-reset poin.');
-      }
-    } catch {
-      showToast('Error koneksi ke server saat me-reset poin.');
-    } finally {
-      setIsResettingScore(false);
-    }
-  };
 
   // ── 4. PROFIL ADMIN STATE ──
   const [adminName, setAdminName] = useState(user?.nama || 'Staf Operasional Sedayu');
