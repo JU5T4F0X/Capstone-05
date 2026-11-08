@@ -37,6 +37,6 @@ Thumbs.db
 *.sln
 *.sw?
 
-# Temporary & Diagram Artifacts
-sequence-diagram.*
-frontend/public/sequence-diagram.*
+# Temporary & Root Diagram Artifacts
+/sequence-diagram.*
+/frontend/public/sequence-diagram.*
