@@ -96,7 +96,7 @@ function JadwalContent() {
 
           <h1 className="ev-hero-title">Jadwal Pertandingan &amp; Sesi Bermain</h1>
           <p className="ev-hero-subtitle">
-            Pilih dan ikuti jadwal turnamen resmi sirkuit atau reservasi sesi bermain reguler harian dengan meja otomatis di Game House MahjongYuks.
+            Pilih dan ikuti jadwal event komunitas atau reservasi sesi bermain reguler harian dengan meja otomatis di Game House MahjongYuks.
           </p>
         </div>
       </section>

@@ -513,15 +513,15 @@ export default function AdminEventManager() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
             <span style={{ fontSize: '11px', fontWeight: 800, color: '#004F27', textTransform: 'uppercase', letterSpacing: '0.6px', backgroundColor: '#EBF6EE', padding: '3px 8px', borderRadius: '4px' }}>
-              TURNAMEN &amp; KOMPETISI RESMI
+              INFORMASI EVENT
             </span>
           </div>
           <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#111E18', margin: 0, display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '-0.3px' }}>
-            <Trophy size={22} color="#004F27" />
-            <span>Manajemen Event &amp; Turnamen Mahjong</span>
+            <Calendar size={22} color="#004F27" />
+            <span>Manajemen Event</span>
           </h1>
           <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#5A675E' }}>
-            Kelola jadwal turnamen resmi WRC, sesi gathering santai, alokasi kuota meja, dan penetapan venue acara.
+            Kelola seluruh jadwal event resmi, sesi gathering santai, alokasi kuota meja, dan penetapan venue acara.
           </p>
         </div>
 
@@ -540,13 +540,13 @@ export default function AdminEventManager() {
         {/* Card 1: Total Event */}
         <div className="adm-stat-card">
           <div className="adm-stat-card-header">
-            <span className="adm-stat-label">Total Turnamen</span>
+            <span className="adm-stat-label">Total Event</span>
             <div className="adm-stat-icon-wrap">
-              <Trophy size={18} />
+              <Calendar size={18} />
             </div>
           </div>
           <div className="adm-stat-number">
-            {events.length} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Sesi</span>
+            {events.length} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Event</span>
           </div>
           <div className="adm-stat-meta">
             <span className="adm-stat-pill adm-stat-pill-green">
@@ -566,7 +566,7 @@ export default function AdminEventManager() {
             </div>
           </div>
           <div className="adm-stat-number" style={{ color: '#004F27' }}>
-            {activeEventsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Turnamen</span>
+            {activeEventsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Event</span>
           </div>
           <div className="adm-stat-meta">
             <span style={{ color: '#16A34A', fontWeight: 700 }}>● Registrasi Sedang Berlangsung</span>
@@ -592,16 +592,16 @@ export default function AdminEventManager() {
         {/* Card 4: Selesai */}
         <div className="adm-stat-card">
           <div className="adm-stat-card-header">
-            <span className="adm-stat-label">Turnamen Selesai</span>
+            <span className="adm-stat-label">Event Selesai</span>
             <div className="adm-stat-icon-wrap" style={{ backgroundColor: '#F3F4F6', color: '#4B5563' }}>
               <ShieldCheck size={18} />
             </div>
           </div>
           <div className="adm-stat-number">
-            {finishedEventsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Kejuaraan</span>
+            {finishedEventsCount} <span style={{ fontSize: '13px', fontWeight: 600, color: '#5A675E' }}>Event</span>
           </div>
           <div className="adm-stat-meta">
-            <span style={{ color: '#5A675E' }}>Arsip Hong Kong &amp; Skor Valid</span>
+            <span style={{ color: '#5A675E' }}>Arsip Riwayat &amp; Skor Valid</span>
           </div>
         </div>
       </div>
@@ -870,10 +870,10 @@ export default function AdminEventManager() {
             <div className="adm-modal-header">
               <div>
                 <span style={{ fontSize: '10px', fontWeight: 800, color: '#004F27', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-                  FORMULIR PENDAFTARAN TURNAMEN
+                  FORMULIR EVENT BARU
                 </span>
                 <h3 style={{ margin: '4px 0 0 0', fontSize: '18px', fontWeight: 800, color: '#111E18' }}>
-                  Tambah Event / Turnamen Baru
+                  Tambah Event Baru
                 </h3>
               </div>
               <button
@@ -890,7 +890,7 @@ export default function AdminEventManager() {
                 {/* 1. Nama Event */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
-                    Nama Event / Turnamen *
+                    Nama Event *
                   </label>
                   <input
                     type="text"
@@ -1123,10 +1123,10 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* 5. Deskripsi & Aturan Turnamen */}
+                {/* 5. Deskripsi & Aturan Event */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#183629', marginBottom: '6px' }}>
-                    Deskripsi &amp; Aturan Turnamen
+                    Deskripsi &amp; Aturan Event
                   </label>
                   <textarea
                     rows={3}
@@ -1348,7 +1348,7 @@ export default function AdminEventManager() {
                   </div>
                   <div style={{ marginTop: '8px' }}>
                     <label className="adm-form-label">
-                      <span>Nama Event / Turnamen</span>
+                      <span>Nama Event</span>
                       <span style={{ color: '#DC2626' }}>*</span>
                     </label>
                     <input
@@ -1530,11 +1530,11 @@ export default function AdminEventManager() {
                   </div>
                 </div>
 
-                {/* 5. DESKRIPSI & ATURAN TURNAMEN */}
+                {/* 5. DESKRIPSI & ATURAN EVENT */}
                 <div>
                   <div className="adm-form-subheading">
                     <FileText size={13} />
-                    <span>Deskripsi &amp; Aturan Turnamen</span>
+                    <span>Deskripsi &amp; Aturan Event</span>
                   </div>
                   <div style={{ marginTop: '8px' }}>
                     <textarea

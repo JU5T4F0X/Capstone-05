@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\HkRecordWinRequest;
 use App\Models\AuditLog;
 use App\Models\DetailPemesanan;
 use App\Models\Event;
@@ -67,7 +68,7 @@ class HkScoreController extends Controller
             $isPlayable = $s->isCurrentlyPlayable();
             $namaSesi = $s->nama_sesi;
             if (!$namaSesi && $s->event) {
-                $namaSesi = 'Turnamen: ' . $s->event->nama_event;
+                $namaSesi = 'Event: ' . $s->event->nama_event;
             } elseif (!$namaSesi) {
                 $namaSesi = 'Sesi Meja #' . $s->id;
             }
@@ -114,6 +115,12 @@ class HkScoreController extends Controller
         // Jika belum ada meja di sesi ini, buatkan meja default awal (misal Meja 1 dan Meja 2)
         if ($tables->isEmpty()) {
             $tables = $this->createDefaultTablesForSession($session);
+        } else {
+            // Sinkronkan pemain meja dengan registrasi pendaftaran/pemesanan nyata
+            $this->syncSessionTablePlayers($session);
+            $tables = GameTable::with(['tablePlayers.player.user', 'currentRound'])
+                ->where('sesi_id', $sessionId)
+                ->get();
         }
 
         $formattedTables = $tables->map(function ($tbl) use ($session) {
@@ -194,19 +201,8 @@ class HkScoreController extends Controller
      * Input & Simpan Kemenangan Ronde (Alur Inti Wasit).
      * Menerapkan transaksi database, idempotency key, row lock, dan validasi waktu sesi.
      */
-    public function recordWin(Request $request): JsonResponse
+    public function recordWin(HkRecordWinRequest $request): JsonResponse
     {
-        $request->validate([
-            'sesi_id' => 'required|exists:sesi_bermains,id',
-            'game_table_id' => 'required|exists:game_tables,id',
-            'winner_id' => 'required|exists:players,id',
-            'win_method' => 'required|in:self_draw,discard',
-            'discarder_id' => 'nullable|exists:players,id',
-            'hand_codes' => 'required|array|min:1',
-            'hand_codes.*' => 'required|string',
-            'idempotency_key' => 'required|string|max:64',
-        ]);
-
         $idempotencyKey = $request->idempotency_key;
 
         // 1. Cek Idempotency: Jika key sudah ada, kembalikan record yang sama tanpa menduplikasi poin
@@ -238,12 +234,12 @@ class HkScoreController extends Controller
             $session->update(['status' => 'ongoing']);
         }
 
-        // 3. Validasi Pemain Meja (Minimal 4 pemain untuk memulai/mencatat permainan)
+        // 3. Validasi Pemain Meja (Minimal 2 pemain untuk memulai/mencatat skor permainan)
         $tablePlayers = TablePlayer::where('game_table_id', $request->game_table_id)->pluck('player_id')->toArray();
-        if (count($tablePlayers) < 4) {
+        if (count($tablePlayers) < 2) {
             return response()->json([
                 'success' => false,
-                'message' => 'Permainan belum dapat dimulai / dicatat karena jumlah pemain di meja kurang dari 4 orang (Sesi Mahjong wajib memiliki minimal 4 pemain lengkap).',
+                'message' => 'Permainan belum dapat dicatat karena jumlah pemain di meja kurang dari 2 orang (minimal 2 pemain terdaftar untuk mencatat skor).',
             ], 422);
         }
 
@@ -653,7 +649,7 @@ class HkScoreController extends Controller
             $sesi = SesiBermain::updateOrCreate(
                 ['event_id' => $event->id],
                 [
-                    'nama_sesi' => 'Turnamen: ' . $event->nama_event,
+                    'nama_sesi' => 'Event: ' . $event->nama_event,
                     'tanggal_permainan' => $dateStr,
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,
@@ -668,18 +664,34 @@ class HkScoreController extends Controller
         }
 
         // 2. Sinkronisasi Pemesanan Meja Kompetitif hari ini yang sudah terkonfirmasi
+        // Kelompokkan pemesanan berdasarkan Slot Meja (meja_id, tanggal_main, waktu_mulai, waktu_selesai)
+        // agar seluruh pemain yang memesan di meja yang sama tergabung dalam 1 sesi, tidak terduplikasi.
         $competitiveBookings = Pemesanan::where('jenis_pemesanan', 'Competitive')
             ->whereIn('status_pemesanan', ['confirmed', 'paid'])
             ->whereDate('tanggal_main', now()->toDateString())
-            ->with(['meja.venue'])
+            ->with(['meja.venue', 'player.user', 'detailPemesanans.player.user'])
             ->get();
 
-        foreach ($competitiveBookings as $p) {
-            $dateStr = $p->tanggal_main instanceof \DateTimeInterface
-                ? $p->tanggal_main->format('Y-m-d')
-                : substr((string)$p->tanggal_main, 0, 10);
+        $groupedSlots = $competitiveBookings->groupBy(function ($b) {
+            $dateStr = $b->tanggal_main instanceof \DateTimeInterface
+                ? $b->tanggal_main->format('Y-m-d')
+                : substr((string)$b->tanggal_main, 0, 10);
+            $waktuMulai = $b->waktu_mulai ? substr((string)$b->waktu_mulai, 0, 8) : '00:00:00';
+            $waktuSelesai = $b->waktu_selesai ? substr((string)$b->waktu_selesai, 0, 8) : '23:59:00';
+            return "{$b->meja_id}_{$dateStr}_{$waktuMulai}_{$waktuSelesai}";
+        });
 
-            $waktuSelesai = $p->waktu_selesai ? substr((string)$p->waktu_selesai, 0, 8) : '23:59:00';
+        foreach ($groupedSlots as $slotKey => $bookingsInSlot) {
+            $firstBooking = $bookingsInSlot->first();
+            if (!$firstBooking) {
+                continue;
+            }
+
+            $dateStr = $firstBooking->tanggal_main instanceof \DateTimeInterface
+                ? $firstBooking->tanggal_main->format('Y-m-d')
+                : substr((string)$firstBooking->tanggal_main, 0, 10);
+
+            $waktuSelesai = $firstBooking->waktu_selesai ? substr((string)$firstBooking->waktu_selesai, 0, 8) : '23:59:00';
             $endDateTimeStr = $dateStr . ' ' . $waktuSelesai;
 
             try {
@@ -691,17 +703,52 @@ class HkScoreController extends Controller
                 continue;
             }
 
-            $waktuMulai = $p->waktu_mulai ? substr((string)$p->waktu_mulai, 0, 8) : '00:00:00';
-            $sesi = SesiBermain::updateOrCreate(
-                ['pemesanan_id' => $p->id],
-                [
-                    'nama_sesi' => 'Sesi Meja ' . ($p->meja->nomor_meja ?? '01') . ' (' . ($p->meja->venue->nama_venue ?? 'Sedayu City') . ')',
+            $waktuMulai = $firstBooking->waktu_mulai ? substr((string)$firstBooking->waktu_mulai, 0, 8) : '00:00:00';
+
+            // Bersihkan nama meja agar tidak terjadi pengulangan kata 'Meja Meja'
+            $rawNomorMeja = $firstBooking->meja->nomor_meja ?? '01';
+            $cleanNomorMeja = preg_replace('/^Meja\s*/i', '', $rawNomorMeja);
+            $namaVenue = $firstBooking->meja->venue->nama_venue ?? 'Sedayu City';
+            $namaSesi = "Sesi Meja {$cleanNomorMeja} ({$namaVenue})";
+
+            $bookingIdsInSlot = $bookingsInSlot->pluck('id')->toArray();
+
+            // Cari apakah sudah ada sesi yang terkait dengan salah satu pemesanan di slot ini
+            $sesi = SesiBermain::whereIn('pemesanan_id', $bookingIdsInSlot)->first();
+
+            if (!$sesi) {
+                $sesi = SesiBermain::create([
+                    'pemesanan_id' => $firstBooking->id,
+                    'nama_sesi' => $namaSesi,
                     'tanggal_permainan' => $dateStr,
                     'waktu_mulai' => $waktuMulai,
                     'waktu_selesai' => $waktuSelesai,
                     'status' => 'ongoing',
-                ]
-            );
+                ]);
+            } else {
+                $sesi->update([
+                    'nama_sesi' => $namaSesi,
+                    'tanggal_permainan' => $dateStr,
+                    'waktu_mulai' => $waktuMulai,
+                    'waktu_selesai' => $waktuSelesai,
+                ]);
+
+                // Bersihkan sesi duplikat lain di slot meja yang sama
+                $dupSessionIds = SesiBermain::whereIn('pemesanan_id', $bookingIdsInSlot)
+                    ->where('id', '!=', $sesi->id)
+                    ->pluck('id')
+                    ->toArray();
+
+                if (!empty($dupSessionIds)) {
+                    $dupTableIds = GameTable::whereIn('sesi_id', $dupSessionIds)->pluck('id')->toArray();
+                    if (!empty($dupTableIds)) {
+                        TablePlayer::whereIn('game_table_id', $dupTableIds)->delete();
+                        GameRound::whereIn('game_table_id', $dupTableIds)->delete();
+                        GameTable::whereIn('id', $dupTableIds)->delete();
+                    }
+                    SesiBermain::whereIn('id', $dupSessionIds)->delete();
+                }
+            }
 
             if ($sesi->gameTables()->count() === 0) {
                 $this->createDefaultTablesForSession($sesi);
@@ -743,7 +790,7 @@ class HkScoreController extends Controller
             ], 422);
         }
 
-        // Periksa apakah meja pada sesi ini memiliki minimal 4 pemain
+        // Periksa apakah meja pada sesi ini memiliki minimal 2 pemain
         $tables = GameTable::with('tablePlayers')->where('sesi_id', $sessionId)->get();
 
         if ($tables->isEmpty()) {
@@ -753,14 +800,12 @@ class HkScoreController extends Controller
             ], 422);
         }
 
-        foreach ($tables as $t) {
-            $playerCount = $t->tablePlayers->count();
-            if ($playerCount < 4) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Permainan pada {$t->nomor_meja} belum dapat dimulai karena jumlah pemain yang hadir ({$playerCount} orang) kurang dari 4 orang. Mahjong wajib memiliki 4 pemain lengkap per meja.",
-                ], 422);
-            }
+        $playableTables = $tables->filter(fn($t) => $t->tablePlayers->count() >= 2);
+        if ($playableTables->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permainan belum dapat dimulai karena belum ada meja dengan minimal 2 pemain terdaftar (tidak bisa hanya 1 pemain).',
+            ], 422);
         }
 
         $session->update(['status' => 'ongoing']);
@@ -853,6 +898,123 @@ class HkScoreController extends Controller
         ]);
     }
 
+    /**
+     * Sinkronisasi pemain meja dengan data pendaftar nyata.
+     * Menghapus pemain yang tidak terdaftar di event/pemesanan, dan menempatkan pendaftar baru ke kursi kosong.
+     */
+    protected function syncSessionTablePlayers(SesiBermain $session): void
+    {
+        // Bersihkan meja kosong ekstra jika sesi ini merupakan sesi pemesanan meja spesifik
+        if ($session->pemesanan_id) {
+            $mainBooking = Pemesanan::with('meja')->find($session->pemesanan_id);
+            if ($mainBooking && $mainBooking->meja) {
+                $cleanNomor = preg_replace('/^Meja\s*/i', '', $mainBooking->meja->nomor_meja ?? '01');
+                $targetTableName = "Meja {$cleanNomor} (Meja Otomatis)";
+
+                $extraTables = GameTable::where('sesi_id', $session->id)
+                    ->where('nomor_meja', '!=', $targetTableName)
+                    ->get();
+
+                foreach ($extraTables as $et) {
+                    if ($et->tablePlayers()->count() === 0) {
+                        GameRound::where('game_table_id', $et->id)->delete();
+                        $et->delete();
+                    }
+                }
+            }
+        }
+
+        $tableIds = GameTable::where('sesi_id', $session->id)->pluck('id')->toArray();
+        if (empty($tableIds)) {
+            return;
+        }
+
+        $validPlayerIds = null;
+
+        if ($session->event_id) {
+            $validPlayerIds = EventPendaftaran::where('event_id', $session->event_id)
+                ->whereIn('status_pendaftaran', ['terdaftar', 'hadir'])
+                ->pluck('player_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+        } elseif ($session->pemesanan_id) {
+            $mainBooking = Pemesanan::find($session->pemesanan_id);
+            if ($mainBooking) {
+                $slotBookings = Pemesanan::where('meja_id', $mainBooking->meja_id)
+                    ->whereDate('tanggal_main', $session->tanggal_permainan)
+                    ->where('waktu_mulai', $session->waktu_mulai)
+                    ->whereIn('status_pemesanan', ['confirmed', 'paid'])
+                    ->with(['player', 'detailPemesanans.player'])
+                    ->get();
+
+                $playerIds = collect();
+                foreach ($slotBookings as $bk) {
+                    if ($bk->player_id) {
+                        $playerIds->push($bk->player_id);
+                    }
+                    foreach ($bk->detailPemesanans as $detail) {
+                        if ($detail->player_id) {
+                            $playerIds->push($detail->player_id);
+                        }
+                    }
+                }
+                $validPlayerIds = $playerIds->filter()->unique()->values()->toArray();
+            } else {
+                $validPlayerIds = DetailPemesanan::where('pemesanan_id', $session->pemesanan_id)
+                    ->pluck('player_id')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->toArray();
+            }
+        }
+
+        // Jika sesi mandiri (tanpa event_id / pemesanan_id), biarkan apa adanya untuk keperluan unit test
+        if ($validPlayerIds === null) {
+            return;
+        }
+
+        // 1. Hapus pemain meja yang TIDAK terdaftar di event/pemesanan ini
+        TablePlayer::whereIn('game_table_id', $tableIds)
+            ->whereNotIn('player_id', $validPlayerIds)
+            ->delete();
+
+        // 2. Tempatkan pemain terdaftar yang belum masuk ke kursi meja manapun pada sesi ini
+        $assignedPlayerIds = TablePlayer::whereIn('game_table_id', $tableIds)
+            ->pluck('player_id')
+            ->toArray();
+
+        $unassignedPlayerIds = array_values(array_diff($validPlayerIds, $assignedPlayerIds));
+
+        if (!empty($unassignedPlayerIds)) {
+            $tables = GameTable::with('tablePlayers')
+                ->where('sesi_id', $session->id)
+                ->orderBy('id', 'asc')
+                ->get();
+
+            $winds = ['East', 'South', 'West', 'North'];
+
+            foreach ($unassignedPlayerIds as $playerId) {
+                foreach ($tables as $tbl) {
+                    if ($tbl->tablePlayers->count() < 4) {
+                        $usedWinds = $tbl->tablePlayers->pluck('seat_wind')->toArray();
+                        $availableWind = collect($winds)->diff($usedWinds)->first() ?? 'East';
+
+                        $newTp = TablePlayer::create([
+                            'game_table_id' => $tbl->id,
+                            'player_id' => $playerId,
+                            'seat_wind' => $availableWind,
+                        ]);
+                        $tbl->tablePlayers->push($newTp);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     protected function createDefaultTablesForSession(SesiBermain $session): \Illuminate\Support\Collection
     {
         $createdTables = collect();
@@ -873,27 +1035,53 @@ class HkScoreController extends Controller
         }
 
         // 2. Ambil pemain nyata dari pemesanan reguler (jika sesi pemesanan)
+        $bookingMejaName = null;
         if ($session->pemesanan_id) {
-            $pemesanan = Pemesanan::with('detailPemesanans.player.user')->find($session->pemesanan_id);
-            if ($pemesanan) {
-                foreach ($pemesanan->detailPemesanans as $detail) {
-                    if ($detail->player) {
-                        $realPlayers->push($detail->player);
+            $mainBooking = Pemesanan::with('meja')->find($session->pemesanan_id);
+            if ($mainBooking) {
+                if ($mainBooking->meja) {
+                    $cleanNomor = preg_replace('/^Meja\s*/i', '', $mainBooking->meja->nomor_meja ?? '01');
+                    $bookingMejaName = "Meja {$cleanNomor} (Meja Otomatis)";
+                }
+
+                $slotBookings = Pemesanan::where('meja_id', $mainBooking->meja_id)
+                    ->whereDate('tanggal_main', $session->tanggal_permainan)
+                    ->where('waktu_mulai', $session->waktu_mulai)
+                    ->whereIn('status_pemesanan', ['confirmed', 'paid'])
+                    ->with(['player.user', 'detailPemesanans.player.user'])
+                    ->get();
+
+                $seenPlayerIds = [];
+                foreach ($slotBookings as $bk) {
+                    if ($bk->player && !in_array($bk->player->id, $seenPlayerIds)) {
+                        $realPlayers->push($bk->player);
+                        $seenPlayerIds[] = $bk->player->id;
+                    }
+                    foreach ($bk->detailPemesanans as $detail) {
+                        if ($detail->player && !in_array($detail->player->id, $seenPlayerIds)) {
+                            $realPlayers->push($detail->player);
+                            $seenPlayerIds[] = $detail->player->id;
+                        }
+                    }
+                }
+            } else {
+                $pemesanan = Pemesanan::with('detailPemesanans.player.user')->find($session->pemesanan_id);
+                if ($pemesanan) {
+                    foreach ($pemesanan->detailPemesanans as $detail) {
+                        if ($detail->player) {
+                            $realPlayers->push($detail->player);
+                        }
                     }
                 }
             }
         }
 
-        // 3. Pastikan minimal 4 pemain tersedia untuk Meja 01 agar meja langsung siap dimainkan & dicatat wasit
-        if ($realPlayers->count() < 4) {
-            $existingIds = $realPlayers->pluck('id')->filter()->toArray();
-            $fillPlayers = Player::whereNotIn('id', $existingIds)->with('user')->take(4 - count($existingIds))->get();
-            foreach ($fillPlayers as $fp) {
-                $realPlayers->push($fp);
-            }
+        // Untuk pemesanan meja tunggal, buatkan 1 meja spesifik; untuk event/turnamen buat Meja 01 & Meja 02
+        if ($bookingMejaName) {
+            $tableNames = [$bookingMejaName];
+        } else {
+            $tableNames = ['Meja 01 (Meja Otomatis)', 'Meja 02 (Meja Otomatis)'];
         }
-
-        $tableNames = ['Meja 01 (Meja Otomatis)', 'Meja 02 (Meja Otomatis)'];
         $winds = ['East', 'South', 'West', 'North'];
 
         foreach ($tableNames as $idx => $name) {

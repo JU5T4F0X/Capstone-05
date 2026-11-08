@@ -140,6 +140,17 @@ export default function EventDetailPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [catatan, setCatatan] = useState('');
 
+  // Modal konfirmasi pembatalan pendaftaran
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
+  // Floating Toast Notification
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3800);
+  };
+
   const fetchDetail = async () => {
     setLoading(true);
     setError(null);
@@ -166,6 +177,11 @@ export default function EventDetailPage() {
   useEffect(() => {
     if (!id) return;
     fetchDetail();
+
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === 'cancel_modal') {
+      setShowCancelModal(true);
+      setToast({ message: 'Pendaftaran event berhasil dibatalkan. Kursi Anda telah dibuka kembali.', type: 'success' });
+    }
   }, [id]);
 
   const handleOpenBookingModal = () => {
@@ -178,7 +194,9 @@ export default function EventDetailPage() {
     }
 
     if (user.role === 'admin') {
-      setRegisterError('Akun Anda saat ini bertipe Administrator. Silakan beralih ke Mode Pemain untuk mendaftar turnamen.');
+      const errMsg = 'Akun Anda saat ini bertipe Administrator. Silakan beralih ke Mode Pemain untuk mendaftar turnamen.';
+      setRegisterError(errMsg);
+      showToast(errMsg, 'error');
       return;
     }
 
@@ -194,37 +212,49 @@ export default function EventDetailPage() {
       if (res.success) {
         setBooked(true);
         setShowConfirmModal(false);
-        setSuccessMessage(res.message || 'Pendaftaran berhasil dikonfirmasi! Kursi Anda telah diamankan.');
+        const msg = res.message || 'Pendaftaran berhasil dikonfirmasi! Kursi Anda telah diamankan.';
+        setSuccessMessage(msg);
+        showToast(msg, 'success');
         fetchDetail();
       } else {
-        setRegisterError(res.message || 'Gagal memproses pendaftaran event.');
+        const errMsg = res.message || 'Gagal memproses pendaftaran event.';
+        setRegisterError(errMsg);
+        showToast(errMsg, 'error');
         if (res.message?.toLowerCase().includes('sudah terdaftar')) {
           setBooked(true);
           setShowConfirmModal(false);
         }
       }
     } catch {
-      setRegisterError('Terjadi kesalahan jaringan saat mendaftarkan kursi.');
+      const errMsg = 'Terjadi kesalahan jaringan saat mendaftarkan kursi.';
+      setRegisterError(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleCancelRegistration = async () => {
-    if (!confirm('Apakah Anda yakin ingin membatalkan pendaftaran event ini? Kursi Anda akan dibuka kembali untuk pemain lain.')) return;
+  const executeCancelRegistration = async () => {
     setSubmitting(true);
     setRegisterError(null);
     try {
       const res = await ApiClient.batalDaftarEvent(id);
       if (res.success) {
         setBooked(false);
-        setSuccessMessage('Pendaftaran Anda berhasil dibatalkan.');
+        setShowCancelModal(false);
+        const msg = res.message || 'Pendaftaran event berhasil dibatalkan. Kursi Anda telah dibuka kembali.';
+        setSuccessMessage(msg);
+        showToast(msg, 'success');
         fetchDetail();
       } else {
-        setRegisterError(res.message || 'Gagal membatalkan pendaftaran.');
+        const errMsg = res.message || 'Gagal membatalkan pendaftaran.';
+        setRegisterError(errMsg);
+        showToast(errMsg, 'error');
       }
     } catch {
-      setRegisterError('Terjadi kesalahan saat membatalkan pendaftaran.');
+      const errMsg = 'Terjadi kesalahan saat membatalkan pendaftaran event.';
+      setRegisterError(errMsg);
+      showToast(errMsg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -238,15 +268,13 @@ export default function EventDetailPage() {
   const sisaQuota = event?.sisa_kuota !== undefined ? event.sisa_kuota : Math.max(0, maxQuota - filledQuota);
   const percentFilled = Math.min(100, Math.round((filledQuota / maxQuota) * 100));
 
-  const isCompetitive =
-    event?.kategori?.toLowerCase().includes('resmi') ||
-    event?.kategori?.toLowerCase().includes('kompetitif');
   const isCasual = event?.kategori?.toLowerCase().includes('santai');
-  const badgeCategoryClass = isCompetitive
-    ? 'ev-badge-competitive'
-    : isCasual
+  const isWorkshop = event?.kategori?.toLowerCase().includes('workshop') || event?.kategori?.toLowerCase().includes('taktik');
+  const badgeCategoryClass = isCasual
     ? 'ev-badge-casual'
-    : 'ev-badge-workshop';
+    : isWorkshop
+    ? 'ev-badge-workshop'
+    : 'ev-badge-competitive';
 
   return (
     <div className="ev-page-wrapper">
@@ -457,7 +485,9 @@ export default function EventDetailPage() {
 
                 {/* Badge Kategori & Status di Atas Banner */}
                 <span className={`ev-badge-category ${badgeCategoryClass}`} style={{ top: '20px', left: '20px' }}>
-                  {event.kategori || 'Turnamen Resmi'}
+                  {event.kategori && !event.kategori.toLowerCase().includes('turnamen resmi')
+                    ? event.kategori
+                    : 'Event'}
                 </span>
                 <span className={status.badgeClass} style={{ top: '20px', right: '20px' }}>
                   {status.label}
@@ -684,14 +714,14 @@ export default function EventDetailPage() {
                       </Link>
                       <button
                         type="button"
-                        onClick={handleCancelRegistration}
+                        onClick={() => setShowCancelModal(true)}
                         disabled={submitting}
                         style={{
                           background: 'none',
                           border: 'none',
                           color: '#DC2626',
                           fontSize: '0.8rem',
-                          cursor: 'pointer',
+                          cursor: submitting ? 'not-allowed' : 'pointer',
                           textDecoration: 'underline',
                           padding: '4px',
                           fontWeight: 600,
@@ -736,7 +766,7 @@ export default function EventDetailPage() {
                       const qParams = new URLSearchParams({
                         portal: 'event',
                         event_id: String(event.id),
-                        title: event.nama_event || 'Turnamen Mahjong Resmi',
+                        title: event.nama_event || 'Event Mahjong',
                         price: String(numericPrice),
                         date: event.tanggal_event || '2026-11-05',
                         time: timeStr,
@@ -766,7 +796,7 @@ export default function EventDetailPage() {
                           }}
                         >
                           <Ticket size={16} />
-                          <span>Pilih Meja &amp; Kursi Turnamen</span>
+                          <span>Pilih Meja &amp; Kursi Event</span>
                         </Link>
                       );
                     })()}
@@ -941,6 +971,229 @@ export default function EventDetailPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── 4. MODAL KONFIRMASI PEMBATALAN PENDAFTARAN EVENT ── */}
+      {showCancelModal && event && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(10, 26, 17, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '28px',
+              maxWidth: '460px',
+              width: '100%',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
+              position: 'relative',
+              animation: 'fadeIn 0.2s ease-out',
+            }}
+          >
+            {/* Tombol Tutup */}
+            <button
+              type="button"
+              onClick={() => !submitting && setShowCancelModal(false)}
+              disabled={submitting}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'none',
+                border: 'none',
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                color: '#7A897F',
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Header Icon + Judul */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '10px',
+                backgroundColor: '#FEF2F2',
+                color: '#DC2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <AlertTriangle size={22} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#111E18' }}>
+                  Batalkan Pendaftaran?
+                </h3>
+                <span style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>
+                  Konfirmasi Pembatalan Kursi Event
+                </span>
+              </div>
+            </div>
+
+            <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#4B5563', lineHeight: 1.5 }}>
+              Apakah Anda yakin ingin membatalkan pendaftaran event ini? Kursi Anda akan segera dibuka kembali untuk pemain lain.
+            </p>
+
+            {/* Detail Event Card */}
+            <div style={{
+              backgroundColor: '#FAF8F5',
+              border: '1px solid #EFEAE2',
+              borderRadius: '10px',
+              padding: '14px',
+              marginBottom: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              fontSize: '12.5px'
+            }}>
+              <div style={{ fontWeight: 800, color: '#111E18', fontSize: '13.5px' }}>
+                {event.nama_event}
+              </div>
+              <div style={{ color: '#5A675E', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={13} color="#004F27" />
+                <span>{event.tanggal_formatted || formatIndonesianDate(event.tanggal_event)}</span>
+              </div>
+              <div style={{ color: '#5A675E', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <MapPin size={13} color="#004F27" />
+                <span>{event.venue || 'Game House'}</span>
+              </div>
+            </div>
+
+            {/* Alert Tambahan */}
+            <div style={{
+              backgroundColor: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: '8px',
+              padding: '10px 12px',
+              marginBottom: '20px',
+              fontSize: '11.5px',
+              color: '#92400E',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+              lineHeight: 1.4
+            }}>
+              <Info size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span>
+                Jika dibatalkan, tiket Anda akan dihapus. Anda dapat mendaftar kembali nanti selama kuota kursi masih tersedia.
+              </span>
+            </div>
+
+            {/* Tombol Aksi */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                disabled={submitting}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  border: '1px solid #D7E6DB',
+                  backgroundColor: '#FFFFFF',
+                  color: '#2B3830',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Kembali
+              </button>
+
+              <button
+                type="button"
+                onClick={executeCancelRegistration}
+                disabled={submitting}
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: '#DC2626',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 6px rgba(220, 38, 38, 0.35)',
+                }}
+              >
+                <span>{submitting ? 'Membatalkan...' : 'Ya, Batalkan Pendaftaran'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 5. FLOATING TOAST NOTIFICATION ── */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '84px',
+            right: '24px',
+            zIndex: 10001,
+            backgroundColor: toast.type === 'success' ? '#183629' : toast.type === 'error' ? '#991B1B' : '#1E293B',
+            color: '#FFFFFF',
+            border: `1.5px solid ${toast.type === 'success' ? '#E2BC55' : toast.type === 'error' ? '#FCA5A5' : '#94A3B8'}`,
+            padding: '12px 18px',
+            borderRadius: '12px',
+            fontSize: '13px',
+            fontWeight: 700,
+            boxShadow: '0 12px 28px rgba(0,0,0,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            maxWidth: '420px',
+            animation: 'fadeIn 0.2s ease-out',
+          }}
+        >
+          {toast.type === 'success' ? (
+            <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#004F27', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <CheckCircle size={15} color="#E2BC55" />
+            </div>
+          ) : toast.type === 'error' ? (
+            <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#7F1D1D', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <AlertTriangle size={15} color="#FCA5A5" />
+            </div>
+          ) : (
+            <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: '#334155', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Info size={15} color="#94A3B8" />
+            </div>
+          )}
+          <span style={{ flex: 1, lineHeight: 1.4 }}>{toast.message}</span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'rgba(255, 255, 255, 0.7)',
+              cursor: 'pointer',
+              padding: '2px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 

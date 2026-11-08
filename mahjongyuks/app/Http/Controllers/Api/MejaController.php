@@ -65,6 +65,7 @@ class MejaController extends Controller
                         $seatDetails[$pm->meja_id][$pos] = [
                             'occupant' => $occupantName,
                             'player_id' => $detail->player_id,
+                            'user_id' => $detail->player?->user_id ?? $pm->player?->user_id,
                             'status_kehadiran' => $detail->status_kehadiran,
                         ];
                     }

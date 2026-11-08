@@ -411,9 +411,43 @@ export class ApiClient {
     });
   }
 
-  // ── Pembayaran Endpoints (Sprint 4) ────────────────────────────────────────
-  public static async getPembayarans(): Promise<ApiResponse<any>> {
-    return this.request('/pembayarans');
+  // ── Pembayaran Endpoints (Sprint 4 & Financial Analytics) ───────────────────
+  public static async getPembayarans(params?: {
+    status?: string;
+    search?: string;
+    start_date?: string;
+    end_date?: string;
+    metode?: string;
+    player_id?: number | string;
+    page?: number;
+    per_page?: number;
+  }): Promise<ApiResponse<any>> {
+    const query = new URLSearchParams();
+    if (params?.status && params.status !== 'all') query.set('status', params.status);
+    if (params?.search) query.set('search', params.search);
+    if (params?.start_date) query.set('start_date', params.start_date);
+    if (params?.end_date) query.set('end_date', params.end_date);
+    if (params?.metode && params.metode !== 'all') query.set('metode', params.metode);
+    if (params?.player_id) query.set('player_id', String(params.player_id));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.per_page) query.set('per_page', String(params.per_page));
+
+    const qs = query.toString();
+    return this.request(`/pembayarans${qs ? `?${qs}` : ''}`);
+  }
+
+  public static async getFinancialStats(params?: {
+    period?: 'daily' | 'weekly' | 'monthly';
+    start_date?: string;
+    end_date?: string;
+  }): Promise<ApiResponse<any>> {
+    const query = new URLSearchParams();
+    if (params?.period) query.set('period', params.period);
+    if (params?.start_date) query.set('start_date', params.start_date);
+    if (params?.end_date) query.set('end_date', params.end_date);
+
+    const qs = query.toString();
+    return this.request(`/admin/financial-stats${qs ? `?${qs}` : ''}`);
   }
 
   public static async verifikasiPembayaran(id: number | string, status: 'paid' | 'failed' | 'pending'): Promise<ApiResponse<any>> {

@@ -13,7 +13,7 @@ interface FeaturedEventsProps {
 
 const QUICK_FILTER_TABS = [
   { id: 'all', label: 'Semua Sesi' },
-  { id: 'tournament', label: 'Turnamen Resmi' },
+  { id: 'event', label: 'Event Khusus' },
   { id: 'casual', label: 'Sesi Santai' },
 ];
 
@@ -43,7 +43,7 @@ export default function FeaturedEvents({ onSelectEvent }: FeaturedEventsProps) {
   const filteredEvents = events.filter((ev) => {
     if (activeTab === 'all') return true;
     const cat = (ev.kategori || ev.jenis_event || '').toLowerCase();
-    if (activeTab === 'tournament') return cat.includes('turnamen') || cat.includes('wrc');
+    if (activeTab === 'event') return cat.includes('event') || cat.includes('kompetisi') || cat.includes('turnamen');
     if (activeTab === 'casual') return cat.includes('santai') || cat.includes('casual') || cat.includes('mabar');
     return true;
   });
@@ -58,7 +58,7 @@ export default function FeaturedEvents({ onSelectEvent }: FeaturedEventsProps) {
               Katalog Sesi Pilihan
             </div>
             <h2 className="landing-section-title">
-              Jadwal Sesi &amp; Turnamen Pekan Ini
+              Jadwal Sesi &amp; Event Pekan Ini
             </h2>
             <p className="landing-section-desc">
               Pilih sesi bertanding dengan meja otomatis di Game House MahjongYuks.
@@ -87,7 +87,7 @@ export default function FeaturedEvents({ onSelectEvent }: FeaturedEventsProps) {
         {loading ? (
           <div style={{ padding: '60px', textAlign: 'center', color: '#5A675E' }}>
             <Loader2 size={32} style={{ animation: 'spin 1s linear infinite', margin: '0 auto 12px', display: 'block', color: '#183629' }} />
-            <p style={{ margin: 0, fontSize: '13px' }}>Memuat katalog event dan turnamen...</p>
+            <p style={{ margin: 0, fontSize: '13px' }}>Memuat katalog event dan sesi bermain...</p>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div style={{ padding: '48px', textAlign: 'center', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E4E0D8' }}>
@@ -116,7 +116,9 @@ export default function FeaturedEvents({ onSelectEvent }: FeaturedEventsProps) {
 
                     {/* Top-Left Category Pill */}
                     <div className="landing-event-badge">
-                      {event.kategori || (event.jenis_event === 'event' ? 'Turnamen Resmi' : 'Sesi Bermain')}
+                      {event.kategori && !event.kategori.toLowerCase().includes('turnamen resmi')
+                        ? event.kategori
+                        : (event.jenis_event === 'event' ? 'Event' : 'Sesi Bermain')}
                     </div>
 
                     {/* Top-Right Seat Availability */}

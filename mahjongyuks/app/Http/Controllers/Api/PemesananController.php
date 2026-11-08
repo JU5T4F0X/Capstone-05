@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PemesananStoreRequest;
 use App\Models\DetailPemesanan;
 use App\Models\Meja;
 use App\Models\Pembayaran;
 use App\Models\Pemesanan;
 use App\Models\Player;
+use App\Services\BookingService;
 use App\Services\MidtransService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -15,17 +17,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class PemesananController extends Controller
 {
-    private const TARIF_PER_JAM = ['Casual' => 25000, 'Competitive' => 30000];
-    private const BIAYA_LAYANAN = 5000;
     private const MENIT_BAYAR = 15;
 
-    public function __construct(private MidtransService $midtrans)
-    {
+    public function __construct(
+        private MidtransService $midtrans,
+        private BookingService $bookingService
+    ) {
     }
 
     /**
@@ -65,26 +66,9 @@ class PemesananController extends Controller
      * Buat pemesanan 1 kursi + token pembayaran Midtrans.
      * Harga, jam selesai, dan kode booking SELALU dihitung di server.
      */
-    public function store(Request $request): JsonResponse
+    public function store(PemesananStoreRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'meja_id' => 'required|exists:mejas,id',
-            'tanggal_main' => 'required|date|after_or_equal:today',
-            'waktu_mulai' => 'required|date_format:H:i',
-            'durasi_jam' => 'required|integer|min:1|max:12',
-            'jenis_pemesanan' => 'required|in:Casual,Competitive',
-            'kursi_pilihan' => 'required|in:ton,nan,sha,pei',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi pemesanan gagal',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $d = $validator->validated();
+        $d = $request->validated();
         $durasi = (int) $d['durasi_jam'];
 
         $mulai = Carbon::createFromFormat('H:i', $d['waktu_mulai']);
@@ -98,20 +82,17 @@ class PemesananController extends Controller
         $mulaiStr = $mulai->format('H:i:s');
         $selesaiStr = $selesai->format('H:i:s');
 
-        $harga = $this->hitungHarga($d['jenis_pemesanan'], $durasi);
-        // Jika pemesanan berasal dari Jadwal / Event Sesi dengan tarif tetap khusus:
-        if ($request->filled('total_biaya') && (int) $request->total_biaya > 0) {
-            $totalKhusus = (int) $request->total_biaya;
-            $harga = [
-                'durasi_jam' => $durasi,
-                'tarif_per_jam' => (int) round($totalKhusus / max(1, $durasi)),
-                'biaya_sewa' => $totalKhusus,
-                'biaya_layanan' => 0,
-                'total' => $totalKhusus,
-            ];
-        }
+        $totalKhusus = $request->filled('total_biaya') && (int) $request->total_biaya > 0 ? (int) $request->total_biaya : null;
+        $harga = $this->bookingService->hitungHarga($d['jenis_pemesanan'], $durasi, $totalKhusus);
 
         $user = $request->user();
+        if ($user->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Administrator tidak dapat melakukan pemesanan meja permainan.',
+            ], 403);
+        }
+
         $player = Player::firstOrCreate(
             ['user_id' => $user->id],
             ['tanggal_daftar' => now(), 'status' => 'active']
@@ -152,53 +133,10 @@ class PemesananController extends Controller
         $hasil = DB::transaction(function () use ($d, $durasi, $player, $mulaiStr, $selesaiStr, $harga) {
             $meja = Meja::lockForUpdate()->findOrFail($d['meja_id']);
 
-            // ── REGULASI PEMILIHAN MEJA MAHJONGYUKS ──
-            // Cek apakah meja yang dipilih saat ini masih kosong di slot waktu ini
-            $currentMejaOccupied = Pemesanan::where('meja_id', $meja->id)
-                ->whereDate('tanggal_main', $d['tanggal_main'])
-                ->menempati()
-                ->bentrok($mulaiStr, $selesaiStr)
-                ->count();
-
-            if ($currentMejaOccupied === 0) {
-                // Meja ini kosong (0 orang). Cek apakah ada meja lain di venue yang sama yang sedang terisi sebagian (1 - 3 orang)
-                $venueTableIds = Meja::where('venue_id', $meja->venue_id)->orderBy('id')->pluck('id');
-
-                $partiallyFilledMejaExists = Pemesanan::whereIn('meja_id', $venueTableIds)
-                    ->where('meja_id', '!=', $meja->id)
-                    ->whereDate('tanggal_main', $d['tanggal_main'])
-                    ->menempati()
-                    ->bentrok($mulaiStr, $selesaiStr)
-                    ->select('meja_id', DB::raw('count(*) as total'))
-                    ->groupBy('meja_id')
-                    ->havingRaw('total >= 1 AND total < 4')
-                    ->exists();
-
-                if ($partiallyFilledMejaExists) {
-                    return [
-                        'error_regulasi' => 'Sesuai regulasi MahjongYuks, silakan pilih kursi di meja yang sedang terisi sebagian terlebih dahulu sebelum membuka meja baru agar sesi permainan dapat segera dimulai (minimal 4 pemain).'
-                    ];
-                }
-
-                // Jika tidak ada meja yang terisi sebagian, wajib mulai dari meja kosong nomor terendah
-                $firstAvailableTableId = null;
-                foreach ($venueTableIds as $vId) {
-                    $cnt = Pemesanan::where('meja_id', $vId)
-                        ->whereDate('tanggal_main', $d['tanggal_main'])
-                        ->menempati()
-                        ->bentrok($mulaiStr, $selesaiStr)
-                        ->count();
-                    if ($cnt < 4) {
-                        $firstAvailableTableId = $vId;
-                        break;
-                    }
-                }
-
-                if ($firstAvailableTableId && $meja->id !== $firstAvailableTableId) {
-                    return [
-                        'error_regulasi' => 'Sesuai regulasi MahjongYuks, silakan pilih meja nomor awal yang tersedia terlebih dahulu sebelum membuka meja lainnya.'
-                    ];
-                }
+            // ── REGULASI PEMILIHAN MEJA MAHJONGYUKS (Service Layer) ──
+            $regulasiError = $this->bookingService->cekRegulasiMeja($meja, $d['tanggal_main'], $mulaiStr, $selesaiStr);
+            if ($regulasiError) {
+                return ['error_regulasi' => $regulasiError];
             }
 
             $bentrok = Pemesanan::where('meja_id', $meja->id)
@@ -447,20 +385,6 @@ class PemesananController extends Controller
 
     // ----------------------------------------------------------------
 
-    private function hitungHarga(string $jenis, int $durasi): array
-    {
-        $tarif = self::TARIF_PER_JAM[$jenis] ?? self::TARIF_PER_JAM['Casual'];
-        $sewa = $tarif * $durasi;
-
-        return [
-            'durasi_jam' => $durasi,
-            'tarif_per_jam' => $tarif,
-            'biaya_sewa' => $sewa,
-            'biaya_layanan' => self::BIAYA_LAYANAN,
-            'total' => $sewa + self::BIAYA_LAYANAN,
-        ];
-    }
-
     private function payloadBayar(Pemesanan $p, Pembayaran $b): array
     {
         return [
@@ -470,7 +394,7 @@ class PemesananController extends Controller
             'snap_token' => $b->snap_token,
             'total_bayar' => (int) $b->jumlah,
             'expires_at' => $b->expires_at,
-            'rincian' => $this->hitungHarga($p->jenis_pemesanan, (int) $p->durasi_jam),
+            'rincian' => $this->bookingService->hitungHarga($p->jenis_pemesanan, (int) $p->durasi_jam, (int) $b->jumlah),
         ];
     }
 
@@ -489,22 +413,8 @@ class PemesananController extends Controller
         return $b->status_midtrans === 'expire' ? 'expired' : 'failed';
     }
 
-    private function dataTiket(Pemesanan $p, Pembayaran $b): array
+    private function dataTiket(Pemesanan $p, ?Pembayaran $b): array
     {
-        $u = $p->player?->user;
-
-        return [
-            'kode_booking' => $p->kode_booking,
-            'meja' => $p->meja?->nomor_meja,
-            'meja_detail' => $p->meja,
-            'kursi' => $p->detailPemesanans->first()?->posisi_kursi,
-            'nama_pemain' => $u?->name ?? $u?->nama,
-            'jenis_pemesanan' => $p->jenis_pemesanan,
-            'durasi_jam' => $p->durasi_jam,
-            'tanggal_main' => $p->tanggal_main?->toDateString(),
-            'waktu_mulai' => $p->waktu_mulai,
-            'waktu_selesai' => $p->waktu_selesai,
-            'total_bayar' => (int) $b->jumlah,
-        ];
+        return $this->bookingService->formatTiket($p, $b);
     }
 }

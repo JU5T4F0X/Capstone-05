@@ -1,0 +1,1055 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1520 3815" width="1520" height="3815">
+        <defs>
+            <linearGradient id="header-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#143E2B"/>
+                <stop offset="100%" stop-color="#0B261A"/>
+            </linearGradient>
+            <linearGradient id="card-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#FFFFFF"/>
+                <stop offset="100%" stop-color="#F8FAFC"/>
+            </linearGradient>
+            <filter id="shadow-sm" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
+            </filter>
+            <filter id="shadow-md" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.08"/>
+            </filter>
+            <marker id="arrow-call" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#1E293B"/>
+            </marker>
+            <marker id="arrow-response" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 8 5 L 0 9" fill="none" stroke="#475569" stroke-width="1.8"/>
+            </marker>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect width="1520" height="3815" fill="#F8FAFC"/>
+
+        <!-- Top Header Banner -->
+        <g transform="translate(40, 24)">
+            <rect width="1440" height="108" rx="14" fill="url(#header-grad)" filter="url(#shadow-md)"/>
+            <rect x="2" y="2" width="1436" height="104" rx="12" fill="none" stroke="#22543D" stroke-width="1"/>
+            
+            <!-- Branding Logo Badge -->
+            <rect x="24" y="20" width="68" height="68" rx="10" fill="#1C533A" stroke="#2F855A" stroke-width="1.5"/>
+            <text x="58" y="58" fill="#FDE047" font-size="34" font-weight="900" text-anchor="middle" font-family="'Plus Jakarta Sans', serif">🀄</text>
+            <text x="58" y="77" fill="#E2E8F0" font-size="9" font-weight="700" text-anchor="middle" font-family="sans-serif">MAHJONG</text>
+
+            <!-- Title & Subtitle -->
+            <text x="110" y="52" fill="#FFFFFF" font-size="22" font-weight="800" font-family="'Plus Jakarta Sans', system-ui, sans-serif" letter-spacing="-0.01em">
+                MAHJONGYUKS — UML 2.0 MASTER SEQUENCE DIAGRAM
+            </text>
+            <text x="110" y="78" fill="#9AE6B4" font-size="13.5" font-weight="500" font-family="'Plus Jakarta Sans', system-ui, sans-serif">
+                Alur Sistem Terintegrasi Multi-Venue: Autentikasi (RF-01) ➔ Booking Kursi (RF-02/03) ➔ Pembayaran (RF-04) ➔ Check-in (RF-05) ➔ Sesi &amp; Skor HK (RF-06/07) ➔ Leaderboard (RF-08)
+            </text>
+
+            <!-- Metadata Pills -->
+            <g transform="translate(1100, 28)">
+                <rect width="320" height="26" rx="6" fill="#164E33"/>
+                <text x="160" y="17" fill="#D1FAE5" font-size="11" font-weight="600" text-anchor="middle" font-family="sans-serif">
+                    🎓 Capstone S1 Sistem Informasi • Telkom University
+                </text>
+                <rect y="32" width="320" height="24" rx="6" fill="#164E33"/>
+                <text x="160" y="48" fill="#FCD34D" font-size="10.5" font-weight="600" text-anchor="middle" font-family="sans-serif">
+                    ⚡ Next.js 16 • Laravel 11 MVC • MySQL 8 (InnoDB)
+                </text>
+            </g>
+        </g>
+        
+            <line x1="130" y1="205" x2="130" y2="3685" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+            
+            <line x1="390" y1="205" x2="390" y2="3685" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+            
+            <line x1="680" y1="205" x2="680" y2="3685" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+            
+            <line x1="1020" y1="205" x2="1020" y2="3685" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+            
+            <line x1="1350" y1="205" x2="1350" y2="3685" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6,6"/>
+            
+            <g class="participant-box" transform="translate(45.0, 142)">
+                <rect width="170" height="64" rx="10" fill="url(#card-grad)" stroke="#10B981" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#10B981"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">👤</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Pemain (User)</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Role: player • Browser Client</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(305.0, 142)">
+                <rect width="170" height="64" rx="10" fill="url(#card-grad)" stroke="#F59E0B" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#F59E0B"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">⚖️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Admin / Wasit</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Role: admin • Operator Venue</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(580.0, 142)">
+                <rect width="200" height="64" rx="10" fill="url(#card-grad)" stroke="#0EA5E9" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#0EA5E9"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">💻</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Frontend UI</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Next.js 16 (TypeScript / React 19)</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(920.0, 142)">
+                <rect width="200" height="64" rx="10" fill="url(#card-grad)" stroke="#EF4444" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#EF4444"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">⚙️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Backend REST API</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Laravel 11 MVC &amp; Services</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(1255.0, 142)">
+                <rect width="190" height="64" rx="10" fill="url(#card-grad)" stroke="#8B5CF6" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#8B5CF6"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">🗄️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Database (MySQL)</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">InnoDB Relational (10 Tabel)</text>
+            </g>
+            
+        <g class="phase-header" transform="translate(40, 175)">
+            <rect width="1440" height="56" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#059669"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-01</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 1: Manajemen Pengguna &amp; Autentikasi (Sanctum RBAC)</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Registrasi, Login Kredensial bcrypt, &amp; Guard Token Bearer</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="255" x2="672" y2="255" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="255" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="259" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">1</text>
+        
+            
+            <text x="405.0" y="246" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">1. Input Email &amp; Password pada form login (/login)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="301" x2="1012" y2="301" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="301" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="305" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">2</text>
+        
+            
+            <rect x="708.6" y="276" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="731.6" y="289" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="292" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">2. POST /api/auth/login</text>
+            <text x="850.0" y="317" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Payload: { email, password }</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="353" x2="1342" y2="353" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="353" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="357" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">3</text>
+        
+            
+            <rect x="964.2" y="328" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="983.2" y="341" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="344" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">3. SELECT * FROM users WHERE email = ? LIMIT 1</text>
+            <text x="1185.0" y="369" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Query data akun &amp; kredensial password</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="405" x2="1028" y2="405" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="405" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="409" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">4</text>
+        
+            
+            <text x="1185.0" y="396" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">4. Return baris user (password_hash bcrypt, role)</text>
+            
+            
+        </g>
+        
+        <g class="msg-self">
+            <path d="M 1020 445 L 1050 445 L 1050 467 L 1028 467" fill="none" stroke="#1E293B" stroke-width="1.8" marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1058" cy="451" r="11" fill="#0284C7" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1058" y="455" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">5</text>
+        
+            
+            <rect x="1080" y="431" width="56" height="16" rx="4" fill="#059669"/>
+            <text x="1108" y="443" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle" font-family="monospace">AUTH</text>
+            
+            <text x="1138" y="444" fill="#0F172A" font-size="12.5" font-weight="600" font-family="'Plus Jakarta Sans', system-ui, sans-serif">5. Hash::check() &amp; Terbitkan Token Sanctum</text>
+            <text x="1080" y="467" fill="#475569" font-size="11" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Validasi role pemain/admin &amp; buat personal access token</text>
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="501" x2="688" y2="501" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="501" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="505" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">6</text>
+        
+            
+            <rect x="620.4" y="476" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="651.4" y="489" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="492" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">6. 200 OK: { token, role: &quot;player&quot;, user }</text>
+            <text x="850.0" y="517" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Return token Bearer &amp; metadata profil pengguna</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="553" x2="138" y2="553" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="553" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="557" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">7</text>
+        
+            
+            <text x="405.0" y="544" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">7. Simpan Token di Session Storage &amp; Redirect ke Beranda/Katalog Event</text>
+            
+            
+        </g>
+        
+        <g class="divider" transform="translate(80, 599)">
+            <line x1="0" y1="0" x2="1360" y2="0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <rect x="540.0" y="-13" width="280" height="26" rx="13" fill="#F1F5F9" stroke="#CBD5E1"/>
+            <text x="680.0" y="4" fill="#475569" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Pemain Terotentikasi Siap Menjelajahi Venue &amp; Melakukan Booking</text>
+        </g>
+        
+        <g class="phase-header" transform="translate(40, 633)">
+            <rect width="1440" height="56" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#059669"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-02/03</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 2 &amp; 3: Katalog Venue, Event &amp; Pemesanan Kursi (Seat Booking)</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Maksimal 4 Pemain per Meja (East, South, West, North)</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="713" x2="672" y2="713" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="713" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="717" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">8</text>
+        
+            
+            <text x="405.0" y="704" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">8. Buka Katalog Event &amp; Pilih Jadwal Pertandingan (/events/[id])</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="759" x2="1012" y2="759" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="759" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="763" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">9</text>
+        
+            
+            <rect x="606.4" y="734" width="38" height="18" rx="4" fill="#0284C7"/>
+            <text x="625.4" y="747" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">GET</text>
+            
+            <text x="850.0" y="750" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">9. GET /api/mejas?venue_id=1&amp;tanggal_main=2026-11-08</text>
+            <text x="850.0" y="775" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Ambil status ketersediaan meja otomatis / manual</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="811" x2="1342" y2="811" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="811" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="815" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">10</text>
+        
+            
+            <rect x="911.0" y="786" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="930.0" y="799" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="802" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">10. Query 28 Meja &amp; Hitung Kursi Terisi di detail_pemesanans</text>
+            <text x="1185.0" y="827" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Hitung pemain per slot jam: Meja 01 s/d Meja 28</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="863" x2="1028" y2="863" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="863" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="867" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">11</text>
+        
+            
+            <text x="1185.0" y="854" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">11. Return status meja (Tersedia, Terisi Sebagian, Penuh)</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="909" x2="688" y2="909" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="909" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="913" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">12</text>
+        
+            
+            <rect x="552.0" y="884" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="583.0" y="897" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="900" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">12. 200 OK: Daftar meja beserta status kursi angin terdaftar</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="955" x2="672" y2="955" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="955" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="959" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">13</text>
+        
+            
+            <text x="405.0" y="946" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">13. Pilih Meja 01 &amp; Klik Kursi Angin (East / Ton)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="1001" x2="1012" y2="1001" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="1001" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="1005" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">14</text>
+        
+            
+            <rect x="704.8" y="976" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="727.8" y="989" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="992" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">14. POST /api/pemesanans</text>
+            <text x="850.0" y="1017" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Payload: { meja_id, tanggal_main, waktu_mulai, waktu_selesai, kursi: &quot;East&quot; }</text>
+            
+        </g>
+        
+        <g class="msg-self">
+            <path d="M 1020 1047 L 1050 1047 L 1050 1069 L 1028 1069" fill="none" stroke="#1E293B" stroke-width="1.8" marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1058" cy="1053" r="11" fill="#0284C7" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1058" y="1057" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">15</text>
+        
+            
+            <rect x="1080" y="1033" width="56" height="16" rx="4" fill="#059669"/>
+            <text x="1108" y="1045" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle" font-family="monospace">CHECK</text>
+            
+            <text x="1138" y="1046" fill="#0F172A" font-size="12.5" font-weight="600" font-family="'Plus Jakarta Sans', system-ui, sans-serif">15. Validasi Kapasitas: jumlah_pemain &lt; 4 &amp; kursi belum terisi</text>
+            <text x="1080" y="1069" fill="#475569" font-size="11" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Cegah bentrok kursi &amp; over-capacity meja</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="1103" x2="1342" y2="1103" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="1103" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="1107" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">16</text>
+        
+            
+            <rect x="964.2" y="1078" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="983.2" y="1091" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="1094" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">16. INSERT INTO pemesanans &amp; detail_pemesanans</text>
+            <text x="1185.0" y="1119" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Status pemesanan: &quot;pending&quot;, status kehadiran: &quot;pending&quot;</text>
+            
+            <g transform="translate(1200, 1085)">
+                <rect width="260" height="36" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+                <text x="10" y="22" fill="#92400E" font-size="11" font-weight="600" font-family="sans-serif">ℹ Maks 4 Pemain / Meja</text>
+            </g>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="1155" x2="1028" y2="1155" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="1155" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="1159" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">17</text>
+        
+            
+            <text x="1185.0" y="1146" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">17. Record pemesanan tersimpan (ID Pemesanan: 255)</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="1201" x2="688" y2="1201" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="1201" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="1205" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">18</text>
+        
+            
+            <rect x="553.2" y="1176" width="38" height="18" rx="4" fill="#059669"/>
+            <text x="572.2" y="1189" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">201</text>
+            
+            <text x="850.0" y="1192" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">18. 201 Created: { pemesanan_id: 255, invoice, status: &quot;pending&quot; }</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="1247" x2="138" y2="1247" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="1247" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="1251" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">19</text>
+        
+            
+            <text x="405.0" y="1238" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">19. Tampilkan Konfirmasi Booking &amp; Instruksi Simulasi Pembayaran</text>
+            
+            
+        </g>
+        
+        <g class="divider" transform="translate(80, 1293)">
+            <line x1="0" y1="0" x2="1360" y2="0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <rect x="540.0" y="-13" width="280" height="26" rx="13" fill="#F1F5F9" stroke="#CBD5E1"/>
+            <text x="680.0" y="4" fill="#475569" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Pemesanan Meja Terdaftar (Status: Pending) Menunggu Pembayaran</text>
+        </g>
+        
+        <g class="phase-header" transform="translate(40, 1327)">
+            <rect width="1440" height="56" rx="12" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#D97706"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-04</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 4: Simulasi Pembayaran &amp; Monitoring Keuangan Admin</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Simulasi QRIS / Transfer Bank &amp; Dashboard Verifikasi Transaksi</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="1407" x2="672" y2="1407" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="1407" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="1411" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">20</text>
+        
+            
+            <text x="405.0" y="1398" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">20. Pilih Metode Simulasi Pembayaran (QRIS / Bank Transfer) &amp; Klik Bayar</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="1453" x2="1012" y2="1453" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="1453" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="1457" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">21</text>
+        
+            
+            <rect x="666.8" y="1428" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="689.8" y="1441" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="1444" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">21. POST /api/pembayarans/simulasi</text>
+            <text x="850.0" y="1469" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Payload: { pemesanan_id: 255, metode: &quot;QRIS&quot;, nominal: 50000 }</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="1505" x2="1342" y2="1505" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="1505" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="1509" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">22</text>
+        
+            
+            <rect x="960.4" y="1480" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="979.4" y="1493" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="1496" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">22. INSERT INTO pembayarans &amp; UPDATE pemesanans</text>
+            <text x="1185.0" y="1521" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Set pembayarans.status = &quot;paid&quot;, pemesanans.status_pemesanan = &quot;confirmed&quot;</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="1557" x2="1028" y2="1557" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="1557" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="1561" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">23</text>
+        
+            
+            <text x="1185.0" y="1548" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">23. Transaksi pembayaran tersimpan (Status: Paid)</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="1603" x2="688" y2="1603" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="1603" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="1607" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">24</text>
+        
+            
+            <rect x="510.20000000000005" y="1578" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="541.2" y="1591" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="1594" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">24. 200 OK: Pembayaran berhasil terverifikasi &amp; Tiket Resmi Diterbitkan</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="1649" x2="138" y2="1649" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="1649" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="1653" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">25</text>
+        
+            
+            <text x="405.0" y="1640" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">25. Tampilkan E-Ticket Reservasi, Kursi Resmi, &amp; Kode Tiket Check-in</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="420" y1="1695" x2="672" y2="1695" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="408" cy="1695" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="408" y="1699" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">26</text>
+        
+            
+            <text x="535.0" y="1686" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">26. Buka Dashboard Keuangan Admin (/admin/dashboard?tab=pembayaran)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="1741" x2="1012" y2="1741" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="1741" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="1745" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">27</text>
+        
+            
+            <rect x="674.8" y="1716" width="38" height="18" rx="4" fill="#0284C7"/>
+            <text x="693.8" y="1729" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">GET</text>
+            
+            <text x="850.0" y="1732" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">27. GET /api/pembayarans/analytics</text>
+            <text x="850.0" y="1757" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Ambil agregasi omzet mingguan, rekap transaksi, &amp; log audit</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="1793" x2="1342" y2="1793" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="1793" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="1797" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">28</text>
+        
+            
+            <rect x="876.8" y="1768" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="895.8" y="1781" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="1784" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">28. SELECT SUM(jumlah), status, tanggal FROM pembayarans GROUP BY ...</text>
+            <text x="1185.0" y="1809" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Query agregasi keuangan untuk dashboard monitoring</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="1845" x2="1028" y2="1845" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="1845" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="1849" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">29</text>
+        
+            
+            <text x="1185.0" y="1836" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">29. Return data omzet, total transaksi lunas, &amp; daftar pembayaran</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="1891" x2="688" y2="1891" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="1891" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="1895" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">30</text>
+        
+            
+            <text x="850.0" y="1882" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">30. Tampilkan Chart Analitik Keuangan &amp; Log Transaksi Terverifikasi</text>
+            
+            
+        </g>
+        
+        <g class="divider" transform="translate(80, 1937)">
+            <line x1="0" y1="0" x2="1360" y2="0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <rect x="540.0" y="-13" width="280" height="26" rx="13" fill="#F1F5F9" stroke="#CBD5E1"/>
+            <text x="680.0" y="4" fill="#475569" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Pemesanan Meja Terkonfirmasi (Status: Confirmed)</text>
+        </g>
+        
+        <g class="phase-header" transform="translate(40, 1971)">
+            <rect width="1440" height="56" rx="12" fill="#F0F9FF" stroke="#BAE6FD" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#0284C7"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-05</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 5: Konfirmasi Check-in Kehadiran di Venue Game House</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Pencatatan Timestamp Otomatis Sesuai PP No. 71/2019</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="2051" x2="672" y2="2051" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="2051" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="2055" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">31</text>
+        
+            
+            <text x="405.0" y="2042" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">31. Pemain Tiba di Venue (Alicia Bakery Sedayu City) &amp; Klik &quot;Check-in&quot;</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="2097" x2="1012" y2="2097" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="2097" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="2101" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">32</text>
+        
+            
+            <rect x="659.2" y="2072" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="682.2" y="2085" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="2088" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">32. POST /api/pemesanans/255/checkin</text>
+            <text x="850.0" y="2113" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Kirim token autentikasi &amp; konfirmasi keberadaan di lokasi</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="2149" x2="1342" y2="2149" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="2149" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="2153" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">33</text>
+        
+            
+            <rect x="838.8" y="2124" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="857.8" y="2137" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="2140" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">33. UPDATE detail_pemesanans SET status_kehadiran = &quot;hadir&quot;, updated_at = NOW()</text>
+            <text x="1185.0" y="2165" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Rekam timestamp kehadiran resmi di sistem (PP No. 71/2019)</text>
+            
+            <g transform="translate(1200, 2131)">
+                <rect width="260" height="36" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+                <text x="10" y="22" fill="#92400E" font-size="11" font-weight="600" font-family="sans-serif">ℹ Timestamp ISO 8601</text>
+            </g>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="2201" x2="1028" y2="2201" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="2201" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="2205" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">34</text>
+        
+            
+            <text x="1185.0" y="2192" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">34. Kehadiran tersimpan dengan audit timestamp</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="2247" x2="688" y2="2247" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="2247" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="2251" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">35</text>
+        
+            
+            <rect x="563.4" y="2222" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="594.4" y="2235" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="2238" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">35. 200 OK: Check-in berhasil, badge status &quot;Hadir&quot; aktif</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="2293" x2="138" y2="2293" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="2293" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="2297" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">36</text>
+        
+            
+            <text x="405.0" y="2284" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">36. Tampilkan Status Meja: &quot;Hadir di Meja 01 (Kursi East)&quot;</text>
+            
+            
+        </g>
+        
+        <g class="divider" transform="translate(80, 2339)">
+            <line x1="0" y1="0" x2="1360" y2="0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <rect x="540.0" y="-13" width="280" height="26" rx="13" fill="#F1F5F9" stroke="#CBD5E1"/>
+            <text x="680.0" y="4" fill="#475569" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Pemain Lengkap di Meja (Minimal 2 Atlet) — Siap Memulai Ronde</text>
+        </g>
+        
+        <g class="phase-header" transform="translate(40, 2373)">
+            <rect width="1440" height="56" rx="12" fill="#FFF1F2" stroke="#FECDD3" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#E11D48"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-06/07</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 6 &amp; 7: Pengelolaan Sesi Pertandingan &amp; Desk Wasit Skor HK</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Pengelompokan Slot Meja, Validasi Min. 2 Pemain, &amp; Transaksi Baris Pesimis</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="420" y1="2453" x2="672" y2="2453" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="408" cy="2453" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="408" y="2457" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">37</text>
+        
+            
+            <text x="535.0" y="2444" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">37. Wasit Buka Desk Wasit (/admin/dashboard?tab=skor)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="2499" x2="1012" y2="2499" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="2499" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="2503" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">38</text>
+        
+            
+            <rect x="690.0" y="2474" width="38" height="18" rx="4" fill="#0284C7"/>
+            <text x="709.0" y="2487" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">GET</text>
+            
+            <text x="850.0" y="2490" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">38. GET /api/hk-score/sessions</text>
+            <text x="850.0" y="2515" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Ambil sesi kompetitif &amp; atlet terdaftar per meja</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="2551" x2="1342" y2="2551" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="2551" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="2555" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">39</text>
+        
+            
+            <rect x="876.8" y="2526" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="895.8" y="2539" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="2542" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">39. Query sesi meja aktif &amp; gabungkan booking kompetitif dalam 1 sesi</text>
+            <text x="1185.0" y="2567" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Ambil atlet hadir: East (Kevin), South (Denis), West (Amanda)</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="2603" x2="1028" y2="2603" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="2603" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="2607" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">40</text>
+        
+            
+            <text x="1185.0" y="2594" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">40. Return data meja dengan pemain terdaftar resmi (3 atlet)</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="2649" x2="688" y2="2649" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="2649" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="2653" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">41</text>
+        
+            
+            <rect x="498.79999999999995" y="2624" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="529.8" y="2637" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="2640" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">41. 200 OK: Sesi Meja 01 siap tanding (3/4 kursi terisi, min. 2 terpenuhi)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="420" y1="2695" x2="672" y2="2695" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="408" cy="2695" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="408" y="2699" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">42</text>
+        
+            
+            <text x="535.0" y="2686" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">42. Wasit Mulai Ronde: status sesi berubah ke &quot;ongoing&quot;</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="2741" x2="1012" y2="2741" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="2741" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="2745" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">43</text>
+        
+            
+            <rect x="655.4" y="2716" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="678.4" y="2729" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="2732" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">43. POST /api/sesi-bermains/255/start</text>
+            <text x="850.0" y="2757" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Tandai waktu_mulai sesi pertandingan</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="2793" x2="1342" y2="2793" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="2793" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="2797" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">44</text>
+        
+            
+            <rect x="880.6" y="2768" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="899.6" y="2781" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="2784" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">44. UPDATE sesi_bermains SET status = &quot;ongoing&quot;, waktu_mulai = NOW()</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="2839" x2="1028" y2="2839" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="2839" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="2843" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">45</text>
+        
+            
+            <text x="1185.0" y="2830" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">45. Sesi pertandingan aktif</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="420" y1="2885" x2="672" y2="2885" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="408" cy="2885" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="408" y="2889" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">46</text>
+        
+            
+            <text x="535.0" y="2876" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">46. Ronde Selesai: Wasit pilih Pemenang (East: Kevin), Cara (Zi Mo), Pola (Kembar Tiga 3 Fan)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="2931" x2="1012" y2="2931" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="2931" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="2935" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">47</text>
+        
+            
+            <rect x="697.2" y="2906" width="46" height="18" rx="4" fill="#0284C7"/>
+            <text x="720.2" y="2919" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">POST</text>
+            
+            <text x="850.0" y="2922" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">47. POST /api/hk-score/win</text>
+            <text x="850.0" y="2947" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Payload: { sesi_id: 255, winner_id: 1, method: &quot;zimo&quot;, fans: [&quot;kembar_tiga&quot;], total_fan: 4 }</text>
+            
+        </g>
+        
+        <g class="msg-self">
+            <path d="M 1020 2977 L 1050 2977 L 1050 2999 L 1028 2999" fill="none" stroke="#1E293B" stroke-width="1.8" marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1058" cy="2983" r="11" fill="#0284C7" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1058" y="2987" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">48</text>
+        
+            
+            <rect x="1080" y="2963" width="56" height="16" rx="4" fill="#E11D48"/>
+            <text x="1108" y="2975" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle" font-family="monospace">LOCK</text>
+            
+            <text x="1138" y="2976" fill="#0F172A" font-size="12.5" font-weight="600" font-family="'Plus Jakarta Sans', system-ui, sans-serif">48. DB::beginTransaction() &amp; lockForUpdate()</text>
+            <text x="1080" y="2999" fill="#475569" font-size="11" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Pessimistic row locking pada skor_pemains untuk integritas CIA</text>
+        </g>
+        
+        <g class="msg-self">
+            <path d="M 1020 3027 L 1050 3027 L 1050 3049 L 1028 3049" fill="none" stroke="#1E293B" stroke-width="1.8" marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1058" cy="3033" r="11" fill="#0284C7" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1058" y="3037" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">49</text>
+        
+            
+            <rect x="1080" y="3013" width="56" height="16" rx="4" fill="#059669"/>
+            <text x="1108" y="3025" fill="#FFFFFF" font-size="9.5" font-weight="800" text-anchor="middle" font-family="monospace">MATH</text>
+            
+            <text x="1138" y="3026" fill="#0F172A" font-size="12.5" font-weight="600" font-family="'Plus Jakarta Sans', system-ui, sans-serif">49. Hitung Matriks Payout Hong Kong (+1 Fan Bonus Zi Mo)</text>
+            <text x="1080" y="3049" fill="#475569" font-size="11" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Kalkulasi: East menang Zi Mo 4 Fan -&gt; Terima 16 PTS dari 3 lawan (+48 PTS)</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="3083" x2="1342" y2="3083" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="3083" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="3087" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">50</text>
+        
+            
+            <rect x="838.8" y="3058" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="857.8" y="3071" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="3074" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">50. UPDATE skor_pemains (East: +48, South: -16, West: -16) &amp; INSERT win_records</text>
+            <text x="1185.0" y="3099" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Simpan mutasi skor &amp; log riwayat tangan kemenangan</text>
+            
+            <g transform="translate(1200, 3065)">
+                <rect width="260" height="36" rx="6" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+                <text x="10" y="22" fill="#92400E" font-size="11" font-weight="600" font-family="sans-serif">ℹ Atomic Commit</text>
+            </g>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="3135" x2="1028" y2="3135" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="3135" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="3139" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">51</text>
+        
+            
+            <text x="1185.0" y="3126" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">51. DB::commit(): Mutasi skor berhasil secara atomik</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="3181" x2="688" y2="3181" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="3181" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="3185" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">52</text>
+        
+            
+            <rect x="517.8" y="3156" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="548.8" y="3169" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="3172" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">52. 200 OK: Hasil ronde tersimpan, leaderboard &amp; skor meja diperbarui</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="3227" x2="398" y2="3227" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="3227" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="3231" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">53</text>
+        
+            
+            <text x="535.0" y="3218" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">53. Tampilkan Notifikasi Ronde Selesai &amp; Papan Skor Live Meja</text>
+            
+            
+        </g>
+        
+        <g class="divider" transform="translate(80, 3273)">
+            <line x1="0" y1="0" x2="1360" y2="0" stroke="#E2E8F0" stroke-width="1.5" stroke-dasharray="4,4"/>
+            <rect x="540.0" y="-13" width="280" height="26" rx="13" fill="#F1F5F9" stroke="#CBD5E1"/>
+            <text x="680.0" y="4" fill="#475569" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Ronde Selesai — Poin Otomatis Diagregasi ke Klasemen</text>
+        </g>
+        
+        <g class="phase-header" transform="translate(40, 3307)">
+            <rect width="1440" height="56" rx="12" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="1.5" filter="url(#shadow-sm)"/>
+            <rect x="14" y="13" width="76" height="30" rx="8" fill="#7C3AED"/>
+            <text x="52" y="33" fill="#FFFFFF" font-size="13" font-weight="800" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">RF-08</text>
+            <text x="104" y="33" fill="#0F172A" font-size="16" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Modul 8: Leaderboard Nasional &amp; Riwayat Pertandingan (Game History)</text>
+            <text x="1420" y="33" fill="#475569" font-size="13" font-weight="500" text-anchor="end" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Agregasi Poin Hong Kong Mahjong, Peringkat Atlet, &amp; Statistik Menang</text>
+        </g>
+        
+        <g class="msg-call">
+            <line x1="160" y1="3387" x2="672" y2="3387" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="148" cy="3387" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="148" y="3391" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">54</text>
+        
+            
+            <text x="405.0" y="3378" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">54. Akses Tab Leaderboard (/leaderboard) atau Riwayat Akun (/profile)</text>
+            
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="710" y1="3433" x2="1012" y2="3433" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="698" cy="3433" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="698" y="3437" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">55</text>
+        
+            
+            <rect x="712.8" y="3408" width="38" height="18" rx="4" fill="#0284C7"/>
+            <text x="731.8" y="3421" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">GET</text>
+            
+            <text x="850.0" y="3424" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">55. GET /api/leaderboard</text>
+            <text x="850.0" y="3449" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Request klasemen atlet musim aktif 2025/2026</text>
+            
+        </g>
+        
+        <g class="msg-call">
+            <line x1="1050" y1="3485" x2="1342" y2="3485" stroke="#1E293B" stroke-width="1.8"  marker-end="url(#arrow-call)"/>
+            
+        <circle cx="1038" cy="3485" r="11" fill="#059669" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1038" y="3489" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">56</text>
+        
+            
+            <rect x="835.0" y="3460" width="38" height="18" rx="4" fill="#6366F1"/>
+            <text x="854.0" y="3473" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">SQL</text>
+            
+            <text x="1185.0" y="3476" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">56. Query Agregasi: SUM(skor) AS total_poin, COUNT(*) AS games FROM skor_pemains</text>
+            <text x="1185.0" y="3501" fill="#475569" font-size="11.5" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">GROUP BY player_id ORDER BY total_poin DESC, games ASC</text>
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="1320" y1="3537" x2="1028" y2="3537" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1332" cy="3537" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1332" y="3541" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">57</text>
+        
+            
+            <text x="1185.0" y="3528" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">57. Return tabel klasemen (Kevin Sanjaya #1: +135 PTS, Denis Hendri #2: +8 PTS)</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="990" y1="3583" x2="688" y2="3583" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="1002" cy="3583" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="1002" y="3587" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">58</text>
+        
+            
+            <rect x="506.4000000000001" y="3558" width="62" height="18" rx="4" fill="#059669"/>
+            <text x="537.4000000000001" y="3571" fill="#FFFFFF" font-size="10.5" font-weight="800" text-anchor="middle" font-family="monospace">200 OK</text>
+            
+            <text x="850.0" y="3574" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">58. 200 OK: Data klasemen atlet nasional, tingkat gelar, &amp; histori ronde</text>
+            
+            
+        </g>
+        
+        <g class="msg-response">
+            <line x1="650" y1="3629" x2="138" y2="3629" stroke="#475569" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-response)"/>
+            
+        <circle cx="662" cy="3629" r="11" fill="#64748B" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="662" y="3633" fill="#FFFFFF" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">59</text>
+        
+            
+            <text x="405.0" y="3620" fill="#0F172A" font-size="13" font-weight="600" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif">59. Render Tabel Peringkat Atlet, Gelar (Intermediate), Win Rate, &amp; Log Kemenangan</text>
+            
+            
+        </g>
+        
+            <g class="participant-box" transform="translate(45.0, 3691)">
+                <rect width="170" height="64" rx="10" fill="url(#card-grad)" stroke="#10B981" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#10B981"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">👤</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Pemain (User)</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Role: player • Browser Client</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(305.0, 3691)">
+                <rect width="170" height="64" rx="10" fill="url(#card-grad)" stroke="#F59E0B" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#F59E0B"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">⚖️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Admin / Wasit</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Role: admin • Operator Venue</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(580.0, 3691)">
+                <rect width="200" height="64" rx="10" fill="url(#card-grad)" stroke="#0EA5E9" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#0EA5E9"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">💻</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Frontend UI</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Next.js 16 (TypeScript / React 19)</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(920.0, 3691)">
+                <rect width="200" height="64" rx="10" fill="url(#card-grad)" stroke="#EF4444" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#EF4444"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">⚙️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Backend REST API</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">Laravel 11 MVC &amp; Services</text>
+            </g>
+            
+            <g class="participant-box" transform="translate(1255.0, 3691)">
+                <rect width="190" height="64" rx="10" fill="url(#card-grad)" stroke="#8B5CF6" stroke-width="2" filter="url(#shadow-sm)"/>
+                <rect x="0" y="0" width="8" height="64" rx="4" fill="#8B5CF6"/>
+                <text x="24" y="38" font-size="22" font-family="sans-serif">🗄️</text>
+                <text x="56" y="29" fill="#0F172A" font-size="14" font-weight="700" font-family="'Plus Jakarta Sans', system-ui, sans-serif">Database (MySQL)</text>
+                <text x="56" y="48" fill="#475569" font-size="10.5" font-weight="500" font-family="sans-serif">InnoDB Relational (10 Tabel)</text>
+            </g>
+            
+        <g transform="translate(40, 3777)">
+            <rect width="1440" height="48" rx="8" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+            <text x="20" y="28" fill="#0F172A" font-size="12" font-weight="700" font-family="sans-serif">LEGENDA UML 2.0:</text>
+            
+            <line x1="140" y1="24" x2="190" y2="24" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow-call)"/>
+            <text x="200" y="28" fill="#475569" font-size="11.5" font-family="sans-serif">Synchronous Request (HTTP / Service Call)</text>
+            
+            <line x1="470" y1="24" x2="520" y2="24" stroke="#475569" stroke-width="1.8" stroke-dasharray="4,4" marker-end="url(#arrow-response)"/>
+            <text x="530" y="28" fill="#475569" font-size="11.5" font-family="sans-serif">Return Response (JSON / DB Result)</text>
+            
+            <rect x="790" y="14" width="20" height="20" rx="4" fill="#FEF3C7" stroke="#F59E0B"/>
+            <text x="820" y="28" fill="#475569" font-size="11.5" font-family="sans-serif">Kepatuhan Regulasi: UU PDP No. 27/2022 &amp; PP No. 71/2019 (Audit Timestamp Kehadiran &amp; Skor)</text>
+        </g>
+        </svg>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pembayaran;
 use App\Models\Pemesanan;
+use App\Services\FinancialReportService;
 use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,22 +18,54 @@ class PembayaranController extends Controller
     /**
      * Daftar pembayaran (monitoring untuk admin, atau histori untuk pemain).
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, FinancialReportService $financialService): JsonResponse
     {
         $user = $request->user();
 
-        $query = Pembayaran::with(['pemesanan.player.user', 'pemesanan.meja.venue'])->latest();
+        if ($user && $user->role === 'player') {
+            $query = Pembayaran::with(['pemesanan.player.user', 'pemesanan.meja.venue'])
+                ->whereHas('pemesanan.player', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->latest();
 
-        if ($user->role === 'player') {
-            $query->whereHas('pemesanan.player', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
+            return response()->json([
+                'success' => true,
+                'message' => 'Histori pembayaran berhasil diambil',
+                'data' => $query->paginate(20),
+            ]);
         }
+
+        // Untuk Admin: gunakan FinancialReportService untuk pencarian & filter lengkap
+        $filters = $request->only(['status', 'search', 'start_date', 'end_date', 'metode', 'player_id', 'per_page']);
+        $paginator = $financialService->getFilteredTransactions($filters);
 
         return response()->json([
             'success' => true,
             'message' => 'Daftar transaksi pembayaran berhasil diambil',
-            'data' => $query->paginate(20),
+            'data' => $paginator,
+        ]);
+    }
+
+    /**
+     * Statistik & Analitik Keuangan MahjongYuks (Omset, Grafik Periode, Returning Customers).
+     */
+    public function financialStats(Request $request, FinancialReportService $financialService): JsonResponse
+    {
+        $period = (string) $request->query('period', 'daily');
+        if (!in_array($period, ['daily', 'weekly', 'monthly'], true)) {
+            $period = 'daily';
+        }
+
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $summary = $financialService->getFinancialSummary($period, $startDate, $endDate);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Statistik keuangan dan data grafik berhasil diambil',
+            'data' => $summary,
         ]);
     }
 

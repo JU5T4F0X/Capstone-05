@@ -241,7 +241,6 @@ function EventsListContent() {
     if (eventOnlyList.length === 0) return null;
 
     let activeCount = 0;
-    let tournamentCount = 0;
     let nearestDate: string | null = null;
     let nearestName: string | null = null;
 
@@ -251,15 +250,6 @@ function EventsListContent() {
     eventOnlyList.forEach((ev) => {
       const status = computeEventStatus(ev);
       if (status.type === 'active') activeCount++;
-
-      const isTournament =
-        (ev.kategori && ev.kategori.toLowerCase().includes('resmi')) ||
-        (ev.kategori && ev.kategori.toLowerCase().includes('turnamen')) ||
-        ev.nama_event.toLowerCase().includes('open') ||
-        ev.nama_event.toLowerCase().includes('master') ||
-        ev.nama_event.toLowerCase().includes('championship');
-
-      if (isTournament) tournamentCount++;
 
       if (ev.tanggal_event) {
         const eventTime = new Date(ev.tanggal_event).getTime();
@@ -274,7 +264,7 @@ function EventsListContent() {
 
     return {
       activeCount,
-      tournamentCount,
+      totalCount: eventOnlyList.length,
       nearestDate: nearestDate || 'Segera Diumumkan',
       nearestName: nearestName || '',
     };
@@ -385,7 +375,7 @@ function EventsListContent() {
               </Link>
               <ChevronRight size={13} color="rgba(255, 255, 255, 0.4)" />
               <span style={{ color: '#FAF8F5', fontSize: '12px', fontWeight: 600 }}>
-                Daftar Event &amp; Turnamen
+                Katalog Event &amp; Komunitas
               </span>
             </div>
 
@@ -431,7 +421,7 @@ function EventsListContent() {
                   lineHeight: 1.25,
                 }}
               >
-                Turnamen &amp; Event Hong Kong Mahjong
+                Event &amp; Komunitas Mahjong
               </h1>
               <p
                 style={{
@@ -441,7 +431,7 @@ function EventsListContent() {
                   lineHeight: 1.6,
                 }}
               >
-                Jelajahi turnamen resmi berstandar Hong Kong Mahjong Style (HKOS), sesi santai komunitas, dan pertandingan persahabatan bersama komunitas.
+                Jelajahi agenda event komunitas, sesi santai, hingga pertandingan persahabatan bersama komunitas MahjongYuks.
               </p>
             </div>
 
@@ -484,7 +474,7 @@ function EventsListContent() {
                   </div>
                 </div>
 
-                {/* Kartu 2: Turnamen Resmi */}
+                {/* Kartu 2: Agenda Event */}
                 <div
                   style={{
                     backgroundColor: 'rgba(13, 31, 23, 0.85)',
@@ -501,15 +491,15 @@ function EventsListContent() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '6px' }}>
                     <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#86EFAC', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Turnamen Resmi
+                      Agenda Event
                     </span>
-                    <Trophy size={14} color="#86EFAC" />
+                    <Sparkles size={14} color="#86EFAC" />
                   </div>
                   <div style={{ fontSize: '22px', fontWeight: 900, color: '#FAF8F5', lineHeight: 1.1 }}>
-                    {heroSummary.tournamentCount} <span style={{ fontSize: '12px', fontWeight: 600, color: '#8DA79B' }}>Event</span>
+                    {heroSummary.totalCount} <span style={{ fontSize: '12px', fontWeight: 600, color: '#8DA79B' }}>Event</span>
                   </div>
                   <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px' }}>
-                    Standar WRC
+                    Komunitas Aktif
                   </div>
                 </div>
 
@@ -665,7 +655,7 @@ function EventsListContent() {
                 <Search size={18} className="ev-search-icon" />
                 <input
                   type="text"
-                  placeholder="Cari judul event, turnamen, atau lokasi..."
+                  placeholder="Cari nama event, venue, atau tema komunitas..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="ev-search-input"
@@ -766,15 +756,13 @@ function EventsListContent() {
                   const percentFilled = Math.min(100, Math.round((filledQuota / maxQuota) * 100));
 
                   // Kategori class
-                  const isCompetitive =
-                    event.kategori?.toLowerCase().includes('resmi') ||
-                    event.kategori?.toLowerCase().includes('kompetitif');
                   const isCasual = event.kategori?.toLowerCase().includes('santai');
-                  const badgeCategoryClass = isCompetitive
-                    ? 'ev-badge-competitive'
-                    : isCasual
+                  const isWorkshop = event.kategori?.toLowerCase().includes('workshop') || event.kategori?.toLowerCase().includes('taktik');
+                  const badgeCategoryClass = isCasual
                     ? 'ev-badge-casual'
-                    : 'ev-badge-workshop';
+                    : isWorkshop
+                    ? 'ev-badge-workshop'
+                    : 'ev-badge-competitive';
 
                   // Price
                   const formattedPrice = formatEventPrice(event.biaya);
@@ -819,7 +807,9 @@ function EventsListContent() {
 
                         {/* Badge Kategori */}
                         <span className={`ev-badge-category ${badgeCategoryClass}`}>
-                          {event.kategori || 'Turnamen Resmi'}
+                          {event.kategori && !event.kategori.toLowerCase().includes('turnamen resmi')
+                            ? event.kategori
+                            : 'Event'}
                         </span>
 
                         {/* Badge Status Dinamis */}
